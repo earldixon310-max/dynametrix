@@ -1,0 +1,8 @@
+observed_at,commitment_probability,expected_lead_hours,event_type_calibrated,confidence,lifecycle_state
+2026-04-26T00:00:00+00:00,0.12,,,0.42,quiet
+2026-04-26T03:00:00+00:00,0.31,18.0,pre_commitment,0.58,organizing
+2026-04-26T06:00:00+00:00,0.58,12.0,pre_commitment,0.71,pre_commitment
+2026-04-26T09:00:00+00:00,0.81,6.5,commitment,0.84,committed
+2026-04-26T12:00:00+00:00,0.74,3.0,commitment,0.79,committed
+2026-04-26T15:00:00+00:00,0.41,,reconfiguration,0.62,reconfiguring
+2026-04-26T18:00:00+00:00,0.18,,decay,0.55,decaying
