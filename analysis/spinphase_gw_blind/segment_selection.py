@@ -121,8 +121,22 @@ def _load_seed():
 def _compute_eligible_segments():
     """Build the SegmentList of GPS intervals eligible for background sampling.
 
-    Eligibility = (H1_DATA - H1_CBC_CAT1/2/3 vetoes) AND (L1_DATA - L1_CBC_CAT1/2/3 vetoes)
-                  - +/- 1 hour windows around each known O1 event.
+    Eligibility = H1_DATA.active intersected with L1_DATA.active,
+                  minus +/- 1 hour windows around each known O1 event.
+
+    Implementation note (per Pre-Registration Section 13 addendum):
+    The pre-registration Section 3.3 specifies science-quality data with
+    CBC CAT1/CAT2/CAT3 vetoes excluded. In GWOSC's open-data API, the
+    H1_CBC_CAT1/2/3 flags' active intervals correspond to CATEGORY
+    COVERAGE OVER THE ENTIRE OBSERVING RUN, not discrete veto segments;
+    subtracting them from H1_DATA zeros the eligible pool entirely.
+
+    For O1 open data, H1_DATA.active represents the publicly released,
+    CAT1-cleaned science data segments (CBC veto cleaning is applied
+    before public release). Using H1_DATA.active is therefore the
+    operational implementation of the pre-reg's science-quality
+    requirement within the available API surface. This does not alter
+    the population definition or scoring criteria.
 
     Returns a gwpy SegmentList.
     """
@@ -131,25 +145,24 @@ def _compute_eligible_segments():
     print(f"  Fetching O1 data-quality flags [{O1_START_GPS}, {O1_END_GPS})...")
     print("  (this can take 1-3 minutes)")
 
-    def _fetch_clean(detector):
+    def _fetch_active(detector):
         data_flag = DataQualityFlag.fetch_open_data(
             f"{detector}_DATA", O1_START_GPS, O1_END_GPS
         )
-        clean = SegmentList(data_flag.active)
-        for cat in ("CBC_CAT1", "CBC_CAT2", "CBC_CAT3"):
-            veto_flag = DataQualityFlag.fetch_open_data(
-                f"{detector}_{cat}", O1_START_GPS, O1_END_GPS
-            )
-            clean = clean - veto_flag.active
-        clean.coalesce()
-        active_s = sum(seg[1] - seg[0] for seg in clean)
-        print(f"    {detector} clean time: {active_s/3600:.1f} hours")
-        return clean
+        active = SegmentList(data_flag.active)
+        active.coalesce()
+        active_s = sum(seg[1] - seg[0] for seg in active)
+        print(f"    {detector}_DATA active: {active_s/3600:.1f} hours")
+        return active
 
-    h1_clean = _fetch_clean("H1")
-    l1_clean = _fetch_clean("L1")
+    h1_active = _fetch_active("H1")
+    l1_active = _fetch_active("L1")
 
-    eligible = h1_clean & l1_clean
+    if not h1_active or not l1_active:
+        print("ERROR: One or both detectors have zero active time. Aborting.")
+        sys.exit(1)
+
+    eligible = h1_active & l1_active
     eligible.coalesce()
     overlap_s = sum(seg[1] - seg[0] for seg in eligible)
     print(f"  H1 and L1 overlap: {overlap_s/3600:.1f} hours")

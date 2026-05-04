@@ -260,4 +260,16 @@ The post-event audit informed the design of this blind test but does not constit
 
 ---
 
+## 13. Lock and Provenance
+
+This document was written on the lock date listed above and reflects the system state at that date. The corresponding code state can be reconstructed from:
+
+- `backend/app/services/engine_service.py` — formula and pipeline implementation
+- `backend/tools/hourly_weather_nj_2026_01_22_26_enriched.csv` — input dataset
+- `backend/tools/train_weather_commitment_calibrator.py` — currently a stub; weights are hardcoded in `engine_service.py`, not loaded from a trained artifact
+
+Together these define `calibrator-v1.0` as the registered model.
+
+---
+
 *End of Pre-Registration v1 — SpinPhase GW150914 Blind Detection Test.*
