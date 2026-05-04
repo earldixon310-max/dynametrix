@@ -395,8 +395,8 @@ This section confirms that the v3 implementation matches the design specified in
     The cost of this choice is calendar time: at six locations producing one prediction per hour, the v3 verification population reaches ~100 closed-window predictions per location at roughly 4–5 days of runtime. The first verification claim against v3 is therefore not expected before approximately 2026-05-18, after the primary 0–48 hour windows for the earliest v3 predictions have closed.
 
   ##  16.4 Provenance
-    ItemReferencev3 design documentdocs/PRE_REGISTRATION_v3.md (this file)v3 feature builderbackend/app/services/feature_builder_v3.pyv3 pipeline integrationbackend/app/services/engine_service.pyv3 model version registrationModelVersion row, name calibrator-v3.0v3 default model flagset on registration dateEnd-to-end verificationAll six locations producing valid v3.0-tagged CalibratedOutput rowsImplementation lock commit(insert git commit hash here after committing this section)
-    
+    ItemReferencev3 design documentdocs/PRE_REGISTRATION_v3.md (this file)v3 feature builderbackend/app/services/feature_builder_v3.pyv3 pipeline integrationbackend/app/services/engine_service.pyv3 model version registrationModelVersion row, name calibrator-v3.0v3 default model flagset on registration dateEnd-to-end verificationAll six locations producing valid v3.0-tagged CalibratedOutput rowsImplementation lock commit(e811ddacbc3ceeca91a281f211be46f3d0da66ce)
+
   ##  16.5 Lock Statement
     The v3 implementation is locked as of the commit referenced in Section 16.4 above. Any subsequent change to the v3 feature builder, the v3 input variable list, the v3 commitment formula, the v3 clip bounds, the v3 lifecycle thresholds, or the v3 verification methodology constitutes a different model version (v3.1, v3.2, etc.) and requires its own pre-registration document.
     The v3 verification result, when produced, will be reported in a separate locked result document (docs/RESULT_v3_<date>.md) following the same discipline as RESULT_v3a_2026-05-04.md.
