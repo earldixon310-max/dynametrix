@@ -373,4 +373,34 @@ When v3 implementation is complete, an implementation lock will be added as Sect
 
 ---
 
+## Section 16 — Implementation Lock
+This section confirms that the v3 implementation matches the design specified in Sections 1–15 of this pre-registration, and locks the implementation to the methodology before any v3 prediction is verified.
+
+  ##  16.1 Implementation Confirmation
+    The v3 framework was implemented per Section 7.4 (feature derivations) verbatim. Specifically:
+
+    backend/app/services/feature_builder_v3.py implements build_enriched_features_v3(df) and the v3 _compute_ct_v3(df, eps) helper. Each derived feature (storm_intensity_score, storm_transition_score, phase_transition_score, phase_prob_entropy, ci_confidence, stability, reliability) is computed from the locked formulas in Section 7.4 with no deviation.
+    backend/app/services/engine_service.py was modified to import build_enriched_features_v3 (replacing the v1/v2 build_enriched_features) and to assemble the input DataFrame with the v3 atmospheric columns: cape, temperature_2m, dewpoint_2m, pressure_msl, wind_speed_10m, wind_speed_80m, wind_speed_180m, precipitation. The v1 feature builder is preserved unmodified for historical reproducibility of v1 and v2 results.
+    A ModelVersion row was registered in the database with name calibrator-v3.0 and is now the default model version emitted by the pipeline. v2 predictions remain in the database tagged with calibrator-v2.0; v3 predictions are tagged with calibrator-v3.0. Verification queries can disambiguate by model_version_id.
+
+  ##  16.2 End-to-End Verification
+    The v3 pipeline was executed end-to-end via run_pipeline_all_locations_task after implementation lock. All six registered locations (Atco NJ, Birmingham AL, Dallas TX, Memphis TN, Newark HQ, Norman OK) produced CalibratedOutput rows tagged calibrator-v3.0 with commitment_probability values within the documented [0.05, 0.95] clip range. Lifecycle classification fired without error. No exceptions raised in worker logs.
+
+  ##  16.3 Held-Out Integrity (Option A — Forward-Only Accumulation)
+    The v3 pre-registration commits to forward-only accumulation for the verification population. v3 will not be back-scored against the historical atmospheric_observations rows that overlap v2's evaluation window. Reasoning:
+
+    v2's verification result (locked under PRE_REGISTRATION_v2.md) and v3a's sub-test result (locked under RESULT_v3a_2026-05-04.md) were observed before v3's design was finalized. Backfilling v3 across that same window would contaminate the held-out evaluation: any tuning decision implicit in the v3 design, however slight, would have been informed by knowledge of v2's failure mode and the spatial structure that v3a explored.
+    Forward-only accumulation preserves the property that v3's verification population is causally posterior to its design lock.
+
+    The cost of this choice is calendar time: at six locations producing one prediction per hour, the v3 verification population reaches ~100 closed-window predictions per location at roughly 4–5 days of runtime. The first verification claim against v3 is therefore not expected before approximately 2026-05-18, after the primary 0–48 hour windows for the earliest v3 predictions have closed.
+
+  ##  16.4 Provenance
+    ItemReferencev3 design documentdocs/PRE_REGISTRATION_v3.md (this file)v3 feature builderbackend/app/services/feature_builder_v3.pyv3 pipeline integrationbackend/app/services/engine_service.pyv3 model version registrationModelVersion row, name calibrator-v3.0v3 default model flagset on registration dateEnd-to-end verificationAll six locations producing valid v3.0-tagged CalibratedOutput rowsImplementation lock commit(insert git commit hash here after committing this section)
+    
+  ##  16.5 Lock Statement
+    The v3 implementation is locked as of the commit referenced in Section 16.4 above. Any subsequent change to the v3 feature builder, the v3 input variable list, the v3 commitment formula, the v3 clip bounds, the v3 lifecycle thresholds, or the v3 verification methodology constitutes a different model version (v3.1, v3.2, etc.) and requires its own pre-registration document.
+    The v3 verification result, when produced, will be reported in a separate locked result document (docs/RESULT_v3_<date>.md) following the same discipline as RESULT_v3a_2026-05-04.md.
+
+    End of Section 16 — Implementation Lock.
+
 *End of Pre-Registration v3 (DESIGN).*
