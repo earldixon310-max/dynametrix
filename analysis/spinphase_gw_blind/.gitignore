@@ -1,0 +1,12 @@
+# Sealed key - must NOT be committed; held in escrow during scoring
+sealed_key.csv
+
+# Conda/venv artifacts
+.venv/
+
+# Python compile cache
+__pycache__/
+
+# Strain cache (gwpy downloads)
+*.gwf
+*.hdf5
