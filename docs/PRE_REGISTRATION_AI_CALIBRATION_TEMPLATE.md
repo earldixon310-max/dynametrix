@@ -213,7 +213,9 @@ The auditor runs the frozen analysis script once. All predictions are computed, 
 
 ### 9.3 Result reporting
 
-The locked result document is drafted by the auditor and shared with the customer. The customer reviews the document for confidentiality redactions only — not for content. The customer may request that specific examples or non-aggregate data be redacted from the public version of the result document; the customer may not request that the outcome classification, primary metrics, or methodology summary be revised.
+The locked result document follows the canonical structure documented in `docs/RESULT_TEMPLATE.md`, comprising eleven sections in a fixed order: header metadata, summary, outcome under pre-registered decision criteria, result detail, diagnostic reading, optional cross-test comparison, what the test does and does not falsify, optional implications for users, optional implementation observations, lock and provenance, and end-of-document signature.
+
+The locked result document is drafted by the auditor and shared with the customer. The customer reviews the document for confidentiality redactions only — not for content. The customer may request that specific examples or non-aggregate data be redacted from the public version of the result document; the customer may not request that the outcome classification, primary metrics, or methodology summary be revised. Structural and methodological elements specified by `docs/RESULT_TEMPLATE.md` are not subject to customer revision.
 
 ### 9.4 Disclosure of failure
 
