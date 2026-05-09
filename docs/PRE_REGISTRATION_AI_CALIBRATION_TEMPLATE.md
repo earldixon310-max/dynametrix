@@ -13,7 +13,7 @@
 **Lock date:** [AUDITOR FILLS: ISO date]
 **Customer:** [CUSTOMER FILLS: organization name, team, primary contact]
 **Auditor:** [AUDITOR FILLS: auditing party, primary contact]
-**Status:** Locked. Any change to the items below constitutes a methodology version bump and requires a new pre-registration document.
+**Status:** Draft pending lock commit. After the methodology, parameters, and analysis code are committed to git in a single lock commit, this line is amended to read `Status: Locked at commit <hash>`. Any change to the items below after lock constitutes a methodology version bump and requires a new pre-registration document.
 
 ---
 
@@ -175,6 +175,24 @@ Registering this test makes none of the following claims:
 - That a "calibrated" outcome on this test implies regulatory approval, audit clearance, or compliance with any specific regulatory framework. Customers and downstream parties make those determinations independently.
 
 A "calibrated" outcome means and only means: under the test data and decision criteria locked above, the model's predicted probabilities matched observed frequencies within the registered tolerances.
+
+---
+
+## 8.1 Public-Audit Attestation (applies when audit is on a publicly available model)
+
+[USE THIS SECTION ONLY FOR PUBLIC-MODEL DEMONSTRATION AUDITS. REMOVE FOR COMMERCIAL CUSTOMER ENGAGEMENTS.]
+
+This audit is conducted on a publicly licensed model and publicly licensed test data. No commercial relationship exists between the auditor and the model authors. The audit is published under the principle that independent third-party evaluation of public AI systems is legitimate research, consistent with established practice across the AI evaluation field (e.g., MLPerf benchmarks, the Stanford HAI Index, the Algorithmic Justice League, HuggingFace Open LLM Leaderboard, and routine academic publication of model evaluations).
+
+Findings in the result document are framed as factual measurements under the registered protocol. They are not framed as judgments of the model's authors, the model's commercial fitness, or the model's suitability for any specific deployment context. The methodology and the result document are released so that any third party may inspect, reproduce, and critique the findings.
+
+The model authors will be notified of publication via [model card discussion thread / direct email / HuggingFace Hub message] following result document commit, as a courtesy and not as a precondition. Author response, if any, may be published as an addendum to the result document. The methodology lock is not affected by author response.
+
+The auditor asserts:
+
+- The model used is the publicly available version at the pinned revision recorded in Section 2.1, retrieved from the public source identified in Section 2.1, under the license terms documented on the model's public-facing model card.
+- The test data used is the publicly available version at the SHA-256 hash recorded in Section 3.1, retrieved from the public source identified in Section 3.1, under the dataset's published license.
+- No proprietary or confidential information about the model's training, internal architecture, or non-public weights is used in the audit. The audit is conducted entirely from publicly available artifacts.
 
 ---
 
