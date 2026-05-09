@@ -4,7 +4,7 @@
 **Lock date:** 2026-05-06
 **Customer:** Earl Dixon (self-audit for public demonstration purposes; no commercial relationship)
 **Auditor:** Earl Dixon
-**Status:** Draft pending lock commit. After the methodology, parameters, and analysis code are committed to git in a single lock commit, this line is amended to read `Status: Locked at commit <hash>`. Any change to the items below after lock constitutes a methodology version bump and requires a new pre-registration document.
+**Status:** Locked at commit `1cca21373220da912974b0d62b3d40b7a8b6d11e`. Any change to the items below constitutes a methodology version bump and requires a new pre-registration document.
 
 > **Engagement type:** Public demonstration audit. The customer and auditor roles are filled by the same party for the purpose of demonstrating the calibration verification methodology end-to-end on a publicly accessible toxicity-detection model. The result is published as a case study irrespective of outcome. No commercial relationship, no confidentiality redactions, full transparency end-to-end.
 
