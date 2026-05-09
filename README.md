@@ -17,8 +17,9 @@ The repository functions as a working artifact: anyone may clone it, check out a
 | `spinphase-gw-blind-v1` | Gravitational-wave detection (GW150914 blind ranking) | [docs/PRE_REGISTRATION_GW_v1.md](docs/PRE_REGISTRATION_GW_v1.md) | [docs/RESULT_GW_v1_2026-05-04.md](docs/RESULT_GW_v1_2026-05-04.md) | R = 52 of 100; no detection capability under this test |
 | `spinphase-gw-quietwell-v1` | Gravitational-wave detection (within-segment differential) | [docs/PRE_REGISTRATION_GW_QUIETWELL_v1.md](docs/PRE_REGISTRATION_GW_QUIETWELL_v1.md) | [docs/RESULT_GW_QUIETWELL_v1_2026-05-04.md](docs/RESULT_GW_QUIETWELL_v1_2026-05-04.md) | R_D = 50 of 100; no local emergence under this test |
 | `distilbert-sst2-calibration-v1` | AI/ML model calibration (DistilBERT SST-2) | [case_studies/distilbert_sst2/PRE_REGISTRATION_DISTILBERT_SST2_v1.md](case_studies/distilbert_sst2/PRE_REGISTRATION_DISTILBERT_SST2_v1.md) | [docs/RESULT_DISTILBERT_SST2_v1_2026-05-06.md](docs/RESULT_DISTILBERT_SST2_v1_2026-05-06.md) | Not calibrated; bimodal overconfidence at the extremes |
+| `toxic-bert-calibration-v1` | AI/ML model calibration (Unitary Toxic-BERT, Civil Comments) | [case_studies/toxic_bert/PRE_REGISTRATION_TOXIC_BERT_v1.md](case_studies/toxic_bert/PRE_REGISTRATION_TOXIC_BERT_v1.md) | [docs/RESULT_TOXIC_BERT_v1_2026-05-06.md](docs/RESULT_TOXIC_BERT_v1_2026-05-06.md) | Calibration drift detected; structured overconfidence in middle-to-high probability range |
 
-Six evaluations executed under the protocol; six locked outcomes; one further evaluation accumulating data for future verification. Every result document is bound at the commit recorded in its provenance section and is not subject to revision after lock.
+Seven evaluations executed under the protocol; seven locked outcomes; one further evaluation accumulating data for future verification. Every result document is bound at the commit recorded in its provenance section and is not subject to revision after lock.
 
 ---
 
@@ -29,9 +30,9 @@ Every evaluation in this repository is conducted under the following protocol:
 1. **Pre-registration.** A document specifies the model or system under test, the data, the pipeline, the metrics, the decision criteria, and the conditions under which each possible outcome would be recorded. The document is signed and committed to git before any prediction or score is computed.
 2. **Cryptographic lock.** The pre-registration, the analysis code, and (where applicable) the test data are committed to git in a single lock commit. SHA-256 hashes are computed for any held-out artifacts (sealed keys, blinded populations) and committed alongside the methodology so that post-hoc tampering is detectable. The lock commit hash is recorded in the result document.
 3. **Frozen execution.** The analysis code is not modified between the lock commit and the recording of all outputs. Hashes are verified at runtime; the script refuses to execute against modified data. Re-runs for reproducibility are permitted; revisions to outputs are not.
-4. **Publication of outcome.** The result document records the outcome under the pre-registered classification, including the cases where the outcome is unfavorable to the system being evaluated. Result documents are bound at commit time and may not be revised.
+4. **Publication of outcome.** The result document records the outcome under the pre-registered classification, including the cases where the outcome is unfavorable to the system being evaluated. Result documents are bound at commit time and may not be revised. The canonical structure of result documents is documented in [docs/RESULT_TEMPLATE.md](docs/RESULT_TEMPLATE.md); the canonical structure of pre-registrations for AI/ML calibration audits is documented in [docs/PRE_REGISTRATION_AI_CALIBRATION_TEMPLATE.md](docs/PRE_REGISTRATION_AI_CALIBRATION_TEMPLATE.md).
 
-The protocol is portable across domains: the seven evaluations on record include severe weather forecasting verification against ground-truth storm reports, gravitational-wave detection on LIGO open data, and probabilistic model calibration on a public natural-language classifier. The same discipline applies in each case.
+The protocol is portable across domains: the eight evaluations on record include severe weather forecasting verification against ground-truth storm reports, gravitational-wave detection on LIGO open data, and probabilistic model calibration on public natural-language classifiers. The same discipline applies in each case.
 
 ---
 
@@ -72,7 +73,7 @@ The methodology is offered as an independent service for organizations that have
 
 A first engagement is typically scoped to one model, one specific claim, and a held-out test dataset, with a 2–4 week timeline from agreement to delivery. Engagement details and pricing for a pilot are available on request.
 
-To inquire: [earl_dixon@hsagconsortium.com]
+To inquire: [contact@yourdomain — replace with your actual contact link]
 
 ---
 
