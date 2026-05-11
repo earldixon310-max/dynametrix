@@ -188,3 +188,229 @@ def ingest_storm_reports_daily_task(lookback_days: int = 3) -> dict:
         db.close()
 
     return {"ok": True, "summaries": summaries}
+
+@celery_app.task(name="dynametrix.atmospheric.ingest_all_locations")
+def ingest_atmospheric_all_locations_task(
+    past_days: int = 4,
+    forecast_days: int = 1,
+) -> dict:
+    """Hourly atmospheric ingestion for every monitored location.
+
+    Pulls Open-Meteo data for the past `past_days` and next `forecast_days`
+    for each location, upserting into atmospheric_observations. The v3
+    pipeline depends on this data being recent — without it,
+    run_pipeline_all_locations_task finds insufficient atmospheric history
+    and produces no predictions.
+
+    Default past_days=4 ensures the pipeline's 96-hour history window is
+    always covered.
+
+    Idempotent: the (location_id, observed_at, source) unique constraint
+    on atmospheric_observations ensures duplicate inserts are skipped.
+
+    Triggered hourly by Celery Beat at minute :00, 5 minutes before the
+    pipeline run at minute :05.
+    """
+    from app.services.atmospheric_ingestion import ingest_for_all_locations
+    db = SessionLocal()
+    try:
+        summaries = ingest_for_all_locations(
+            db,
+            past_days=past_days,
+            forecast_days=forecast_days,
+        )
+        log.info("atmospheric.ingest.completed", n_locations=len(summaries))
+        return {"ok": True, "summaries": summaries}
+    except Exception as exc:
+        log.exception("atmospheric.ingest.failed")
+        return {"ok": False, "error": str(exc)}
+    finally:
+        db.close()
+
+@celery_app.task(name="dynametrix.pipeline.run_all_locations")
+def run_pipeline_all_locations_task() -> dict:
+    """Hourly v2 pipeline run for every location in the database.
+
+    Calls run_pipeline_task for each location, threading the customer_id
+    from the location's owner. Triggered_by_user_id is null because this
+    is a system-initiated run.
+
+    This is what populates the verification record passively. Without
+    this scheduled task, predictions only accumulate when users
+    manually refresh the dashboard.
+    """
+    from app.db.models import Location
+
+    db = SessionLocal()
+    summaries: list[dict] = []
+    try:
+        locations = list(db.scalars(select(Location)))
+
+        for loc in locations:
+            try:
+                result = run_pipeline_task(
+                    customer_id=str(loc.customer_id),
+                    location_id=str(loc.id),
+                    triggered_by_user_id=None,
+                )
+                summaries.append({
+                    "location_id": str(loc.id),
+                    "label": loc.label,
+                    "result": result,
+                })
+            except Exception as exc:
+                log.exception(
+                    "scheduled.pipeline.failed",
+                    location_id=str(loc.id),
+                    label=loc.label,
+                )
+                summaries.append({
+                    "location_id": str(loc.id),
+                    "label": loc.label,
+                    "error": str(exc),
+                })
+    finally:
+        db.close()
+
+    return {"ok": True, "summaries": summaries}
+
+@celery_app.task(name="dynametrix.verification.backfill_outcomes_daily")
+def backfill_verification_outcomes_daily(
+    decision_threshold: float = 0.5,
+    search_radius_km: float = 50.0,
+    default_window_hours: float = 24.0,
+) -> dict:
+    """Daily verification backfill — score every prediction whose
+    lead-time window has closed against ingested ground-truth events.
+
+    Runs after the daily storm-reports ingestion so the freshest
+    ground truth is in place before evaluation. Idempotent thanks to
+    the (calibrated_output_id, decision_threshold) unique constraint
+    on verification_outcomes.
+    """
+    from app.services.verification_engine import backfill_verification_outcomes
+
+    db = SessionLocal()
+    try:
+        summary = backfill_verification_outcomes(
+            db,
+            decision_threshold=decision_threshold,
+            search_radius_km=search_radius_km,
+            default_window_hours=default_window_hours,
+        )
+        log.info("verification.backfill.completed", summary=summary)
+        return {"ok": True, "summary": summary}
+    except Exception as exc:
+        log.exception("verification.backfill.failed")
+        return {"ok": False, "error": str(exc)}
+    finally:
+        db.close()
+
+@celery_app.task(name="dynametrix.pipeline.backfill_history")
+def backfill_pipeline_history_task(
+    hours_back: int = 168,
+    step_hours: int = 1,
+) -> dict:
+    """Generate historical v2 predictions for every location.
+
+    For each location, iterates from `hours_back` ago to now in
+    `step_hours` increments, calling the pipeline at each historical
+    target_time. Each call generates one CalibratedOutput row tagged
+    at that historical moment.
+
+    No alerts are dispatched (this is retrospective). The CalibratedOutput
+    rows are tagged with the current default ModelVersion, which (after
+    the v2.0 ModelVersion swap) is calibrator-v2.0.
+
+    Use this to populate the verification record with v2-tagged
+    historical predictions immediately, rather than waiting weeks for
+    the live hourly schedule to accumulate.
+    """
+    from pathlib import Path
+    from app.db.models import Location, ModelVersion, PipelineRun, PipelineRunStatus
+    from app.core.config import get_settings
+    settings_local = get_settings()
+
+    db = SessionLocal()
+    summaries: list[dict] = []
+    try:
+        locations = list(db.scalars(select(Location)))
+        mv = db.scalar(select(ModelVersion).where(ModelVersion.is_default.is_(True)))
+        if not mv:
+            return {"ok": False, "error": "no default model version found"}
+
+        now_utc = datetime.now(timezone.utc)
+
+        for loc in locations:
+            location_summary = {
+                "location_id": str(loc.id),
+                "label": loc.label,
+                "predictions_created": 0,
+                "skipped_no_history": 0,
+                "errors": 0,
+            }
+
+            # Iterate from oldest to newest historical hour.
+            for offset in range(hours_back, 0, -step_hours):
+                target_time = now_utc - timedelta(hours=offset)
+
+                try:
+                    run = PipelineRun(
+                        customer_id=loc.customer_id,
+                        location_id=loc.id,
+                        triggered_by_user_id=None,
+                        model_version_id=mv.id,
+                        status=PipelineRunStatus.RUNNING,
+                        started_at=now_utc,
+                    )
+                    db.add(run)
+                    db.flush()
+
+                    out_path = Path(settings_local.REPORTS_LOCAL_DIR) / "pipeline" / f"{run.id}.csv"
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+                    rows_written = ENGINE.run_pipeline(
+                        db=db,
+                        location_id=loc.id,
+                        output_csv=str(out_path),
+                        target_time=target_time,
+                    )
+
+                    if rows_written == 0:
+                        run.status = PipelineRunStatus.SUCCEEDED
+                        run.finished_at = datetime.now(timezone.utc)
+                        run.rows_processed = 0
+                        location_summary["skipped_no_history"] += 1
+                    else:
+                        calibrated_rows = ENGINE.load_calibrated_outputs(str(out_path))
+                        inserted = _persist_calibrated(
+                            db,
+                            customer_id=loc.customer_id,
+                            location=loc,
+                            model_version=mv,
+                            run=run,
+                            rows=calibrated_rows,
+                        )
+                        run.status = PipelineRunStatus.SUCCEEDED
+                        run.finished_at = datetime.now(timezone.utc)
+                        run.rows_processed = rows_written
+                        run.output_csv_path = str(out_path)
+                        location_summary["predictions_created"] += len(inserted)
+
+                    db.commit()
+
+                except Exception as exc:
+                    log.exception(
+                        "backfill.iteration.failed",
+                        location_id=str(loc.id),
+                        target_time=target_time.isoformat(),
+                        error=str(exc),
+                    )
+                    db.rollback()
+                    location_summary["errors"] += 1
+
+            summaries.append(location_summary)
+    finally:
+        db.close()
+
+    return {"ok": True, "hours_back": hours_back, "step_hours": step_hours, "summaries": summaries}

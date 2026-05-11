@@ -34,9 +34,24 @@ celery_app.conf.update(
 # ---------------------------------------------------------------------------
 
 celery_app.conf.beat_schedule = {
+    "ingest-atmospheric-hourly": {
+        "task": "dynametrix.atmospheric.ingest_all_locations",
+        "schedule": crontab(minute=0),
+        "options": {"queue": "dynametrix.default"},
+    },
     "ingest-storm-reports-daily": {
         "task": "dynametrix.verification.ingest_storm_reports_daily",
-        "schedule": crontab(hour=14, minute=0),  # 14:00 UTC daily
+        "schedule": crontab(hour=14, minute=0),
+        "options": {"queue": "dynametrix.default"},
+    },
+    "run-pipeline-hourly": {
+        "task": "dynametrix.pipeline.run_all_locations",
+        "schedule": crontab(minute=5),
+        "options": {"queue": "dynametrix.default"},
+    },
+    "backfill-verification-daily": {
+        "task": "dynametrix.verification.backfill_outcomes_daily",
+        "schedule": crontab(hour=14, minute=30),
         "options": {"queue": "dynametrix.default"},
     },
 }
