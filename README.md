@@ -73,7 +73,7 @@ The methodology is offered as an independent service for organizations that have
 
 A first engagement is typically scoped to one model, one specific claim, and a held-out test dataset, with a 2–4 week timeline from agreement to delivery. Engagement details and pricing for a pilot are available on request.
 
-To inquire: [contact@yourdomain — replace with your actual contact link]
+To inquire: earl_dixon@hsagconsortium.com
 
 ---
 
