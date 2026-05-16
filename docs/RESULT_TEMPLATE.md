@@ -110,6 +110,37 @@ Format guidelines:
 - Fail/pass markers in last column, **fail** in bold where it stands out, `PASS` in uppercase where it doesn't.
 - Excluded entries (e.g., bins with n < 30) shown explicitly with reason rather than dropped.
 
+### 4.4 Reliability diagram (calibration audits only)
+
+For audits whose primary subject is calibration of a probabilistic predictor, the per-bin table from 4.3 should be accompanied by a reliability diagram embedded in the result document. The diagram presents the same data in a visually scannable form and is the most direct communication of calibration drift to a reader who is not going to inspect every row of the table.
+
+Standard convention:
+
+- **X-axis:** predicted probability (0–1).
+- **Y-axis:** observed frequency (0–1).
+- **Dashed diagonal:** perfect calibration (y = x). Subdued gray.
+- **One marker per bin** positioned at (mean_pred, observed_freq).
+- **Marker area scales as sqrt(bin sample count)** — larger bins are visually weighted, smaller bins are visible but don't dominate.
+- **Color encodes the bin's pass/fail status under the Wilson criterion** (Section 6.1):
+  - Passing bins: deep navy.
+  - Failing bins: burnt rust.
+  - Excluded bins (n < `MIN_BIN_N`): subdued gray, semi-transparent.
+- **Wilson 95% CI** shown as a vertical error bar on each non-excluded bin's observed frequency.
+- **Title:** model name. **Subtitle:** revision · n · outcome.
+- **Legend:** include only the marker categories actually present in the data, plus the perfect-calibration diagonal.
+
+Generated using `tools/render_reliability_diagram.py`, which reads the case study's `calibration_summary.json` and writes both PNG and SVG. The diagram is committed alongside the JSON and CSV outputs as an additional artifact, not as part of the locked analysis-script output. PNG is embedded inline in the result document; SVG is committed for high-quality print or web use.
+
+Embed in the result document directly below the per-bin table:
+
+```markdown
+![Reliability diagram](reliability_diagram.png)
+
+*Reliability diagram for `<model>` on `<test data>`. Marker size proportional to bin sample count. Vertical bars are Wilson 95% confidence intervals on observed frequency. Passing bins shown in navy, failing in burnt rust, excluded in gray. Dashed line is perfect calibration.*
+```
+
+For audits whose primary subject is not calibration (e.g., ranking tests, weather verification), reliability diagrams may still be useful but are not required by the template.
+
 ---
 
 ## Section 5 — Diagnostic Reading (REQUIRED)
