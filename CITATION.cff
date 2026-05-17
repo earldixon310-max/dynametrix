@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you cite this repository, please use the metadata below. For citations to the AEPF specification specifically, use the preferred-citation form."
+title: "Dynametrix: Pre-registered Evaluation Repository"
+abstract: "A public record of pre-registered, cryptographically-locked evaluations of probabilistic models across severe weather forecasting, gravitational-wave detection, and AI/ML calibration."
+authors:
+  - family-names: Dixon
+    given-names: Earl
+type: software
+repository-code: "https://github.com/earldixon310-max/dynametrix"
+url: "https://github.com/earldixon310-max/dynametrix"
+keywords:
+  - pre-registration
+  - cryptographic-attestation
+  - reproducibility
+  - evidence-preservation
+  - verification
+  - calibration
+preferred-citation:
+  type: report
+  title: "AEPF v0.1 Working Draft — Evidence Preservation Format Specification"
+  authors:
+    - family-names: Dixon
+      given-names: Earl
+  institution:
+    name: "Avenridge Institute (working designation)"
+  year: 2026
+  month: 5
+  url: "https://github.com/earldixon310-max/dynametrix/blob/65c8035/docs/standards/AEPF_v0.1_WORKING_DRAFT.md"
+  notes: "Commit 65c8035"

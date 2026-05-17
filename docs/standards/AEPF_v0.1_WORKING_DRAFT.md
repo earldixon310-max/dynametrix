@@ -17,6 +17,35 @@ AEPF does not specify the methodology to be evaluated, the metrics to be compute
 AEPF is an evidence-preservation specification, not a certification framework.
 
 ---
+## How to cite this document
+
+When citing the AEPF v0.1 Working Draft, use the following form.
+
+**Plain text:**
+
+` ` `
+Dixon, E. (2026). AEPF v0.1 Working Draft — Evidence Preservation Format
+Specification. Avenridge Institute (working designation). Commit 65c8035.
+https://github.com/earldixon310-max/dynametrix/blob/65c8035/docs/standards/AEPF_v0.1_WORKING_DRAFT.md
+` ` `
+
+**BibTeX:**
+
+` ` `bibtex
+@techreport{aepf_v0_1_2026,
+  title       = {{AEPF} v0.1 Working Draft --- Evidence Preservation Format Specification},
+  author      = {Dixon, Earl},
+  institution = {Avenridge Institute (working designation)},
+  year        = {2026},
+  month       = may,
+  url         = {https://github.com/earldixon310-max/dynametrix/blob/65c8035/docs/standards/AEPF_v0.1_WORKING_DRAFT.md},
+  note        = {Commit 65c8035}
+}
+` ` `
+
+The commit hash `65c8035` anchors this version of the specification. The citation URL resolves to the same commit content for any reader at any future time, consistent with the version-binding discipline in §11. When a DOI is later minted for this version (e.g., via Zenodo), the canonical citation form will lead with the DOI; the commit hash will remain the underlying binding.
+
+---
 
 ## 1. Introduction
 
