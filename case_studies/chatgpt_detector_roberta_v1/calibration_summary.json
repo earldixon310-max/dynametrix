@@ -1,0 +1,123 @@
+{
+  "model_name": "Hello-SimpleAI/chatgpt-detector-roberta",
+  "model_revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+  "raid_revision": "865cac74188466cb0c3b7574a10204007b57a459",
+  "ai_class_index": 1,
+  "id2label": {
+    "0": "Human",
+    "1": "ChatGPT"
+  },
+  "n_examples": 2000,
+  "base_rate": 0.5,
+  "climatology_base_rate": 0.5,
+  "truncated_fraction": 0.1155,
+  "accuracy_at_0.5": 0.678,
+  "brier": 0.29069629227779237,
+  "brier_climatology": 0.25,
+  "bss": -0.16278516911116947,
+  "ece": 0.27912317366685596,
+  "mce": 0.3307135322130694,
+  "n_bins_total": 10,
+  "n_bins_included": 6,
+  "n_bins_passed": 0,
+  "outcome": "NOT CALIBRATED",
+  "outcome_note": "BSS = -0.1628 <= 0 against 0.5-base-rate climatology. Per \u00a75.2, BSS <= 0 produces NOT CALIBRATED regardless of bin pass count (K = 0 of N = 6).",
+  "bins": [
+    {
+      "bin": 0,
+      "range": "[0.00,0.10)",
+      "n": 1115,
+      "mean_pred": 0.0118873646479171,
+      "observed_freq": 0.34260089686098655,
+      "wilson_lo": 0.315327391269712,
+      "wilson_hi": 0.37095527823417496,
+      "passes": false
+    },
+    {
+      "bin": 1,
+      "range": "[0.10,0.20)",
+      "n": 96,
+      "mean_pred": 0.1452105144659678,
+      "observed_freq": 0.4166666666666667,
+      "wilson_lo": 0.3231140125768062,
+      "wilson_hi": 0.5166321453373298,
+      "passes": false
+    },
+    {
+      "bin": 2,
+      "range": "[0.20,0.30)",
+      "n": 74,
+      "mean_pred": 0.2549682742840535,
+      "observed_freq": 0.5675675675675675,
+      "wilson_lo": 0.4541253909309131,
+      "wilson_hi": 0.6743406221006791,
+      "passes": false
+    },
+    {
+      "bin": 3,
+      "range": "[0.30,0.40)",
+      "n": 59,
+      "mean_pred": 0.3303254236609249,
+      "observed_freq": 0.5084745762711864,
+      "wilson_lo": 0.3843492802145344,
+      "wilson_hi": 0.6315637455518369,
+      "passes": false
+    },
+    {
+      "bin": 4,
+      "range": "[0.40,0.50)",
+      "n": 4,
+      "excluded": true,
+      "reason": "n < 30",
+      "mean_pred": 0.4344136640429497,
+      "observed_freq": 0.5
+    },
+    {
+      "bin": 5,
+      "range": "[0.50,0.60)",
+      "n": 5,
+      "excluded": true,
+      "reason": "n < 30",
+      "mean_pred": 0.542698073387146,
+      "observed_freq": 0.8
+    },
+    {
+      "bin": 6,
+      "range": "[0.60,0.70)",
+      "n": 3,
+      "excluded": true,
+      "reason": "n < 30",
+      "mean_pred": 0.6530956228574117,
+      "observed_freq": 0.3333333333333333
+    },
+    {
+      "bin": 7,
+      "range": "[0.70,0.80)",
+      "n": 17,
+      "excluded": true,
+      "reason": "n < 30",
+      "mean_pred": 0.7482892625472125,
+      "observed_freq": 0.7058823529411765
+    },
+    {
+      "bin": 8,
+      "range": "[0.80,0.90)",
+      "n": 31,
+      "mean_pred": 0.8679951198639408,
+      "observed_freq": 0.7419354838709677,
+      "wilson_lo": 0.5675352757228489,
+      "wilson_hi": 0.8629845626313024,
+      "passes": false
+    },
+    {
+      "bin": 9,
+      "range": "[0.90,1.00]",
+      "n": 596,
+      "mean_pred": 0.9843303902237207,
+      "observed_freq": 0.7785234899328859,
+      "wilson_lo": 0.7434613395802726,
+      "wilson_hi": 0.8100181123283646,
+      "passes": false
+    }
+  ]
+}
