@@ -1,0 +1,14 @@
+{
+  "primary_model_class": "LogisticRegressionCV",
+  "primary_C_selected": 0.0001,
+  "primary_cv_roc_auc_max": 0.8891946649795532,
+  "auxiliary_model_class": "GradientBoostingClassifier",
+  "auxiliary_n_estimators": 200,
+  "auxiliary_max_depth": 4,
+  "auxiliary_learning_rate": 0.05,
+  "feature_count": 120,
+  "training_rows": 3732,
+  "training_positive_rate": 0.11709539121114684,
+  "training_set_sha256": "2263e038f7fca8bf4d0095e3ffc73f666963960260b0a6c635cae9c699fce14f",
+  "random_state": 42
+}
