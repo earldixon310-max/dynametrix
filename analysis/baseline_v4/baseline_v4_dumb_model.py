@@ -33,6 +33,8 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegressionCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 import joblib
 from sqlalchemy import create_engine, text
 
@@ -345,15 +347,19 @@ def cmd_lock_fit(args):
     print(f"  Valid training rows after NaN drop: {len(X)} (of {len(df)})")
     print(f"  Positive rate: {100*y.sum()/len(y):.2f}%")
     print(f"  Feature count: {X.shape[1]}")
-    print(f"\nFitting primary model (logistic regression with CV C selection)...")
-    primary = LogisticRegressionCV(
-        Cs=10, cv=5, scoring="roc_auc",
-        max_iter=2000, penalty="l2", solver="lbfgs",
-        n_jobs=-1, random_state=42,
-    )
+    print(f"\nFitting primary model (StandardScaler + logistic regression with CV C selection)...")
+    primary = Pipeline([
+        ("scaler", StandardScaler()),
+        ("clf", LogisticRegressionCV(
+            Cs=10, cv=5, scoring="roc_auc",
+            max_iter=2000, penalty="l2", solver="lbfgs",
+            n_jobs=-1, random_state=42,
+        )),
+    ])
     primary.fit(X, y)
-    cv_aucs = np.mean(primary.scores_[1], axis=0)
-    print(f"  Selected C:               {primary.C_[0]:.4f}")
+    clf = primary.named_steps["clf"]
+    cv_aucs = np.mean(clf.scores_[1], axis=0)
+    print(f"  Selected C:               {clf.C_[0]:.4f}")
     print(f"  Cross-val ROC-AUC (max):  {cv_aucs.max():.4f}")
     print(f"\nFitting auxiliary model (gradient-boosted tree)...")
     auxiliary = GradientBoostingClassifier(
@@ -367,8 +373,8 @@ def cmd_lock_fit(args):
     joblib.dump(primary, primary_path)
     joblib.dump(auxiliary, aux_path)
     meta = {
-        "primary_model_class": "LogisticRegressionCV",
-        "primary_C_selected": float(primary.C_[0]),
+        "primary_model_class": "Pipeline(StandardScaler + LogisticRegressionCV)",
+        "primary_C_selected": float(clf.C_[0]),
         "primary_cv_roc_auc_max": float(cv_aucs.max()),
         "auxiliary_model_class": "GradientBoostingClassifier",
         "auxiliary_n_estimators": 200,

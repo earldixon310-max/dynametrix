@@ -1,8 +1,9 @@
-# Pre-registration v4 BASELINE — Generic statistical baseline for severe weather forecasting at v4 locations
+# Pre-registration v4 BASELINE v2 — Generic statistical baseline for severe weather forecasting at v4 locations
 
 **Status:** Draft pending lock commit.
-**Identifier:** `pre-registration-v4-baseline`
+**Identifier:** `pre-registration-v4-baseline-v2`
 **Companion to:** `pre-registration-v4` (locked at commit `01c35ba`)
+**Supersedes:** `pre-registration-v4-baseline-v1` (locked at commit `16aa167`), retired due to logistic regression convergence failure on unscaled features. v1 remains in the historical record but its model artifacts are not used.
 **Date:** 2026-05-17.
 **Author:** Earl Dixon.
 
@@ -20,7 +21,7 @@ The baseline's own outcome is recorded under the same regime-partitioned classif
 
 ## 2. System under evaluation
 
-**Primary model:** L2-regularized logistic regression. Regularization strength `C` is selected by time-series cross-validation within the training window (5-fold expanding-window split, ROC-AUC scoring). Implementation: `sklearn.linear_model.LogisticRegressionCV`.
+**Primary model:** L2-regularized logistic regression with feature standardization. Features are mean-centered and scaled to unit variance via `sklearn.preprocessing.StandardScaler` before being passed to logistic regression. Regularization strength `C` is selected by time-series cross-validation within the training window (5-fold split, ROC-AUC scoring). Implementation: `sklearn.pipeline.Pipeline([StandardScaler, LogisticRegressionCV])`. The StandardScaler step is required for the L2-regularized logistic regression's optimizer to converge on features at vastly different natural scales (CAPE in J/kg, temperature in K, precipitation in mm, pressure in Pa, wind components in m/s). The v1 lock at commit `16aa167` omitted this preprocessing step and the optimizer failed to converge; v2 corrects this.
 
 **Auxiliary model:** Gradient-boosted tree, deliberately bounded in complexity: `max_depth=4`, `n_estimators=200`, `learning_rate=0.05`, no hyperparameter search. Implementation: `sklearn.ensemble.GradientBoostingClassifier`. Reported alongside the primary as a secondary diagnostic; the logistic regression is the registered comparison model.
 
@@ -225,4 +226,4 @@ The comparison verdict is bounded to what it actually tested. The v4 result docu
 
 ---
 
-*End of pre-registration-v4-baseline. Status: Draft pending lock commit.*
+*End of pre-registration-v4-baseline-v2. Status: Draft pending lock commit.*
