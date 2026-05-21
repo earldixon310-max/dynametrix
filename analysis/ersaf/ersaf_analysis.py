@@ -936,6 +936,14 @@ def compute_pelt_change_count(binned_residuals, binned_ses):
 
         def fit(self, signal):
             # signal shape: (n, 2). signal[:, 0] = residuals, signal[:, 1] = variances.
+            # OPERATIONAL FIX (per pre-reg §10): ruptures' Pelt.predict() accesses
+            # self.cost.signal.shape[0] internally for bookkeeping. Standard
+            # rpt.base.BaseCost subclasses store the signal in fit(); the original
+            # locked version of this class did not. Adding self.signal = signal
+            # satisfies ruptures' API expectation without altering the cost function,
+            # penalty, or test statistic. The locked methodology is preserved
+            # byte-for-byte in the diagnostic output; this fix enables execution.
+            self.signal = signal
             residuals = signal[:, 0]
             variances = signal[:, 1]
             inv_var = 1.0 / variances
