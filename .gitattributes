@@ -1,0 +1,8 @@
+# Preserve byte-for-byte content for materialized data files.
+# Required for SHA-256 reproducibility across platforms (Windows
+# default core.autocrlf=true would otherwise rewrite line endings
+# on checkout).
+*.dat -text
+*.cov -text
+*.npy -text
+*.csv -text
