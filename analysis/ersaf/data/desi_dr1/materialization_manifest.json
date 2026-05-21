@@ -1,0 +1,37 @@
+{
+  "source": {
+    "repository": "CobayaSampler/bao_data",
+    "commit_sha": "bb0c1c9009dc76d1391300e169e8df38fd1096db",
+    "source_dir_at_runtime": "C:\\Users\\earld\\dynametrix\\bao_data",
+    "per_file_sha256": {
+      "BGS_mean": "c8ba24d42f0ab218f1de02bcecbd54846b5ae4f24c1486927cc6ac8ae50b31b2",
+      "BGS_cov": "e2c596a113242d8f571de94aeb9f5ddaa82ea548a5db898a801e74e3e06e7512",
+      "LRG1_mean": "ffe52ff2fa5e43d90243e4d1a8f652c3d2e63bdb21a3ede1b754c78f16152165",
+      "LRG1_cov": "ae6f1218531a1b4021eb85c653f667526e4e2e8263021934e13375ef586a333e",
+      "LRG2_mean": "e6c42a61daa1475ea5a599a6c45e9898d8c28b9fe82047703966809de04de486",
+      "LRG2_cov": "c6280fab7621246ddd94bb29e4cdfa5342bd2d78d2e56884bf112c6c99fa4529",
+      "LRG3+ELG1_mean": "45e64d3546045e69477e9f38688b862453f2a43296575a86d3a0f7fc1c4c1332",
+      "LRG3+ELG1_cov": "1e483770cf93a72adc02cd7ab2b29c5d9cce6ab70bd29b1a2cf4d97ec977249b",
+      "ELG2_mean": "74fbab6569b88cc8f218680211e648a38f223f1014960605fcbf151522db83c8",
+      "ELG2_cov": "1bdfd0824e86df643e197231e0ecd8e1c1a85144460502b0db127ce93cdf0c73",
+      "QSO_mean": "593dd428a4b2a00f51410dec3d75bb22534e31bb06048e0459d94da86488d634",
+      "QSO_cov": "1a99458a0736520b9e5cb6ee7248a69bfdf4007734d4b09818180cf936caecf5",
+      "Lya_mean": "fe1b26d48fba7d1d0508cb6bdef68f43dbd532b086f5b0a6c033121ff55a7f6e",
+      "Lya_cov": "eab793ec9fc91120ea66699b97f2facafd75fd2798e3a9e5208b0fc314d1f3b9"
+    }
+  },
+  "outputs": {
+    "csv_sha256": "3c59883352f4cc2ee960b20298c46b8dc8161b97ca8232f7e0449fbeb2e7ddc6",
+    "npy_sha256": "6a8f9691cf2af65e13d7bf5bd9bc09b4bf06af89e0ae7efdedb66d60fd05470e"
+  },
+  "verification_anchor": {
+    "n_entries": 12,
+    "sources_cited": [
+      "DESI 2024 III Table 1 (arXiv:2404.03000)",
+      "DESI 2024 IV Table 1 (arXiv:2404.03001)"
+    ],
+    "all_passed": true
+  },
+  "n_bins": 7,
+  "n_observables": 12
+}

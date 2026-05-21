@@ -1,0 +1,11 @@
+{
+  "python": "3.12.10",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "pandas": "3.0.3",
+  "statsmodels": "0.14.6",
+  "ruptures": "v1.1.10",
+  "pywt": "1.8.0",
+  "script_solver": "scipy.optimize.least_squares method=trf",
+  "multitesting_impl": "scipy.stats.false_discovery_control method=bh"
+}

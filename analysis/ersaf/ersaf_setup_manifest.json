@@ -1,0 +1,127 @@
+{
+  "lock_commit": "TBD (fill after git commit, with the resulting commit SHA)",
+  "pinned_pantheon_release": {
+    "release_citation": "Brout et al. 2022 (Pantheon+); GitHub PantheonPlusSH0ES/DataRelease",
+    "data_path": ".\\analysis\\ersaf\\data\\pantheon_plus\\Pantheon+SH0ES.dat",
+    "cov_path": ".\\analysis\\ersaf\\data\\pantheon_plus\\Pantheon+SH0ES_STAT+SYS.cov",
+    "data_sha256": "1cb0fc379ef066afdc2ffd1857681cc478024570d8a3eba284fb645775198cf8",
+    "cov_sha256": "abf806d966485e64afdb359c87bffc0ecc00d05eff0a31ced66f247385df0fdc",
+    "configuration": "unanchored"
+  },
+  "pinned_desi_dr1_release": {
+    "release_citation": "Adame et al. 2024 (DESI DR1 BAO)",
+    "csv_path": "analysis\\ersaf\\data\\desi_dr1\\desi_dr1_bao.csv",
+    "cov_path": "analysis\\ersaf\\data\\desi_dr1\\desi_dr1_bao_cov.npy",
+    "csv_sha256": "3c59883352f4cc2ee960b20298c46b8dc8161b97ca8232f7e0449fbeb2e7ddc6",
+    "cov_sha256": "6a8f9691cf2af65e13d7bf5bd9bc09b4bf06af89e0ae7efdedb66d60fd05470e",
+    "observable_count": 12,
+    "observable_split": {
+      "1": {
+        "label": "BGS",
+        "z_eff": 0.295,
+        "observables": [
+          "DV_over_rd"
+        ]
+      },
+      "2": {
+        "label": "LRG1",
+        "z_eff": 0.51,
+        "observables": [
+          "DH_over_rd",
+          "DM_over_rd"
+        ]
+      },
+      "3": {
+        "label": "LRG2",
+        "z_eff": 0.706,
+        "observables": [
+          "DH_over_rd",
+          "DM_over_rd"
+        ]
+      },
+      "4": {
+        "label": "LRG3+ELG1",
+        "z_eff": 0.93,
+        "observables": [
+          "DH_over_rd",
+          "DM_over_rd"
+        ]
+      },
+      "5": {
+        "label": "ELG2",
+        "z_eff": 1.317,
+        "observables": [
+          "DH_over_rd",
+          "DM_over_rd"
+        ]
+      },
+      "6": {
+        "label": "QSO",
+        "z_eff": 1.491,
+        "observables": [
+          "DV_over_rd"
+        ]
+      },
+      "7": {
+        "label": "Lya",
+        "z_eff": 2.33,
+        "observables": [
+          "DH_over_rd",
+          "DM_over_rd"
+        ]
+      }
+    }
+  },
+  "n_post_cut": 1588,
+  "joint_covariance": {
+    "dimensions": [
+      1600,
+      1600
+    ],
+    "sha256_constructed": "ac4e18e35e72eefefdf3269f85a3449c05d1e79c720bfb1f518510a5dec7db81",
+    "smallest_eigenvalue": 0.005193550491401937,
+    "positive_definite": true
+  },
+  "marginalized_MB_per_baseline": {
+    "LambdaCDM": -19.507083064488288,
+    "wCDM": -19.60581491651711,
+    "w0waCDM": -19.504306361346757
+  },
+  "initial_fits": {
+    "LambdaCDM": {
+      "params": {
+        "H0": 65.06870422147416,
+        "Om": 0.3162526705886688
+      },
+      "MB_marginalized": -19.507083064488288
+    },
+    "wCDM": {
+      "params": {
+        "H0": 61.7868168843999,
+        "Om": 0.2955791339953508,
+        "w": -0.8785192054748402
+      },
+      "MB_marginalized": -19.60581491651711
+    },
+    "w0waCDM": {
+      "params": {
+        "H0": 64.4848925978716,
+        "Om": 0.3207987279111509,
+        "w0": -0.7895481855335837,
+        "wa": -0.9000909848449236
+      },
+      "MB_marginalized": -19.504306361346757
+    }
+  },
+  "reproducibility_manifest": {
+    "python": "3.12.10",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pandas": "3.0.3",
+    "statsmodels": "0.14.6",
+    "ruptures": "v1.1.10",
+    "pywt": "1.8.0",
+    "script_solver": "scipy.optimize.least_squares method=trf",
+    "multitesting_impl": "scipy.stats.false_discovery_control method=bh"
+  }
+}

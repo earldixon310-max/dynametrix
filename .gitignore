@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+.next/
+out/
+.npm
+.eslintcache
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+!infra/.env.example
+
+# Build
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Reports / engine outputs
+/var/dynametrix/
+*.csv.bak
+
+.venv/
+bao_data/
