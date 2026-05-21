@@ -405,7 +405,7 @@ The audit's verdict is bounded by these limits. Conclusions drawn beyond these l
 
 **Author:** Earl Dixon.
 
-**Lock commit:** TBD (filled after `git commit`, recording the resulting commit SHA).
+**Lock commit:** SHA: 33d18a555b35df93ca86020e2b68f3e334f6b90a.
 
 **Pinned Pantheon+ release:**
 - Citation: Brout et al. 2022 (Pantheon+ cosmological-constraints release).
