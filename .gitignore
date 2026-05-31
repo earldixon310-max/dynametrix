@@ -40,3 +40,6 @@ Thumbs.db
 
 .venv/
 bao_data/
+analysis/relational_coherence_v1/__pycache__/
+.venv-wsl/
+analysis/relational_coherence_v1/*.bak
