@@ -43,3 +43,11 @@ bao_data/
 analysis/relational_coherence_v1/__pycache__/
 .venv-wsl/
 analysis/relational_coherence_v1/*.bak
+
+__pycache__/
+papers/AEPF/*.aux
+papers/AEPF/*.bbl
+papers/AEPF/*.blg
+papers/AEPF/*.log
+papers/AEPF/*.out
+papers/AEPF/*.pdf

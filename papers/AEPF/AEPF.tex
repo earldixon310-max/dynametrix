@@ -1,0 +1,1480 @@
+\documentclass[11pt]{article}
+
+% --- Core packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+
+% --- Math ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% --- Tables, figures, layout ---
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+% --- Citations (natbib with numeric style to match original look) ---
+\usepackage[numbers,sort&compress]{natbib}
+
+% --- Colors (required for blue!50!black mixing syntax in hyperref) ---
+\usepackage{xcolor}
+
+% --- Hyperlinks and URLs (load near last) ---
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=blue!50!black,
+  urlcolor=blue!50!black,
+}
+
+% --- Convenience macros for cosmology notation ---
+\newcommand{\LCDM}{$\Lambda$CDM}
+\newcommand{\wCDM}{$w$CDM}
+\newcommand{\wowaCDM}{$w_0 w_a$CDM}
+
+% --- Document metadata ---
+\title{The Avenridge Evaluation and Publication Framework:\\
+A Framework for Locked Evaluation, Calibration Assessment,\\
+and Reproducible Verification in Evaluation-Intensive\\
+Computational Domains}
+\author{Earl Dixon\thanks{The author is the sole operator of
+Avenridge Institute, a research-methodology entity established to
+develop and apply the framework described herein. The case studies
+cited as Avenridge Institute technical reports are archived in the
+public repository referenced in those citations and are not
+peer-reviewed publications.}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce the Avenridge Evaluation and Publication Framework
+(AEPF), an operationalized methodology for evaluation-intensive
+computational domains. AEPF integrates established disciplines
+from clinical-trial pre-registration, high-energy-physics blind
+analysis, machine-learning calibration assessment, and
+open-science null reporting into a single operational framework.
+The integration produces specific operational consequences:
+cryptographic anchoring of methodology to a public commit chain,
+calibration assessment as a standing pre-registration requirement,
+null-result publication parity with positive-result discipline,
+constrained-interpretation reporting when multiple frames apply,
+and---as a refinement under observation---a pre-specification
+viability gate that retires candidate studies whose informational
+yield is structurally over-determined. The framework has been
+applied across atmospheric forecasting calibration,
+gravitational-wave residual analysis, language-model calibration
+audits, cosmological residual-structure evaluation, and
+framing-robustness testing of an open-weight language model. We
+describe the framework specification and illustrate it with four
+case studies spanning substantively different evaluation
+contexts---a cosmological residual audit, a series of transformer
+calibration audits, a pre-registered open-weight language-model
+null, and a pre-specification viability gate---together with a
+methods-level validation of the calibration-audit instrument
+itself against synthetic ground truth. The instrument validation
+establishes that the calibration audit is sound (zero false-accept
+of broken calibration across the tested miscalibration families),
+so that the framework's argument rests not only on disciplined
+null-handling but also on demonstrated instrument soundness: a NULL
+verdict reported under AEPF is evidence about the world rather than
+an artifact of the tool. The novelty AEPF claims is in the
+integration and artifact-level operationalization, not in any
+individual component.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+This paper introduces a methodology designed to constrain the
+relationship between an evaluation question, the analytical
+machinery applied to it, and the verdict that is ultimately
+reported. The framework is anchored in cryptographic commit
+discipline applied to pre-registered methodology, materialized
+data sources, and published outcomes, so that a reader of an
+AEPF-locked study can verify those relationships directly against
+artifacts rather than infer them from the narrative of a paper.
+In May 2026, the framework was applied to a cosmological audit
+that returned a NULL verdict reported under two interpretive
+frames \cite{dixon2026ersaf}; days later, it was applied as a
+viability gate that retired a candidate computational study
+before lock \cite{dixon2026dynametrixhrrr}. Both outcomes are
+treated below as case studies of a single methodological
+framework.
+
+The cosmological audit just referenced is the most recent of a
+sequence of applications. The framework has also been used across
+atmospheric forecasting calibration \cite{dixon2026avenridge},
+gravitational-wave residual analysis at GW150914
+\cite{dixon2026spinphase}, and language-model calibration
+assessment across multiple model architectures
+\cite{dixon2026distilbert, dixon2026toxicbert,
+dixon2026chatgptdetector}. The framework's central commitment is
+that locking methodology before data observation, anchoring
+artifacts cryptographically, and committing institutionally to
+publishing null findings produces evaluations whose
+results---positive or negative---are interpretable in ways that
+benchmark-driven evaluation alone does not support.
+
+A complementary use of the framework was demonstrated days after
+the ERSAF result was published: as a structured \emph{viability
+gate} preceding lock. A candidate study proposing to test whether
+combining Dynametrix v3 calibrated severe-weather probabilities with
+NWS High-Resolution Rapid Refresh (HRRR) forecasts would produce a
+measurably better-calibrated joint prediction was subjected to a
+pre-committed exploratory independence diagnostic before its
+pre-registration was advanced to lock. The diagnostic measured the
+Pearson correlation of the two predictors' residual errors at
+$r = 0.9839$ (95\% bootstrap CI $[0.9816, 0.9860]$, $n = 2{,}016$
+location-hours, 375 verified severe-weather events), far above the
+pre-committed threshold for proceeding. The candidate pre-registration
+was archived as ``considered but deferred'' rather than advanced to
+lock \cite{dixon2026dynametrixhrrr}. The framework as articulated in
+this paper handles full-lifecycle studies that lock, execute, and
+report; the viability-gate pattern---a refinement that emerged in
+operational practice and is described in
+Section~\ref{subsec:viability-gate}---extends the lifecycle backward
+to handle pre-specification dispositions.
+
+This paper introduces the \textbf{Avenridge Evaluation and
+Publication Framework (AEPF)}, an operationalized methodology for
+evaluation-intensive computational domains. AEPF is not a new
+theoretical proposal. It integrates established
+disciplines---pre-registration from clinical trials and psychology
+\cite{helsinki2013, nosek2018preregistration, chambers2013registered},
+blind analysis protocols from high-energy physics \cite{klein2005blind},
+calibration assessment from modern machine learning
+\cite{brier1950, guo2017calibration, naeini2015ece}, and
+reproducibility frameworks from the machine-learning community
+\cite{pineau2021reproducibility}---into a single operationalizable
+framework with specific artifact-level implementations. The novelty
+AEPF claims is in the integration and operationalization, not in
+any individual component.
+
+\subsection{Problem statement}
+\label{subsec:problem}
+
+Modern applied computational systems increasingly operate in
+high-consequence environments where predictive accuracy alone is
+insufficient to establish trustworthiness. Systems may demonstrate
+strong benchmark performance while remaining poorly calibrated,
+insufficiently reproducible, vulnerable to evaluation contamination,
+or susceptible to post-hoc interpretive bias.
+
+These challenges are not unique to artificial intelligence.
+Scientific measurement disciplines have historically relied on
+methodological constraints intended to separate observation from
+interpretation, preserve auditability, and reduce opportunities for
+unconscious researcher influence. Yet evaluation methodologies
+across applied AI and adjacent evaluation-intensive computational
+domains frequently emphasize aggregate performance metrics while
+treating calibration quality, artifact preservation, null-result
+publication, and locked evaluation procedures as secondary
+considerations.
+
+This imbalance creates several specific risks:
+\begin{itemize}
+  \item Evaluation contamination through repeated exposure to fixed
+    benchmark corpora, encouraging adaptation to benchmark
+    characteristics rather than to underlying capability
+    \cite{recht2019imagenet}.
+  \item Over-interpretation of statistically fragile findings,
+    particularly when multiple-testing corrections are applied
+    inconsistently or post-hoc.
+  \item Benchmark optimization without corresponding reliability
+    improvements---high discriminative scores in the presence of
+    poor calibration.
+  \item Limited reproducibility arising from insufficient provenance
+    tracking of data, code, computational environment, and
+    methodology decisions.
+  \item Selective publication favoring positive outcomes while
+    under-reporting null findings, biasing the cumulative record
+    toward apparent confirmation.
+\end{itemize}
+
+Calibration is particularly important because predictive systems
+must not only distinguish correct from incorrect outcomes; they
+must appropriately represent uncertainty. A system reporting
+80\,\% confidence should empirically demonstrate correctness near
+that rate over sufficient evaluation samples
+\cite{guo2017calibration}. Systems exhibiting strong discrimination
+while remaining poorly calibrated may encourage overconfidence and
+reduce operational reliability---a failure mode documented in
+modern neural network classifiers \cite{guo2017calibration,
+minderer2021revisiting} and one we have observed empirically across
+language-model calibration audits performed under the framework
+introduced here \cite{dixon2026distilbert, dixon2026toxicbert,
+dixon2026chatgptdetector}.
+
+Reproducibility likewise depends on preserving evaluation artifacts,
+recording methodological decisions, and constraining the surface
+across which post-hoc modifications can occur. Without these
+controls, evaluation procedures risk unintentionally rewarding
+iterative adaptation to benchmark structure rather than measuring
+genuine system capability.
+
+\subsection{AEPF as an operationalized framework}
+\label{subsec:aepf-overview}
+
+AEPF is operationalized through specific artifacts and procedures,
+not through abstract values. The framework prescribes:
+
+\begin{enumerate}
+  \item \textbf{Pre-registration documents} with locked methodology
+    sections, committed before any analysis touches the evaluation
+    data.
+  \item \textbf{Cryptographic commit references} (SHA-256 lock
+    commits with named version tags) anchoring the methodology to
+    a specific reviewable state.
+  \item \textbf{Materialization manifests} recording data-file
+    SHA-256 hashes, software-environment version pinning, and
+    per-step transformation provenance.
+  \item \textbf{Calibration assessment} alongside discriminative
+    metrics---typically Brier score \cite{brier1950}, Expected
+    Calibration Error \cite{naeini2015ece}, and reliability diagrams
+    reported as required disclosures.
+  \item \textbf{Cross-model review} before lock commit, distinct
+    from the operator's own review, producing numbered findings
+    with severity classifications and explicit pass/fail
+    dispositions.
+  \item \textbf{Single-execution discipline}: the locked methodology
+    runs once on observed data; re-runs are permitted only for
+    reproducibility verification and do not produce new outcome
+    documents.
+  \item \textbf{Result documents with constrained interpretation
+    sections} that, when multiple permissible interpretations apply
+    to a result, document each frame side-by-side without claiming
+    one stronger than the other given the locked methodology's
+    scope.
+  \item \textbf{Explicit publication of null findings} under the
+    same lock-commit discipline as positive findings, with
+    institutional commitment recorded prospectively in the
+    pre-registration.
+\end{enumerate}
+
+\subsection{Scope and objective}
+\label{subsec:scope}
+
+AEPF does not prescribe scientific conclusions, model architectures,
+optimization strategies, or domain-specific theories. The framework
+is purely procedural: it specifies how evaluations are
+pre-registered, locked, executed, and reported. Results obtained
+under AEPF discipline make no stronger claims than the locked
+methodology permits, and AEPF itself makes no claims about what
+specific scientific or engineering decisions evaluators should
+reach.
+
+The objective is institutional evaluation discipline: improving the
+interpretability, reproducibility, and auditability of computational
+evaluation outcomes by making methodology decisions binding
+artifacts rather than malleable practices. The work AEPF does for
+computational evaluations is structurally analogous to what
+Registered Reports \cite{chambers2013registered} do for empirical
+psychology and what blind analysis protocols \cite{klein2005blind}
+do for high-energy physics: it separates the design of an
+evaluation from the observation of its outcome in a way that is
+mechanically enforceable rather than purely aspirational.
+
+\section{Related Challenges and Existing Frameworks}
+\label{sec:related}
+
+Several disciplines have established components of evaluation rigor
+that AEPF integrates. This section briefly surveys each and
+positions AEPF's contribution as integration and operationalization
+rather than novel methodology.
+
+\paragraph{Pre-registration.}
+Prospective registration of methodology is well-developed in
+clinical trials, where it is required by the Helsinki Declaration's
+Article~35 \cite{helsinki2013} and operationalized through
+ClinicalTrials.gov \cite{zarin2011clinicaltrials}. In psychology
+and adjacent behavioral sciences, the Open Science Framework's
+preregistration protocols \cite{nosek2018preregistration} and the
+Registered Reports publication format \cite{chambers2013registered}
+have extended the discipline to observational and quasi-experimental
+studies. AEPF inherits the prospective-registration discipline from
+this literature and adapts it to computational-evaluation contexts
+where data, code, computational environment, and methodology must
+be locked simultaneously rather than in separable stages.
+
+\paragraph{Blind analysis.}
+High-energy physics has applied blind analysis protocols for
+decades, separating the determination of analysis cuts and event
+selection from the observation of the signal region
+\cite{klein2005blind}. The Large Hadron Collider experiments extend
+this with pre-unblinding review processes that resemble AEPF's
+cross-model review stage in function if not in specific form. AEPF
+generalizes the blind-analysis principle---methodology locked
+before signal observation---to computational evaluations where the
+signal region is the evaluation corpus rather than a kinematic
+phase space.
+
+\paragraph{Calibration assessment.}
+Probabilistic forecasting verification has a long history
+\cite{brier1950}, but its systematic application to neural network
+outputs is comparatively recent. Guo and coauthors documented
+systematic overconfidence in modern neural classifiers
+\cite{guo2017calibration} and proposed Expected Calibration Error
+as a measurement standard, building on the binning approach of
+Naeini and coauthors \cite{naeini2015ece}. Subsequent work has
+explored calibration under distribution shift
+\cite{minderer2021revisiting}. AEPF requires calibration assessment
+as a standard reporting category, alongside whichever discriminative
+metrics are appropriate to the domain.
+
+\paragraph{Reproducibility frameworks.}
+The machine-learning community has produced multiple
+reproducibility-discipline artifacts in recent years, including the
+NeurIPS reproducibility checklist \cite{pineau2021reproducibility}
+and standardization efforts via Papers with Code. These frameworks
+focus primarily on enabling reproduction of published results
+through code-and-data release. AEPF extends the reproducibility
+scope to include the methodology itself---pre-locked before
+observation rather than reconstructed post-hoc from a paper
+description.
+
+\paragraph{Open science and null-result publication.}
+The broader open-science movement \cite{nosek2015open} has
+advocated for systematic publication of null results to address
+publication bias \cite{ioannidis2005}. AEPF operationalizes this
+commitment at the methodology-lock stage: the pre-registration
+includes binding language that the result will be published
+regardless of outcome direction, with the same artifact discipline
+applied to NULL and POSITIVE outcomes.
+
+\paragraph{The integration claim.}
+AEPF's contribution is not any of these components in isolation,
+each of which has substantial prior literature. The contribution is
+a single operationalized framework that integrates prospective
+registration, cryptographic anchoring, materialization manifests,
+calibration assessment, cross-model review, single-execution
+discipline, constrained-interpretation reporting, and null-result
+publication into a methodology applicable across the heterogeneous
+evaluation contexts that arise in applied artificial intelligence
+and adjacent computational sciences. To our knowledge, no existing
+framework combines all of these components in an artifact-level
+operational form; AEPF is presented here as one such combination,
+with case studies in subsequent sections demonstrating its
+application across multiple domains.
+
+\section{Framework Specification}
+\label{sec:framework-spec}
+
+This section describes the operational artifacts that compose AEPF in
+sufficient detail to permit independent re-implementation. The
+framework is organized around the temporal lifecycle of an evaluation:
+pre-registration, lock-time commitment, execution, and reporting. Each
+phase produces specific artifacts that constrain subsequent phases,
+and each constraint is enforceable through reference to a
+cryptographically dated commit rather than through institutional
+trust.
+
+\subsection{Pre-registration and cross-model review}
+\label{subsec:prereg-review}
+
+The pre-registration document is the central artifact of an AEPF
+evaluation. It is finalized and committed before any analysis touches
+the evaluation data. The document specifies the evaluation question
+and the population to which it is addressed; the data sources, with
+version pins or commit references for any external data; the baseline
+models or comparison conditions, with their parameter values fixed
+before unblinding; the observable quantities to be computed, including
+preprocessing and transformation steps; the statistical procedures,
+including significance thresholds, multiple-testing correction methods,
+and any tolerance windows; the decision rules specifying the
+conditions under which the result will be classified as POSITIVE,
+NULL, or AMBIGUOUS; the required disclosures, including known
+systematics and methodological limitations; and a publication
+commitment binding the operator to publish the result regardless of
+outcome direction.
+
+Before lock, the pre-registration undergoes \emph{cross-model review}:
+an independent review performed by a reviewer institutionally
+separable from the operator. The reviewer produces a written review
+containing numbered findings classified by severity (Critical,
+Significant, Minor, Note) with explicit pass/fail dispositions per
+finding. The operator is permitted to disagree with a reviewer finding
+but must document the disagreement in writing and commit the
+documentation alongside the pre-registration. A reviewer Critical
+finding that the operator does not address blocks the lock commit.
+
+Cross-model review is distinct from peer review at publication: it
+operates on the pre-registered methodology, before data have been
+observed, with the purpose of preventing avoidable methodological
+errors from being locked into the artifact chain. Peer review at
+publication remains valuable but cannot address pre-registration
+errors after the methodology has been frozen.
+
+\subsection{Materialization manifest}
+\label{subsec:materialization}
+
+External data sources are not loaded by URL, by package import, or by
+any mechanism that could resolve to different bytes at different
+times. Each external source is materialized: fetched once, written to
+a project-local file, and recorded in a manifest file committed
+alongside the pre-registration. The manifest specifies, per source:
+the source identifier (URL, DOI, or commit reference of the upstream
+repository); the local file path within the project; the SHA-256 hash
+of the materialized file; the timestamp of materialization; and the
+software environment used to perform the materialization.
+
+Analysis code reads from the local materialized files, never from
+upstream sources. If an upstream source updates between materialization
+and execution, the manifest preserves the bytes that were actually
+used; if the upstream is later retracted or modified, the locked
+artifact chain remains independently verifiable. For the ERSAF
+cosmological audit, the materialization manifest pinned the
+Pantheon+ supernova compilation \cite{brout2022pantheon} to specific
+file hashes, and the DESI DR1 BAO measurements
+\cite{adame2024desi3, adame2024desi4} to file hashes derived from the
+upstream \texttt{CobayaSampler/bao\_data} repository at a named
+commit.
+
+\subsection{Lock-time commitment}
+\label{subsec:lock-commit}
+
+When the pre-registration, cross-model review record, materialization
+manifest, and analysis code are all complete, they are committed to
+the version-control repository in a single lock commit. The lock
+commit is then tagged with a signed git tag following the convention
+\texttt{<framework>-v<version>-lock} (e.g., \texttt{ersaf-v1.0-lock}).
+The tag is pushed to a public remote before any analysis touches the
+evaluation data.
+
+The lock commit establishes a single cryptographically dated reference
+point. All subsequent commits to the repository are causally
+downstream of the lock and are distinguishable from the pre-registered
+state. The tag, once published to a public remote, cannot be moved
+without leaving a record in the repository's reflog and on the remote
+server. A reader of the eventual publication can verify the lock
+state by checking out the lock tag directly and inspecting the
+artifacts as they existed at lock time.
+
+\subsection{Execution and operational-fix protocol}
+\label{subsec:execution}
+
+The locked methodology is executed once on the evaluation data. The
+execution produces a primary output set: numeric results, log files,
+and any intermediate artifacts specified in the pre-registration.
+These outputs are committed to the repository alongside the analysis
+code and form the basis for the RESULT document. Re-executions are
+permitted only for reproducibility verification: re-running the
+locked code on the locked data to confirm that recorded outputs
+match. Re-executions do not produce new RESULT documents.
+
+Bugs in the analysis code discovered after the lock commit may be
+corrected, but only under constrained conditions. An
+\emph{operational fix} is permitted if and only if (a) the fix does
+not alter the analysis specification as recorded in the
+pre-registration, (b) the fix is committed as an explicit commit
+with a descriptive message that references both the pre-registration
+and the bug being addressed, (c) the fix is documented in the RESULT
+document with the commit reference recorded, and (d) the execution
+that produced the recorded outputs used the fixed code rather than
+the original buggy code. A change that alters a multiple-testing
+correction method, a significance threshold, or a decision rule is
+not an operational fix; it requires re-locking with a new
+pre-registration version, a new cross-model review, and a new lock
+tag.
+
+The ERSAF v1 execution required three operational fixes: an
+encoding configuration for non-ASCII characters in log output, a
+standard-output buffering directive for progress reporting on the
+Windows host, and an attribute-initialization fix in a change-point
+detector cost function (commit \texttt{552cc0c}). Each is documented
+in the disclosures section of the RESULT document. Where the
+distinction between an operational fix and a specification change
+is ambiguous, the framework errs on the side of re-locking.
+
+A failure mode worth naming explicitly: an unscrupulous operator
+could in principle execute the locked analysis, observe an
+unfavorable result, declare the run ``buggy,'' commit an
+``operational fix'' that subtly biases the analysis toward a more
+favorable outcome, and re-execute. The framework's protection
+against this failure mode does not come from the operational-fix
+protocol's text alone but from the artifact chain the protocol
+generates. The original ``buggy'' execution remains in the
+repository's commit history; the operational-fix commit is itself
+visible alongside it; the cross-model reviewer (whose written
+review is committed at lock time) can be invited to dispute the
+classification of a post-lock change as ``operational'' versus
+``specification''; and any reader of the eventual publication can
+inspect the commit chain between the lock tag and the result tag
+to look for patterns---successive operational fixes moving the
+result in a single direction, in particular---that warrant
+challenge. The framework's claim is that an AEPF artifact chain
+makes this failure mode harder to commit without leaving evidence,
+not that it makes the failure mode impossible.
+
+\subsection{RESULT document}
+\label{subsec:result-document}
+
+After execution, the operator produces the RESULT document. The
+RESULT contains a headline verdict, one of POSITIVE, NULL, or
+AMBIGUOUS as defined by the pre-registered decision rules; per-baseline,
+per-observable statistical findings, including all test statistics
+and any confidence or credible intervals; required disclosures,
+covering pre-registered limitations, systematics that became apparent
+during execution, and any operational fixes applied; and a
+\emph{constrained-interpretation section} that, when multiple
+permissible interpretations apply to the result, documents each frame
+side-by-side without claiming one stronger than the other given the
+locked methodology's scope. The RESULT also includes a forward-looking
+section describing what the methodology deliberately did not test,
+providing context for follow-up work and bounding the claims the
+current result can support.
+
+The RESULT is committed to the repository and tagged following the
+convention \texttt{<framework>-v<version>-result}
+(e.g., \texttt{ersaf-v1.0-result}), and the result tag is pushed to
+the same public remote as the lock tag. For the ERSAF audit, the
+headline verdict was NULL: no Bonferroni-corrected detection survived
+in any baseline model. A single Benjamini--Hochberg false discovery
+rate firing at $z \in [0.024, 0.038]$ was reported under two
+interpretive frames: a formal frame, in which the firing is
+consistent with smooth dark-energy absorption at the chosen
+significance level, and a systematic frame, in which the firing is
+consistent with the low-$z$ peculiar-velocity systematic disclosed
+in the pre-registration. Neither frame was claimed stronger than the
+other; the RESULT document records both \cite{dixon2026ersaf}.
+
+\subsection{Calibration assessment as standing requirement}
+\label{subsec:calibration-req}
+
+In domains where the evaluation outputs probability estimates --
+classifier confidence scores, forecast probabilities, regression
+uncertainty estimates -- AEPF requires calibration assessment
+alongside whichever discriminative metrics are appropriate to the
+domain. The calibration-assessment requirements specify the Brier
+score \cite{brier1950} and the Expected Calibration Error
+\cite{naeini2015ece, guo2017calibration} as minima, accompanied by a
+reliability diagram. The requirement is treated as a standing
+requirement: a pre-registration that does not specify calibration
+assessment for a probability-output evaluation does not pass
+cross-model review.
+
+The motivation is that strong discriminative metrics in the presence
+of poor calibration produce systems that are confidently wrong --- a
+failure mode that does not appear in accuracy-only or AUROC-only
+evaluation \cite{guo2017calibration, minderer2021revisiting}.
+Calibration audits performed under AEPF discipline have documented
+this failure mode empirically in multiple transformer-based language
+models \cite{dixon2026distilbert, dixon2026toxicbert,
+dixon2026chatgptdetector}, in each case revealing systematic
+overconfidence that would have been invisible under accuracy-driven
+evaluation alone.
+
+\subsection{Instrument validation of the calibration audit}
+\label{subsec:instrument-validation}
+
+The standing calibration requirement
+(Section~\ref{subsec:calibration-req}) presumes the calibration-audit
+rule is itself a sound instrument: that it accepts genuinely
+calibrated probabilities and rejects miscalibrated ones. Because the
+framework leans on that rule to surface a failure mode invisible to
+accuracy-only evaluation, the rule was validated as an instrument
+against synthetic ground truth---a methods-level exercise, distinct
+from a locked AEPF study, that characterizes the \emph{tool} rather
+than making a finding about any model or dataset. The audit rule
+under test was the one used verbatim in the transformer calibration
+audits (Section~\ref{subsec:calibration-case}): ten equal-width bins,
+a bin passing only if adequately populated and its mean predicted
+probability falls inside the Wilson interval of its observed
+frequency, scored against a base-rate climatology. The validation ran
+the rule over 100 replications on each of several synthetic arms whose
+calibration was known by construction, under a single master seed.
+
+\paragraph{Operating characteristics.}
+The results separate cleanly into two distinct error properties.
+\emph{Soundness} (Type~I, the false-accept of broken calibration) was
+zero across all four miscalibration families tested---overconfident,
+underconfident, positive-shift, and negative-shift logit
+perturbations were each rejected in 100 of 100 replications. Not a
+single replication of broken calibration was accepted. \emph{Power}
+(Type~II, the false-reject of genuine calibration) was zero under
+well-spread calibrated predictions---uniform and bimodal arms were
+each accepted 100 of 100---and approximately 11\% under a
+heavily-skewed-but-genuinely-calibrated $\mathrm{Beta}(2,5)$ arm,
+which concentrates predictions in the low range and leaves the upper
+bins sparse. Noise tolerance was monotone: the instrument accepted
+small estimation noise and rejected large noise in the predicted
+direction.
+
+\paragraph{The mechanical verdict and what it rediscovered.}
+The validation carried a single pre-committed success bar: every
+positive-control arm classified as calibrated in at least 90 of 100
+replications, and every negative-control arm rejected in at least 90
+of 100. Two of the three positive arms cleared it outright; the
+skewed $\mathrm{Beta}(2,5)$ arm came in at 89 of 100---one replication
+under the line. The conjunction therefore failed, and the verdict is
+reported as FAIL: no kinder seed, no softened threshold, no
+relabeling. The skewed arm's $\sim$11\% false-reject rate is not the
+instrument failing to recognize calibration---the outcomes were drawn
+from the predictions, so there is no miscalibration in the arm to
+recognize---but the empirical signature of a power limitation the
+audit template had named \emph{a priori}: highly skewed distributions
+reduce the bin-wise statistical power of the calibration test. An
+a-priori caveat thus acquired a measured operating characteristic.
+
+\paragraph{The design lesson.}
+The single pre-committed bar conflated two distinguishable properties:
+instrument soundness (which held completely) and power under skew (on
+which the skewed arm fell one replication short). A correctly
+stratified pre-commitment would have made soundness and a
+well-spread power baseline binding while reporting power under a
+documented difficulty---skew---as characterization rather than as a
+gate, because the template had predicted reduced power there in
+advance. This is recorded as the framework's v1.1 refinement for
+instrument-validation studies: pre-committed criteria must be
+stratified by the property under characterization rather than
+collapsed into a single conjunction across heterogeneous arms.
+
+\paragraph{A contained claim, not a general principle.}
+The disciplined report of this near-miss FAIL strengthens the
+credibility of the instrument-validation finding---the failure was
+small, the diagnosis was sharp, and the substantive interpretation
+was constrained by an a-priori template note rather than improvised
+after the fact. This claim is deliberately contained to this case. It
+is \emph{not} a general principle that a FAIL outranks a PASS, and it
+must not be read as one. If AEPF reports routinely failed their
+pre-committed bars and leaned on substantive interpretation to
+recover, pre-committed bars would become decoration and the framework
+would invert into the very practice it exists to prevent. The
+near-miss strengthens credibility here because it is bounded by a
+small failure, a sharp diagnosis, and an a-priori commitment; it
+earns its containment case-by-case and claims nothing beyond this
+case.
+
+\subsection{Null-result publication parity}
+\label{subsec:null-parity}
+
+AEPF requires NULL and POSITIVE results to be published with
+identical artifact discipline. The pre-registration's publication
+commitment binds the operator to publish the RESULT regardless of
+outcome direction. A NULL verdict is not a non-event: it is the
+project's output, produced under the same locked methodology that
+would have produced a POSITIVE verdict had the data supported one,
+and reported with the same level of statistical detail and the same
+artifact preservation requirements.
+
+The framework's null-result publication discipline addresses
+publication bias \cite{ioannidis2005} at the methodology-lock stage
+rather than at the journal-submission stage. By the time the result
+is observed, the publication commitment is already in place; the
+operator cannot retract a study they intended to publish only if it
+produced a positive finding. The ERSAF NULL verdict and its
+accompanying RESULT document, published under the lock-tag
+discipline described above, illustrate the operational consequence:
+a null finding is treated as a substantive contribution to the
+literature rather than as a failed project.
+
+\subsection{Viability gate (a refinement under observation)}
+\label{subsec:viability-gate}
+
+A pattern that emerged in operational practice during the
+preparation of one of the case studies in
+Section~\ref{sec:case-studies} extends the framework backward to
+the pre-specification phase. When a candidate pre-registration is
+drafted whose informational yield depends on an empirical
+assumption that has not been checked---particularly an
+independence assumption between predictors, or a structural prior
+that makes the answer predictable in advance---AEPF as articulated
+in Sections~\ref{subsec:prereg-review} through
+\ref{subsec:null-parity} has no explicit handle for the question
+``is this study worth locking at all?'' The framework's entry
+point assumes the question is already specifiable enough to
+pre-register; it does not address the case where the question is
+specifiable but the answer is structurally over-determined before
+data are observed.
+
+The \emph{viability gate} is a structured exploratory diagnostic,
+run before lock, with a pre-committed decision rule about whether
+to proceed with the candidate pre-registration. The diagnostic is
+explicitly non-confirmatory: it cannot be cited as confirmatory
+evidence in any subsequent published audit, and any findings that
+prove substantively interesting in their own right must be
+re-derived under proper lock discipline before publication. Its
+purpose is exclusively to gate the decision to lock, not to
+substitute for the locked study.
+
+The discipline that distinguishes a legitimate viability gate from
+an exploratory peek that would contaminate the subsequent
+pre-registration is a constraint on what the diagnostic is
+permitted to inform. The pre-committed decision rule must be about
+\emph{viability}---does the candidate study have structural room
+to return an informative answer?---and never about
+\emph{methodology selection}---which combination rule, threshold,
+or transformation should the pre-registration lock? The moment a
+viability gate begins answering methodology-selection questions,
+it has become an unblinded peek and the candidate
+pre-registration's methodology has been data-informed in the way
+AEPF is designed to prevent.
+
+Trigger conditions for performing a viability gate, drawn from
+observed practice: independence assumptions are critical to the
+study's informational content; structural priors suggest a NULL
+result for reasons unrelated to the substantive question;
+sample-size feasibility is genuinely uncertain; or the candidate
+pre-registration has a methodologically defensible structure but
+its informational yield depends on an empirical assumption that
+has not been checked. The Dynametrix-HRRR case study
+(Section~\ref{subsec:dynametrix-hrrr-case}) is the worked example.
+
+A note on the edge between viability and methodology selection.
+The Dynametrix-HRRR diagnostic uses a trichotomous decision rule:
+PROCEED, PROCEED\_WITH\_DISCLOSURE (which adds a required
+disclosure to the candidate pre-registration's required-disclosures
+section if triggered), and DO\_NOT\_PROCEED. The middle branch
+sits at the edge of the viability/methodology-selection
+distinction. The framework's position is that a required disclosure
+added to the pre-registration is an interpretive constraint rather
+than a methodology change: it does not alter what tests are run,
+which corrections are applied, or how the verdict is computed; it
+constrains how a positive verdict, if produced, may be reported.
+On this reading the middle branch remains viability-side. The case
+is the first operational application of the gate, and the
+boundary between ``interpretive constraint addition'' and
+``methodology change'' is a frontier the gate's continued use will
+need to map empirically before formalization.
+
+This subsection is included as a refinement under observation
+rather than as a fully formalized v1.0 component of AEPF. The
+pattern has, at the time of writing, one operational application.
+Further applications across heterogeneous contexts will determine
+whether the trigger conditions and constraints as stated here hold
+up, or whether they require revision before formalization in a
+subsequent version of the framework.
+
+\section{Case Studies}
+\label{sec:case-studies}
+
+This section presents four case studies applying AEPF discipline
+to substantively different evaluation contexts. The first
+(Section~\ref{subsec:ersaf-case}) is a cosmological audit testing
+for non-smooth residual structure in joint expansion-history
+residuals---a full-lifecycle study that locked, executed, and
+reported a NULL verdict. The second
+(Section~\ref{subsec:calibration-case}) is a series of calibration
+audits performed on transformer-based language models released to
+public model registries---a demonstration of the framework's
+portability across multiple model evaluations under shared
+discipline. The third
+(Section~\ref{subsec:rc-case}) is the Relational Coherence audit
+(RC v1)---a pre-registered framing-robustness test of an open-weight
+language model that locked, executed, and reported a NULL verdict on
+a single commodity GPU. The fourth
+(Section~\ref{subsec:dynametrix-hrrr-case}) is the
+Dynametrix-HRRR independence diagnostic---the first operational
+application of the viability gate pattern described in
+Section~\ref{subsec:viability-gate}, illustrating the framework's
+handling of pre-specification dispositions. The four case studies
+share no domain-specific machinery; all four share the AEPF
+artifact discipline. Their juxtaposition demonstrates the
+framework's portability across heterogeneous evaluation contexts
+and shows how the same operational artifacts---pre-registration,
+materialization manifest, lock-time commitment, single-execution
+discipline, RESULT document with constrained interpretation, and
+where applicable the viability gate---can be applied without
+modification to problem domains that share no other methodological
+vocabulary.
+
+\subsection{ERSAF: a cosmological residual-structure audit}
+\label{subsec:ersaf-case}
+
+The Expansion Residual Structure Assessment Framework (ERSAF)
+\cite{dixon2026ersaf} applied AEPF discipline to a search for
+non-smooth residual structure in the joint expansion-history
+residuals of the Pantheon+ Type~Ia supernova compilation
+\cite{brout2022pantheon} and the DESI Data Release~1 Baryon Acoustic
+Oscillation measurements \cite{adame2024desi3, adame2024desi4},
+relative to three locked smooth dark-energy baselines: flat \LCDM{},
+flat \wCDM{}, and flat \wowaCDM{}.
+
+\paragraph{Pre-registration and cross-model review.}
+The ERSAF pre-registration document was finalized prior to any
+analysis touching the evaluation data and specified the full
+analytical pipeline: baseline cosmology evaluation against the
+locked datasets, residual computation, two test families (a
+continuous wavelet transform with Torrence \& Compo cone-of-influence
+masking and a PELT change-point detector with weighted Gaussian
+cost), multiple-testing correction with Bonferroni family-wise error
+rate as primary and Benjamini--Hochberg false discovery rate as
+secondary, and decision rules classifying outcomes as POSITIVE,
+NULL, or AMBIGUOUS at pre-specified significance thresholds. The
+pre-registration also disclosed methodological limitations,
+including a low-redshift peculiar-velocity systematic acknowledged
+prospectively as a known blind spot of the chosen residual
+construction.
+
+The pre-registration underwent two rounds of cross-model review
+before lock. The first round produced numbered findings classified
+by severity; the operator addressed each finding and committed the
+responses alongside the pre-registration. A second focused review
+examined only the analytical changes introduced by the first
+round's remediation, ensuring those changes had not introduced new
+methodological issues. Both review records were committed to the
+repository as part of the lock commit.
+
+\paragraph{Materialization and lock.}
+The materialization manifest recorded the SHA-256 hashes of three
+classes of artifact: the Pantheon+ data and covariance files as
+released by the Pantheon+ collaboration; the DESI DR1 BAO
+12-observable values, materialized from the upstream
+\texttt{CobayaSampler/bao\_data} repository at a named commit, with
+each observable's value, redshift, and bin label cross-checked
+against the published Tables of \cite{adame2024desi3,
+adame2024desi4} within the half-unit tolerance of the published
+decimal precision; and the analysis script itself, with its
+SHA-256 recorded in the pre-registration document. All artifacts
+were committed in a single lock commit and tagged
+\texttt{ersaf-v1.0-lock}; the tag was pushed to the public remote
+before unblinding.
+
+\paragraph{Execution and operational fixes.}
+The locked methodology was executed once. The execution required
+three operational fixes, each committed as a distinct repository
+commit and documented in the disclosures section of the RESULT
+document: a UTF-8 encoding configuration for non-ASCII characters
+in log output; a standard-output buffering directive
+(\texttt{python -u}) for progress reporting on the Windows host
+where the run was performed; and an attribute-initialization fix
+in the PELT cost function (\texttt{self.signal = signal} added to
+the fit method), committed as \texttt{552cc0c}. None of the three
+fixes altered the analysis specification; each addressed an
+implementation defect in the locked code rather than a
+methodological decision. The execution that produced the recorded
+outputs used the fixed code.
+
+\paragraph{RESULT and interpretation.}
+The headline verdict was NULL: no Bonferroni-corrected detection
+survived in any of the three baseline models. A single
+Benjamini--Hochberg false discovery rate firing was observed in the
+wavelet test family at $z \in [0.024, 0.038]$, corresponding to a
+single coefficient at wavelet scale 1.2854 bins. The RESULT
+document reports this firing under two interpretive frames,
+documented side-by-side without claiming one stronger than the
+other given the locked methodology's scope.
+
+The \emph{formal frame} interprets the BH FDR firing as a
+statistically marginal feature, consistent with smooth dark-energy
+absorption at the chosen significance level: the absence of any
+Bonferroni-firing detection indicates that the joint residuals
+contain no structure incompatible with the smooth baselines once
+appropriate multiple-testing correction is applied.
+
+The \emph{systematic frame} interprets the same firing as the
+expected signature of the low-$z$ peculiar-velocity systematic
+disclosed prospectively in the pre-registration. The firing's
+location at $z = 0.024$--$0.038$ falls within the redshift range
+where peculiar-velocity contamination is known to be most
+significant relative to cosmological signal, and the
+single-coefficient pattern is consistent with a localized
+systematic rather than a broadband cosmological feature.
+
+The RESULT document explicitly declines to elevate either frame
+over the other on the basis of the locked methodology alone.
+Resolution between frames would require a follow-up analysis
+specifically targeting the low-$z$ peculiar-velocity systematic
+under a separately locked methodology---work that ERSAF v1
+deliberately did not perform and that the RESULT's forward-looking
+section identifies as the natural successor.
+
+The RESULT was committed and tagged \texttt{ersaf-v1.0-result};
+the tag was pushed to the public remote alongside the lock tag.
+
+\paragraph{What ERSAF demonstrates about AEPF.}
+The ERSAF case demonstrates AEPF's behavior under a NULL outcome.
+A non-AEPF audit observing a single BH FDR firing at low redshift
+could plausibly have foregrounded that firing as a marginal
+positive result, with the systematic interpretation relegated to
+supplementary material. Under AEPF discipline, the publication
+commitment locked at the pre-registration stage required the NULL
+verdict be reported with the same artifact discipline as a
+POSITIVE result would have received, and the constrained-interpretation
+section required the systematic frame be reported with equal
+standing to the formal frame. The reader of the RESULT receives
+both interpretations, the methodology's scope is explicitly
+bounded, and the natural follow-up work is identified rather than
+implied.
+
+\subsection{Transformer calibration audits}
+\label{subsec:calibration-case}
+
+A second set of AEPF case studies applied the framework to
+calibration assessment of transformer-based language models
+released to public model registries. Three audits were performed
+under separate pre-registrations and separate lock tags, each
+following the AEPF lifecycle: DistilBERT fine-tuned on the
+Stanford Sentiment Treebank binary task (DistilBERT-SST2)
+\cite{dixon2026distilbert}; Toxic-BERT, a multi-label toxicity
+classifier \cite{dixon2026toxicbert}; and a RoBERTa-based
+ChatGPT-detection model \cite{dixon2026chatgptdetector}.
+
+\paragraph{Common framework, separate locks.}
+Each audit produced its own pre-registration document, its own
+cross-model review, its own materialization manifest pinning both
+the evaluation corpus and the model revision identifier, its own
+lock commit and lock tag, and its own RESULT document. The three
+audits did not share lock tags, did not share materialization
+manifests, and were not pooled at the analysis stage. Sharing the
+framework did not mean sharing the artifact chain: each model and
+each evaluation context received an independent AEPF lifecycle.
+
+\paragraph{Calibration as primary deliverable.}
+Each pre-registration specified, per Section~\ref{subsec:calibration-req}
+of this paper, the Brier score \cite{brier1950} and Expected
+Calibration Error \cite{naeini2015ece, guo2017calibration} as
+primary deliverables, accompanied by reliability diagrams. The
+discriminative metrics appropriate to each task---accuracy and
+F1 for binary classification, per-label AUROC for the multi-label
+toxicity task, accuracy and discrimination-threshold sensitivity
+for the ChatGPT detector---were reported as secondary deliverables.
+This ordering is the operational consequence of
+Section~\ref{subsec:calibration-req}: a model's probability
+estimates must be assessed for reliability before its
+discriminative outputs are characterized.
+
+\paragraph{Materialization of model and corpus.}
+The materialization manifests for the three audits each pinned the
+evaluation corpus by file SHA-256 (the SST-2 development set for
+DistilBERT-SST2, a stratified subsample of the toxicity evaluation
+data for Toxic-BERT, and a curated set of human-written and
+machine-generated text for the ChatGPT detector) and pinned the
+model itself by repository revision identifier. The revision pin
+is essential because models in public registries are mutable
+artifacts: a model identified only by repository name may be
+silently updated by the maintainer between materialization and
+re-execution, breaking reproducibility. Pinning the revision
+identifier in the manifest ensures that a re-execution loads
+exactly the bytes that were evaluated at lock time.
+
+\paragraph{Findings and pattern.}
+Each of the three audits documented systematic miscalibration in
+the model under evaluation. Table~\ref{tab:calibration-summary}
+summarizes the headline metrics. The reliability diagrams
+\cite{dixon2026distilbert, dixon2026toxicbert,
+dixon2026chatgptdetector} display overconfidence in the
+high-probability bins for the binary and multi-label
+classification audits, and a more complex calibration profile for
+the ChatGPT detector reflecting the task's open-ended distribution
+shift. In all three cases, the discriminative metrics taken in
+isolation would have suggested adequate model performance: accuracy
+ranged from 67.8\% (ChatGPT detector) to 94.5\% (Toxic-BERT). The
+calibration assessment revealed that probability estimates from
+these models, treated as reliable confidence outputs, would
+systematically mislead downstream consumers. The ChatGPT detector
+case is the most striking: a Brier Skill Score of $-0.16$ against a
+0.5 base-rate climatology means the model's probability outputs are
+\emph{worse} than the trivial reference forecast that always
+predicts the base rate---a finding invisible to the model's
+67.8\% accuracy score taken alone.
+
+\begin{table}[h]
+\centering
+\caption{Headline calibration metrics across the three transformer
+calibration audits. Brier = Brier score (lower is better); BSS =
+Brier Skill Score against base-rate climatology (positive is better,
+negative is worse than reference); ECE = Expected Calibration Error.
+Outcome category per the audit's pre-registered decision rule.}
+\label{tab:calibration-summary}
+\begin{tabular}{lrrrrrl}
+\toprule
+Model & $N$ & Accuracy & Brier & BSS & ECE & Outcome \\
+\midrule
+DistilBERT-SST2 & 872 & 0.911 & 0.083 & $+0.666$ & 0.072 & Not calibrated \\
+Toxic-BERT & 5{,}000 & 0.945 & 0.044 & $+0.349$ & 0.022 & Drift detected \\
+ChatGPT-detector & 2{,}000 & 0.678 & 0.291 & $-0.163$ & 0.279 & Not calibrated \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{What the calibration audits demonstrate about AEPF.}
+The three calibration audits demonstrate AEPF's domain portability:
+the same framework that locked a cosmological audit of dark-energy
+extensions locked three audits of transformer probability outputs
+without modification. They also demonstrate the operational value
+of treating calibration as a standing requirement
+(Section~\ref{subsec:calibration-req}). In the absence of that
+requirement, calibration assessment would have been a project-level
+decision, and the three audits could plausibly have reported
+discriminative metrics alone---missing the failure mode the audits
+were specifically designed to detect. The standing requirement
+forecloses that failure path at the pre-registration stage.
+
+\subsection{Relational Coherence v1: a pre-registered open-weight LLM null}
+\label{subsec:rc-case}
+
+A third full-lifecycle case study applied AEPF discipline to an
+open-weight language model on commodity hardware, returning a clean
+NULL. The Relational Coherence audit (RC v1)
+\cite{dixon2026rcv1} pre-registered a single gated question: does the
+\emph{behavioral-equivalence graph topology} of a model's outputs
+under semantically-equivalent framing variation reveal consistency
+structure that an aggregate pairwise-agreement rate conceals?
+
+\paragraph{Question and pre-committed test.}
+For each query, the model was run on $N_{\mathrm{var}} = 50$
+framing-and-layout variants that preserve the verbatim question and
+option text and vary only the instructional wrapper and option
+layout. From the resulting output graph two scalars were defined: an
+aggregate pairwise consistency rate $C$ (edge density) and a
+pair-fraction-in-same-component $F$ (the probability that two
+randomly chosen variant outputs share a behavioral component). The
+two are not algebraically reducible to one another---graphs of equal
+edge density can differ in connectivity---and the pre-registration
+gated on whether topology $F$ separates queries that $C$ rates as
+equivalent. The pre-committed decision rule: among comparable
+query-pairs ($|\Delta C| \leq 0.05$), at least $k = 0.20$ must show
+topological separation ($|\Delta F| \geq 0.10$). The pre-registration
+recorded prospectively that a high-framing-robustness regime, in
+which $F$ saturates near one across queries, would yield a NULL, and
+committed to publishing that NULL under the same discipline as a
+positive result.
+
+\paragraph{Substrate, model, and lock.}
+The substrate was the canonical MMLU release pinned by dataset
+revision: 300 queries balanced across three subjects
+(high-school mathematics, professional law, miscellaneous),
+selected deterministically by content hash. The model under test was
+Qwen2.5-7B-Instruct-AWQ, a 4-bit quantized open-weight
+instruction-tuned model pinned by repository revision and served via
+vLLM under greedy decoding. The edge predicate used a pinned
+sentence-embedding model, with the equivalence threshold $\tau$
+calibrated to a held-out, disjoint slice and frozen before any
+main-run inference under a separate \texttt{rc-v1-calibrated} tag.
+The pre-registration, analysis script, and materialization manifest
+were committed in a single lock commit and tagged
+\texttt{rc-v1-lock}; the materialization manifest pinned the dataset,
+the model weights, and the embedding model each by revision, so that
+a re-execution loads exactly the bytes evaluated at lock time.
+
+\paragraph{Result and verdict.}
+The frozen threshold was $\tau = 0.8017$. Across 300 queries (none
+dropped for inference failure), $21{,}946$ comparable query-pairs
+were identified; $148$ showed topological separation, a proportion
+of $0.0067$ against the pre-committed $k = 0.20$. The headline
+verdict was NULL. The null was driven by $F$-saturation: mean
+$F = 0.993$ (minimum $0.65$), against a more variable $C$
+(mean $0.930$, minimum $0.296$). The secondary, ungated
+characterization---the count of high-accuracy, low-$F$ queries that
+would signal cross-framing fragmentation despite correct label
+recovery---was zero. The behavioral graphs were, in short, almost
+never fragmented: the model is highly framing-robust on this task
+family, and the topology $F$ found no consistency structure for $C$
+to have concealed because there was little structure to find. This
+is the high-robustness regime the pre-registration named in advance
+as a NULL-producing outcome, now observed.
+
+\paragraph{What RC v1 demonstrates about AEPF.}
+The RC v1 case demonstrates the framework producing a clean null
+where the structural prior favored one, published with full
+positive-parity rather than abandoned. Because the high-robustness
+NULL was named prospectively in the pre-registration, the verdict is
+not a disappointed positive recast as a null; it is the
+pre-specified outcome of a single locked execution. The case also
+exercises the full lock${\rightarrow}$calibrate${\rightarrow}$result
+single-execution pipeline---a separately tagged calibration step
+freezing a held-out threshold, followed by a single main run---on a
+quantized open-weight model running on a single commodity GPU,
+demonstrating that the artifact discipline AEPF prescribes carries
+to small-scale, locally reproducible language-model evaluation
+without modification.
+
+\subsection{Dynametrix-HRRR: a viability-gate case}
+\label{subsec:dynametrix-hrrr-case}
+
+The fourth case study applies AEPF discipline to a question whose
+answer turned out to be structurally over-determined before the
+candidate study could be locked. The candidate question:
+\emph{does combining Dynametrix v3 calibrated severe-weather
+probabilities with NWS HRRR-derived probabilities produce a
+measurably better-calibrated joint prediction than either source
+alone, over a defined location set and forecast horizon?}
+
+\paragraph{Candidate pre-registration.}
+A draft pre-registration was prepared specifying Brier Skill Score
+of the combined predictor against HRRR alone as the primary
+metric, with simple arithmetic averaging as the primary
+combination rule, three secondary combination rules subject to
+Bonferroni correction, and a publication commitment binding the
+operator to publish whatever verdict the data returned. The draft
+was structured to be lockable: data sources were named, the
+forecast horizon was fixed, the evaluation window was defined,
+and required disclosures including an independence-assumption
+caveat were prospectively stated.
+
+\paragraph{Pre-lock viability diagnostic.}
+Before advancing the draft to cross-model review and lock, an
+exploratory independence diagnostic was performed under an
+explicitly non-confirmatory protocol with a pre-committed decision
+rule. The diagnostic measured the Pearson correlation of residual
+errors between Dynametrix v3 and a provisional HRRR-derived
+predictor over a defined past-data window
+(2026-05-18 through 2026-05-24, 2{,}016 location-hours,
+375 verified severe-weather events). Decision thresholds: residual
+correlation $r < 0.4$ proceeds unconstrained; $0.4 \leq r \leq 0.7$
+proceeds with a required disclosure of bounded independence;
+$r > 0.7$ does not proceed.
+
+\paragraph{Diagnostic outcome.}
+The measured Pearson correlation was $r = 0.9839$ (95\% bootstrap
+CI $[0.9816, 0.9860]$, $B = 1{,}000$ stratified resamples). Per-category
+correlations: tornado $r = 0.949$ ($n = 1{,}710$, 69 events), hail
+$r = 0.944$ ($n = 1{,}706$, 65 events), wind $r = 0.979$
+($n = 1{,}882$, 241 events). Mean residuals indicated systematic
+miscalibration of both predictors in opposite directions: mean
+Dynametrix residual $-0.18$ (systematic over-prediction relative to
+an 18.6\% observed event rate), mean HRRR-derived residual $+0.18$
+(systematic under-prediction under the provisional transformation).
+Pearson correlation is invariant to such marginal shifts, so the
+headline correlation reflects signal-tracking agreement between
+the two predictors despite their disagreement on absolute
+probability calibration. The verdict from the pre-committed
+decision rule: \texttt{DO\_NOT\_PROCEED}.
+
+\paragraph{Disposition.}
+The candidate pre-registration was archived as ``considered but
+deferred'' rather than advanced to cross-model review and lock
+\cite{dixon2026dynametrixhrrr}. The archived artifact preserves
+the full draft pre-registration alongside a header documenting
+the diagnostic verdict that retired it, and identifies the
+conditions under which the question might be revisited: a
+meaningfully different HRRR-to-probability transformation, a
+revised Dynametrix feature set with non-overlapping upstream
+signal, or substitution of HRRR with a less-correlated reference
+forecast. Absent one of these conditions, the question is closed.
+
+\paragraph{What the Dynametrix-HRRR case demonstrates about AEPF.}
+The case demonstrates the framework's handling of an outcome
+neither full-lifecycle case study produces: a pre-specification
+disposition in which the candidate study is retired before lock
+because its informational yield is structurally constrained.
+Without a viability-gate pattern, the candidate study could
+plausibly have advanced to lock and execution, consumed analyst
+time on a methodologically clean run, and produced a NULL or
+inconclusive RESULT whose interpretive value would have been
+limited by the structural prior. With the viability gate, the
+structural prior was checked first, the candidate disposition was
+documented, and the analyst time freed for a different audit
+target. The exploratory-not-confirmatory framing of the gate
+ensures the disposition itself is not laundered into a
+confirmatory finding: the diagnostic record explicitly cannot be
+cited as evidence about independence between Dynametrix v3 and
+HRRR more broadly, only as the gate that retired this specific
+candidate study.
+
+\paragraph{Joint observation across the case studies.}
+The four case studies together illustrate four complementary
+patterns under AEPF discipline. The ERSAF case shows the
+framework's behavior when a locked full-lifecycle study returns a
+NULL verdict: the result is published with the same discipline as
+a positive verdict would have received, the dual interpretive
+frames are recorded without one being promoted above the other,
+and the deliberate non-coverage of the methodology is documented
+in the forward-looking section. The transformer calibration
+audits show the framework's behavior across multiple evaluations
+in a shared domain: each lock chain is independent, each RESULT
+stands on its own artifact chain, and the standing calibration
+requirement ensures that a failure mode (overconfident probability
+outputs) that is invisible under accuracy-only evaluation is
+surfaced across all three audits. The Relational Coherence audit
+shows the framework's behavior on an open-weight language model under
+greedy decoding: a high-framing-robustness regime named prospectively
+in the pre-registration as NULL-producing returned exactly that NULL,
+through the full lock--calibrate--result single-execution pipeline on
+a single commodity GPU. The Dynametrix-HRRR case shows
+the framework's behavior when a candidate study is structurally
+not worth locking: the viability gate produced a documented
+pre-specification disposition, retiring the candidate
+pre-registration before it consumed lock-chain resources. None of
+the four patterns depends on the domain; all four depend on the
+artifact discipline AEPF prescribes.
+
+\section{Discussion}
+\label{sec:discussion}
+
+The claim AEPF makes is narrower than may be apparent from its
+artifact discipline. The framework does not eliminate analyst freedom,
+does not guarantee correct conclusions, and does not replace the
+domain-specific judgment that empirical evaluation requires. Its claim
+is that analyst freedom, where exercised, becomes visible and
+cryptographically dated; that the methodology under which a result was
+produced is independently verifiable against a fixed reference point;
+and that the institutional commitment to publish a result has been
+recorded before the result was observed. What changes under AEPF is
+not the rate at which evaluations produce correct conclusions but the
+rate at which a reader can confidently assess what the conclusions
+mean.
+
+\paragraph{The burden-of-proof inversion.}
+In conventional evaluation, the burden of demonstrating that a result
+is robust falls on the reader. The reader must assess, often without
+access to the underlying artifacts, whether the methodology was
+specified before unblinding, whether the data sources reported are
+the data sources actually used, whether the statistical procedures
+were chosen post-hoc to surface the reported finding, and whether
+alternative methodological choices would have produced different
+conclusions. AEPF inverts this burden: a reader of an AEPF-locked
+study can verify these properties directly against the lock-tag
+artifacts. The reader's role becomes one of confirming that the
+pre-registered methodology matches the executed methodology, that
+the materialization manifest matches the cited data sources, and
+that any operational fixes documented in the RESULT do not cross
+into specification changes. Verification replaces inference.
+
+\paragraph{The role of peer review.}
+AEPF does not replace peer review. The pre-registration document
+addresses methodology decisions made before unblinding; peer review
+at publication addresses the broader questions of whether the
+methodology was well-chosen, whether the evaluation question was
+worth asking, and whether the conclusions drawn from the result are
+adequately bounded by the evidence. These are distinct functions.
+Cross-model review under AEPF is a methodology-stage review, intended
+to catch avoidable methodological errors before they are locked into
+the artifact chain; peer review at publication is a results-stage
+review, intended to situate the locked result within the relevant
+literature and assess its broader claims. AEPF strengthens the
+artifact chain peer review operates on; it does not substitute for
+the substantive judgment peer review provides.
+
+\paragraph{Null verdicts as substantive contributions.}
+Perhaps the most consequential operational change AEPF introduces is
+its treatment of NULL verdicts. Under conventional publication
+incentives, a project that does not produce a positive finding tends
+either to remain unpublished or to be reported with substantially
+less discipline than a positive finding would have received
+\cite{ioannidis2005, nosek2015open}. AEPF's publication commitment,
+locked at the pre-registration stage, removes the decision of whether
+to publish from the post-unblinding analytic phase. The operator who
+locks a pre-registration is institutionally bound to publish whatever
+the data return. The ERSAF NULL verdict, published under this
+discipline, is a worked illustration: a result that under conventional
+incentives might have been characterized as ``inconclusive'' or
+``promising but inconclusive'' is instead a substantive contribution,
+with the dual interpretive frames documented at the same level of
+detail as a positive finding would have warranted.
+
+\paragraph{Instrument soundness as a precondition for null evidence.}
+A null verdict is only evidence about the world if the instrument
+that produced it is sound. The validation of the calibration audit
+(Section~\ref{subsec:instrument-validation}) establishes that
+soundness directly---zero false-accept of broken calibration across
+the tested families---and in doing so surfaced a refinement to the
+framework's pre-commitment discipline. When the object under test is
+an evaluation instrument validated against synthetic ground truth
+rather than a hypothesis about the world, the pre-committed success
+criteria must be stratified by the property under
+characterization---soundness, power baseline, and power under named
+difficulties---rather than collapsed into a single conjunction across
+heterogeneous arms. A single bar spanning arms that probe different
+properties can fail for reasons that do not bear on the property that
+matters, obscuring the instrument's operating characteristics rather
+than revealing them. This v1.1 refinement is contained to
+instrument-validation studies; it does not weaken the pre-committed
+bar for hypothesis-testing studies, where a single decision rule
+remains appropriate.
+
+\paragraph{What AEPF does not change.}
+AEPF does not change what is true. A well-locked methodology
+applied to inadequate data will produce a well-locked result that
+is uninformative about the underlying question. A pre-registration
+that asks the wrong question will produce an answer to the wrong
+question, regardless of the lock tag's cryptographic strength.
+AEPF's value is procedural: it constrains the relationship between
+the question asked, the methodology applied, and the verdict
+reported. The substantive correctness of the resulting work
+depends on judgments AEPF cannot enforce---whether the question is
+worth asking, whether the methodology is appropriate to it,
+whether the result's conclusions are bounded by what the locked
+artifacts can support. These remain the responsibility of the
+operator, the cross-model reviewer, and the publication reviewer.
+
+\section{Limitations}
+\label{sec:limitations}
+
+AEPF is a workflow discipline rather than a statistical guarantee.
+Five limitations bound its claims, each of which the framework
+acknowledges rather than purports to resolve.
+
+\paragraph{Retrospective pre-registration.}
+AEPF cannot detect a researcher who performs unblinded exploratory
+analysis privately and only then writes a pre-registration that
+matches the exploratory finding. The cryptographic discipline
+attests that the pre-registration was committed at a particular
+moment in time; it does not attest that no prior unblinded
+exploration occurred. Mitigation depends on social and institutional
+factors outside the framework: declared conflicts of interest, the
+operator's incentives, and the willingness of cross-model reviewers
+to flag pre-registrations that appear unusually well-fitted to a
+specific hypothesized outcome. The framework's response to this
+limitation is to make the artifact chain a credible negative
+signal---a researcher who has performed retrospective pre-registration
+takes on the burden of explaining why their pre-registration anticipated
+the eventual outcome with such precision---rather than to claim a
+solution.
+
+\paragraph{Cryptographic infrastructure assumptions.}
+The framework's verifiability properties rely on the integrity of
+the version-control infrastructure and the public availability of
+the remote where lock tags are pushed. A repository whose remote
+ceases to be available, whose history is rewritten, or whose tag
+references are broken loses the artifact chain's verifiability. The
+mitigation is mirroring lock tags to multiple independent remotes
+and, where the stakes warrant, depositing the artifact chain with
+an institutional preservation service. These are operational
+practices the framework recommends but cannot enforce
+cryptographically.
+
+\paragraph{The operational-fix boundary.}
+The distinction between an operational fix (does not alter the
+analysis specification) and a specification change (does alter it,
+and requires re-locking) is principled but not always crisp in
+practice. The ERSAF v1 PELT attribute-initialization fix
+(\texttt{552cc0c}) is unambiguously an operational fix: a missing
+attribute assignment that prevented the locked code from running
+to completion. A hypothetical fix that changed a default parameter
+value, however, would be harder to classify. The framework's
+current resolution is to err on the side of re-locking whenever
+the distinction is unclear, accepting the additional process cost
+to preserve the artifact chain's interpretability. Future revisions
+may formalize an intermediate category (``re-lock optional'')
+governed by explicit criteria.
+
+\paragraph{Scoring-rule contestability.}
+AEPF's standing calibration requirement assumes that the underlying
+probability estimator is amenable to standard scoring rules
+\cite{brier1950, naeini2015ece, guo2017calibration}. Domains where
+the appropriate scoring rule is contested---long-horizon
+probabilistic forecasting under non-stationary processes,
+open-ended generative evaluation, multi-modal output spaces---may
+require methodology extensions beyond the framework's current
+specification. The case studies in Section~\ref{sec:case-studies}
+operate in domains where the scoring rules are well-established;
+extension to contested-scoring domains is identified as work
+beyond the present specification. Relatedly, the validation of the
+calibration audit (Section~\ref{subsec:instrument-validation})
+establishes soundness only against the parametric miscalibration
+families it tested---temperature-scaled and systematic-logit-shift
+perturbations---and does not establish that the instrument catches
+every possible miscalibration. Difficulty-stratified miscalibration,
+where a model is calibrated on easy items and broken on hard ones, is
+untested; the soundness claim is bounded to the families validated
+and is not a claim of completeness.
+
+\paragraph{Reviewer-quality residual.}
+Cross-model review under AEPF is only as strong as the reviewers
+who perform it. A reviewer who fails to flag a methodological
+error allows that error into the lock chain; a reviewer whose
+review is itself shaped by undisclosed conflicts of interest
+introduces bias the framework cannot detect. The framework's
+mitigations---requiring reviewers to be institutionally separable
+from the operator, requiring the review record to be committed
+alongside the pre-registration, requiring reviewer Critical
+findings to block lock---reduce but do not eliminate this residual.
+The framework's claim is that an AEPF artifact chain is more
+trustworthy than an equivalent un-locked methodology, not that
+it is unconditionally trustworthy.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper has introduced the Avenridge Evaluation and Publication
+Framework: a workflow discipline that integrates pre-registration,
+cross-model review, materialization, lock-time commitment,
+single-execution discipline, calibration assessment as a standing
+requirement, constrained-interpretation reporting, and null-result
+publication parity into a single operational framework anchored by
+cryptographic commit references. The framework's novelty lies in the
+integration and the artifact-level operationalization, not in any
+individual component; pre-registration, blind analysis, calibration
+assessment, and reproducibility frameworks each have substantial prior
+literature, and AEPF inherits from each.
+
+The four case studies presented in Section~\ref{sec:case-studies}
+illustrate the framework's behavior across substantively different
+evaluation contexts. The ERSAF cosmological audit demonstrates
+AEPF's treatment of a NULL verdict under a locked full-lifecycle
+study: a result that under conventional incentives might have
+foregrounded a marginal Benjamini--Hochberg firing as a positive
+finding instead reports the firing under two interpretive frames
+with neither elevated above the other, with the methodology's
+deliberate non-coverage of low-redshift peculiar-velocity
+systematics documented in the forward-looking section. The
+transformer calibration audits demonstrate the framework's
+portability and the operational consequence of treating calibration
+as a standing requirement: three audits, each under its own lock
+chain, each surfacing a failure mode invisible to accuracy-only
+evaluation. The Relational Coherence audit demonstrates the
+framework on an open-weight language model under greedy decoding: a
+high-framing-robustness regime named in advance as NULL-producing
+returned that NULL through the full lock--calibrate--result
+single-execution pipeline on commodity hardware. The Dynametrix-HRRR
+independence diagnostic
+demonstrates the viability-gate refinement
+(Section~\ref{subsec:viability-gate}): a candidate study whose
+informational yield was structurally over-determined was retired
+before lock with a documented pre-specification disposition,
+illustrating that AEPF's discipline extends backward to the
+question of whether a study is worth locking at all. Beyond the case
+studies, a methods-level validation against synthetic ground truth
+establishes that the calibration audit used in the transformer
+studies is itself sound---zero false-accept of broken calibration
+across the tested miscalibration families---so that the NULL verdicts
+above are evidence about the world rather than artifacts of the
+instrument.
+
+The framework's claim is procedural rather than substantive. AEPF
+does not make any evaluation correct; it makes the relationship
+between the question asked, the methodology applied, and the verdict
+reported independently verifiable. The reader of an AEPF-locked
+study verifies rather than infers; the operator who locks a
+pre-registration commits to publish whatever the data return; the
+cross-model reviewer leaves a written artifact that future readers
+can examine. What changes is not what is true but what is
+auditable.
+
+Several directions for further work remain. Extension of the
+calibration-assessment specification to domains where the
+appropriate scoring rule is contested---long-horizon forecasting,
+open-ended generative evaluation, multi-modal output spaces---is
+identified in Section~\ref{sec:limitations} as work beyond the
+present framework. Formalization of the operational-fix versus
+specification-change boundary, including criteria for a possible
+``re-lock optional'' intermediate category, would reduce ambiguity
+in cases where the current discipline errs toward re-locking.
+The viability-gate pattern introduced in
+Section~\ref{subsec:viability-gate} is at present a refinement
+under observation, with one operational application documented in
+Section~\ref{subsec:dynametrix-hrrr-case}; further applications
+across heterogeneous contexts will determine whether the trigger
+conditions and constraints as currently stated hold up, or whether
+they require revision before formalization as a full v1.0
+component. Broader adoption of the framework would clarify the
+empirical question of how AEPF discipline shifts the
+published-result distribution---how the rate of null findings, the
+rate of documented operational fixes, the rate of
+constrained-interpretation reporting, and the rate of
+pre-specification dispositions compare between AEPF-locked and
+conventional evaluations. These remain open. What this paper has
+presented is the framework itself, the artifacts that compose it,
+and four case studies illustrating its application. If adopted
+broadly, AEPF discipline would shift the rate of null-result
+publication, the reproducibility of evaluation artifacts, and the
+auditability of evaluation methodology in ways the framework
+cannot itself measure; that measurement is itself an evaluation
+question deserving AEPF discipline.
+
+% =========================================================
+% BIBLIOGRAPHY
+% =========================================================
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

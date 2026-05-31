@@ -1,0 +1,154 @@
+{
+  "overall": "FAIL",
+  "config": {
+    "R": 100,
+    "N": 4000,
+    "K": 10,
+    "master_seed": "0x1dea"
+  },
+  "arms": {
+    "calibrated_uniform": {
+      "kind": "POSITIVE",
+      "counts": {
+        "Calibrated (strong)": 95,
+        "Calibrated (acceptable)": 5,
+        "Calibration drift detected": 0,
+        "Not calibrated": 0
+      },
+      "pct_calibrated": 100.0,
+      "pct_rejected": 0.0,
+      "mean_bins_passed": 9.59,
+      "mean_bss": 0.33338653420518044
+    },
+    "calibrated_asym": {
+      "kind": "POSITIVE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 89,
+        "Calibration drift detected": 11,
+        "Not calibrated": 0
+      },
+      "pct_calibrated": 89.0,
+      "pct_rejected": 11.0,
+      "mean_bins_passed": 7.45,
+      "mean_bss": 0.12669998927359594
+    },
+    "calibrated_bimodal": {
+      "kind": "POSITIVE",
+      "counts": {
+        "Calibrated (strong)": 90,
+        "Calibrated (acceptable)": 10,
+        "Calibration drift detected": 0,
+        "Not calibrated": 0
+      },
+      "pct_calibrated": 100.0,
+      "pct_rejected": 0.0,
+      "mean_bins_passed": 9.46,
+      "mean_bss": 0.5005385910923998
+    },
+    "noisy_sigma_0.25": {
+      "kind": "TOLERANCE",
+      "counts": {
+        "Calibrated (strong)": 87,
+        "Calibrated (acceptable)": 13,
+        "Calibration drift detected": 0,
+        "Not calibrated": 0
+      },
+      "pct_calibrated": 100.0,
+      "pct_rejected": 0.0,
+      "mean_bins_passed": 9.38,
+      "mean_bss": 0.3258052424207388
+    },
+    "noisy_sigma_0.5": {
+      "kind": "TOLERANCE",
+      "counts": {
+        "Calibrated (strong)": 19,
+        "Calibrated (acceptable)": 63,
+        "Calibration drift detected": 17,
+        "Not calibrated": 1
+      },
+      "pct_calibrated": 82.0,
+      "pct_rejected": 18.0,
+      "mean_bins_passed": 7.5,
+      "mean_bss": 0.3005869603610899
+    },
+    "noisy_sigma_1.0": {
+      "kind": "TOLERANCE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 0,
+        "Calibration drift detected": 1,
+        "Not calibrated": 99
+      },
+      "pct_calibrated": 0.0,
+      "pct_rejected": 100.0,
+      "mean_bins_passed": 2.65,
+      "mean_bss": 0.21811390047340878
+    },
+    "noisy_sigma_2.0": {
+      "kind": "TOLERANCE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 0,
+        "Calibration drift detected": 0,
+        "Not calibrated": 100
+      },
+      "pct_calibrated": 0.0,
+      "pct_rejected": 100.0,
+      "mean_bins_passed": 1.79,
+      "mean_bss": 0.005689089650828082
+    },
+    "overconfident_T0.5": {
+      "kind": "NEGATIVE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 0,
+        "Calibration drift detected": 1,
+        "Not calibrated": 99
+      },
+      "pct_calibrated": 0.0,
+      "pct_rejected": 100.0,
+      "mean_bins_passed": 2.63,
+      "mean_bss": 0.2874309723322101
+    },
+    "underconfident_T2.0": {
+      "kind": "NEGATIVE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 0,
+        "Calibration drift detected": 0,
+        "Not calibrated": 100
+      },
+      "pct_calibrated": 0.0,
+      "pct_rejected": 100.0,
+      "mean_bins_passed": 2.08,
+      "mean_bss": 0.28709929874303125
+    },
+    "shift_pos_b+0.5": {
+      "kind": "NEGATIVE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 0,
+        "Calibration drift detected": 0,
+        "Not calibrated": 100
+      },
+      "pct_calibrated": 0.0,
+      "pct_rejected": 100.0,
+      "mean_bins_passed": 1.31,
+      "mean_bss": 0.30053949309678796
+    },
+    "shift_neg_b-0.5": {
+      "kind": "NEGATIVE",
+      "counts": {
+        "Calibrated (strong)": 0,
+        "Calibrated (acceptable)": 0,
+        "Calibration drift detected": 0,
+        "Not calibrated": 100
+      },
+      "pct_calibrated": 0.0,
+      "pct_rejected": 100.0,
+      "mean_bins_passed": 1.19,
+      "mean_bss": 0.3022921911906441
+    }
+  }
+}
