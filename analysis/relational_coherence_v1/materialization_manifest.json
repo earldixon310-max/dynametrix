@@ -1447,5 +1447,9 @@
       }
     ]
   },
-  "deferred": "git lock-commit SHA and calibration_constants.json / calibration_distributions.npz hashes are recorded in their own later steps (\u00a715 steps 5\u20137), not by this script"
+  "deferred": "git lock-commit SHA and calibration_constants.json / calibration_distributions.npz hashes are recorded in their own later steps (\u00a715 steps 5\u20137), not by this script",
+  "calibration_artifacts": {
+    "calibration_constants.json": "1ea71179d6b84d9b523da60227f3b413230aab70ee3a79fa5899ffcf83c82964",
+    "calibration_distributions.npz": "defe6ccb121d3071f973751a7c5ddf6c209e946699d26f6e37481b5e2f2fa996"
+  }
 }
