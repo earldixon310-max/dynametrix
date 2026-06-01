@@ -11,9 +11,9 @@
 
 ## 1. Title
 
-**The Avenridge Evaluation and Publication Framework: An Operationalized, Cryptographically-Anchored Methodology for Pre-Registered Evaluation with Null-Result Parity**
+**The Avenridge Evaluation and Publication Framework: A Framework for Locked Evaluation, Calibration Assessment, and Reproducible Verification in Evaluation-Intensive Computational Domains**
 
-*(This is the manuscript title as set in `AEPF.tex`. If you prefer a shorter title for indexing, a candidate is: "The Avenridge Evaluation and Publication Framework: Operationalized Pre-Registration for Computational Evaluation.")*
+*(Exact title as set in `AEPF.tex` and the compiled PDF — enter verbatim in ScholarOne so the form matches the manuscript.)*
 
 ## 2. Author and affiliation
 
