@@ -18,8 +18,27 @@ The repository functions as a working artifact: anyone may clone it, check out a
 | `spinphase-gw-quietwell-v1` | Gravitational-wave detection (within-segment differential) | [docs/PRE_REGISTRATION_GW_QUIETWELL_v1.md](docs/PRE_REGISTRATION_GW_QUIETWELL_v1.md) | [docs/RESULT_GW_QUIETWELL_v1_2026-05-04.md](docs/RESULT_GW_QUIETWELL_v1_2026-05-04.md) | R_D = 50 of 100; no local emergence under this test |
 | `distilbert-sst2-calibration-v1` | AI/ML model calibration (DistilBERT SST-2) | [case_studies/distilbert_sst2/PRE_REGISTRATION_DISTILBERT_SST2_v1.md](case_studies/distilbert_sst2/PRE_REGISTRATION_DISTILBERT_SST2_v1.md) | [docs/RESULT_DISTILBERT_SST2_v1_2026-05-06.md](docs/RESULT_DISTILBERT_SST2_v1_2026-05-06.md) | Not calibrated; bimodal overconfidence at the extremes |
 | `toxic-bert-calibration-v1` | AI/ML model calibration (Unitary Toxic-BERT, Civil Comments) | [case_studies/toxic_bert/PRE_REGISTRATION_TOXIC_BERT_v1.md](case_studies/toxic_bert/PRE_REGISTRATION_TOXIC_BERT_v1.md) | [docs/RESULT_TOXIC_BERT_v1_2026-05-06.md](docs/RESULT_TOXIC_BERT_v1_2026-05-06.md) | Calibration drift detected; structured overconfidence in middle-to-high probability range |
+| `chatgpt-detector-roberta-v1` | AI/ML model calibration (ChatGPT-detector RoBERTa) | [case_studies/chatgpt_detector_roberta_v1/PRE_REGISTRATION_CHATGPT_DETECTOR_ROBERTA_v1.md](case_studies/chatgpt_detector_roberta_v1/PRE_REGISTRATION_CHATGPT_DETECTOR_ROBERTA_v1.md) | [docs/RESULT_CHATGPT_DETECTOR_ROBERTA_v1_2026-05-18.md](docs/RESULT_CHATGPT_DETECTOR_ROBERTA_v1_2026-05-18.md) | Not calibrated; Brier skill below base-rate climatology (BSS = −0.16) |
+| `ersaf-v1` | Cosmology (Pantheon+ SNe Ia + DESI DR1 BAO residual structure) | [docs/PRE_REGISTRATION_ERSAF_v1.md](docs/PRE_REGISTRATION_ERSAF_v1.md) | [docs/RESULT_ERSAF_v1_2026-05-21.md](docs/RESULT_ERSAF_v1_2026-05-21.md) | NULL; no non-smooth residual structure (1 of 4 diagnostics fired) |
+| `relational-coherence-v1` | Open-weight LLM framing robustness (Qwen2.5-7B-Instruct-AWQ, MMLU) | [analysis/relational_coherence_v1/PRE_REGISTRATION_RC_v1.md](analysis/relational_coherence_v1/PRE_REGISTRATION_RC_v1.md) | [analysis/relational_coherence_v1/RESULT_RC_v1.md](analysis/relational_coherence_v1/RESULT_RC_v1.md) | NULL; high framing-robustness, F-saturated (proportion 0.0067 vs k = 0.20) |
 
-Seven evaluations executed under the protocol; seven locked outcomes; one further evaluation accumulating data for future verification. Every result document is bound at the commit recorded in its provenance section and is not subject to revision after lock.
+Eleven pre-registered evaluations are on record across five domains. Eight carry locked result documents; two early weather pre-registrations recorded pre-specification dispositions without a result document; and one (weather v3) continues accumulating data for future verification. Every result document is bound at the commit recorded in its provenance section and is not subject to revision after lock.
+
+---
+
+## Diagnostics and methods studies
+
+Alongside the locked confirmatory evaluations above, the repository records non-confirmatory studies run under the same artifact discipline. These are explicitly *not* citable as confirmatory evidence; they gate decisions, characterize candidate formulas, or validate the instruments the confirmatory evaluations rely on.
+
+- **Dynametrix-HRRR independence diagnostic** — a pre-lock *viability gate* that retired a candidate study before locking, on finding the two predictors near-collinear (r = 0.984, DO_NOT_PROCEED). [analysis/dynametrix_hrrr/DIAGNOSTIC_DYNAMETRIX_HRRR_INDEPENDENCE_2026-05-25.md](analysis/dynametrix_hrrr/DIAGNOSTIC_DYNAMETRIX_HRRR_INDEPENDENCE_2026-05-25.md)
+- **CT-v1 novelty diagnostic** — an exploratory characterization whose own diagnostics showed the candidate formula's novelty term to be structurally inert in the available (warm-season) data. [analysis/ct_v1_novelty/DIAGNOSTIC_CT_v1_NOVELTY_2026-05-25.md](analysis/ct_v1_novelty/DIAGNOSTIC_CT_v1_NOVELTY_2026-05-25.md)
+- **Calibration-audit instrument validation** — a methods-level check confirming the calibration-audit decision rule rings *positive* on synthetic data calibrated by construction and rejects miscalibrated data (zero false-acceptance across four miscalibration families), with a documented power limitation under heavily skewed predictions. [analysis/calib_instrument_validation/INSTRUMENT_VALIDATION_NOTE.md](analysis/calib_instrument_validation/INSTRUMENT_VALIDATION_NOTE.md)
+
+---
+
+## The AEPF framework paper
+
+The methodology these evaluations share is written up as a manuscript — the Avenridge Evaluation and Publication Framework (AEPF) — in [papers/AEPF/](papers/AEPF/). It integrates pre-registration, cross-model review, materialization manifests, lock-time commitment, single-execution discipline, calibration-as-a-standing-requirement, null-result publication parity, and a pre-specification viability gate into one operational workflow, illustrated with four case studies (ERSAF, the transformer calibration audits, Relational Coherence v1, and the Dynametrix-HRRR viability gate) plus the calibration-audit instrument validation. The paper is prepared for submission to *Royal Society Open Science*.
 
 ---
 
@@ -32,11 +51,11 @@ Every evaluation in this repository is conducted under the following protocol:
 3. **Frozen execution.** The analysis code is not modified between the lock commit and the recording of all outputs. Hashes are verified at runtime; the script refuses to execute against modified data. Re-runs for reproducibility are permitted; revisions to outputs are not.
 4. **Publication of outcome.** The result document records the outcome under the pre-registered classification, including the cases where the outcome is unfavorable to the system being evaluated. Result documents are bound at commit time and may not be revised. The canonical structure of result documents is documented in [docs/RESULT_TEMPLATE.md](docs/RESULT_TEMPLATE.md); the canonical structure of pre-registrations for AI/ML calibration audits is documented in [docs/PRE_REGISTRATION_AI_CALIBRATION_TEMPLATE.md](docs/PRE_REGISTRATION_AI_CALIBRATION_TEMPLATE.md).
 
-The protocol is portable across domains: the eight evaluations on record include severe weather forecasting verification against ground-truth storm reports, gravitational-wave detection on LIGO open data, and probabilistic model calibration on public natural-language classifiers. The same discipline applies in each case.
+The protocol is portable across domains: the evaluations on record span severe weather forecasting verification against ground-truth storm reports, gravitational-wave detection on LIGO open data, probabilistic model calibration on public natural-language classifiers, non-smooth residual-structure search in cosmological distance data, and framing-robustness testing of an open-weight language model. The same discipline applies in each case.
 
 ---
 
-## Most recent case study
+## Featured case study
 
 `distilbert-sst2-calibration-v1` evaluated `distilbert-base-uncased-finetuned-sst-2-english` (HuggingFace revision `714eb0fa…`) for calibration on the SST-2 validation split (872 examples). The pre-registered claim was that across 10 reliability bins, the model's predicted probabilities would fall within Wilson 95% confidence intervals of observed positive-class frequencies for at least 8 of 10 bins, alongside a positive Brier skill score against base-rate climatology.
 
@@ -79,6 +98,6 @@ To inquire: earl_dixon@hsagconsortium.com
 
 ## Provenance
 
-This repository is maintained by Earl Dixon. The methodology has been applied across three scientific and applied domains over the period April–May 2026. All evaluations recorded above were executed under the protocol described in the *Methodology* section, with no exceptions, and all outcomes were locked at commit time.
+This repository is maintained by Earl Dixon. The methodology has been applied across five scientific and applied domains over the period April–May 2026. All evaluations recorded above were executed under the protocol described in the *Methodology* section, with no exceptions, and all outcomes were locked at commit time.
 
 Inquiries regarding methodology, reproduction failures, or proposed evaluations are welcome.
