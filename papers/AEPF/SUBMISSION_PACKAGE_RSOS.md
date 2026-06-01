@@ -5,7 +5,7 @@
 **Initial-submission format:** format-free. Upload the compiled `AEPF.pdf` as the main document. Source files (`AEPF.tex`, `references.bib`/`.bbl`) are required only at final revision.
 **Review model:** single-anonymized, **open peer review mandatory** (referee reports + author responses published with the paper).
 
-> **Items that still need you (marked `[YOU]` below):** ORCID iD; the Zenodo DOI (after archiving — see checklist); and a personal read of the **AI-use** and **competing-interests** statements, which must match your own account of the work and your commercial intentions. Nothing else is blocking.
+> **Items that still need you:** your **ORCID iD** (§2). The Zenodo DOI (§6.3) and the AI-use (§6.2) and competing-interests (§6.4) statements are now finalized. Nothing else is blocking.
 
 ---
 
@@ -18,7 +18,7 @@
 ## 2. Author and affiliation
 
 - **Earl Dixon**, Avenridge Institute. Sole author and corresponding author.
-- ORCID: `[YOU — provide your ORCID iD; register free at https://orcid.org if needed. The submitting author must supply one.]`
+- ORCID: `0009-0000-7197-1080`
 
 ## 3. Abstract (≤200 words — RSOS limit; matches the manuscript)
 
@@ -55,18 +55,16 @@ pre-registration; research reproducibility; calibration assessment; null-result 
 ### 6.1 Ethics
 > This research did not involve human participants, human tissue, or animals. No ethical approval was required. All evaluated models and datasets are publicly available; the language-model and cosmological case studies use published, licensed public artifacts only.
 
-### 6.2 Use of AI and AI-assisted technologies  `[YOU — read and confirm this matches your account of the work; it must be truthful and you are the responsible author]`
-> The author used a large language model (Anthropic's Claude) as an assistive tool throughout this work: in drafting and revising the framework specification and manuscript prose, in writing and reviewing analysis code, and as one participant in the cross-model review process that the methodology itself prescribes (Section 3) and whose limitations the paper documents (Section 6). All research questions, study designs, pre-registration commitments, threshold choices, interpretations, and final verdicts were determined by the author, who takes full responsibility for the content of this paper. No AI system is an author of this work, in line with Royal Society policy.
-
-> **Note to Earl:** this declaration is honest as written, and its transparency is consistent with the paper's own thesis (the methodology openly uses model-based review). Be aware that a fully candid statement of substantial AI involvement may draw editorial attention; the right response is accuracy, not minimization. Adjust the wording only to make it *more* faithful to how the collaboration actually went — not less.
+### 6.2 Use of AI and AI-assisted technologies  *(finalized by the author)*
+> Large language model tools (Anthropic's Claude) were used substantially during this work: for drafting and editing the manuscript, for drafting and reviewing analysis code, for critique and exploratory discussion, and as a participant in the cross-model review process that the manuscript itself describes as a methodological component (and whose limitations it documents). All research questions, experimental designs, hypotheses, interpretations, conclusions, and final manuscript content were determined, reviewed, and approved by the author, who assumes full responsibility for the work. No AI system is listed as an author.
 
 ### 6.3 Data, code and materials
-> All pre-registrations, analysis scripts, materialization manifests, and result documents supporting this article are publicly available in the project repository at https://github.com/earldixon310-max/dynametrix, with each study bound to a signed git lock tag (e.g. `rc-v1-lock`, `rc-v1-calibrated`, `rc-v1-result`) recording the exact frozen state evaluated. A permanently archived snapshot with a citable DOI is deposited at Zenodo: `[YOU — DOI, after archiving; see checklist §8]`. No data are withheld; nothing is "available from the author on request."
+> All pre-registrations, analysis scripts, materialization manifests, and result documents supporting this article are publicly available in the project repository at https://github.com/earldixon310-max/dynametrix, with each study bound to a signed git lock tag (e.g. `rc-v1-lock`, `rc-v1-calibrated`, `rc-v1-result`) recording the exact frozen state evaluated. A permanently archived snapshot is deposited at Zenodo under DOI https://doi.org/10.5281/zenodo.20490326 (concept DOI, resolving to the latest version; the specific v1.0 snapshot archived for this article is https://doi.org/10.5281/zenodo.20490328). No data are withheld; nothing is "available from the author on request."
+>
+> *(For the reference list, RSOS requires the dataset to be cited: e.g. "Dixon E. 2026 Dynametrix: Pre-registered Evaluation Repository (v1.0). Zenodo. https://doi.org/10.5281/zenodo.20490328")*
 
-### 6.4 Competing interests  `[YOU — confirm/adjust to match your actual commercial intentions]`
-> The author is the developer of the AEPF framework described in this paper and of the Dynametrix forecasting system evaluated in one case study, and is exploring commercial evaluation- and calibration-audit services based on the methodology described. These are disclosed as potential competing interests. The author declares no other competing interests.
-
-> **Note to Earl:** if you are *not* pursuing commercial services, delete the commercial clause; if you are (the outreach/pricing work suggests so), this disclosure is required and correct. Do not omit it — undisclosed commercial interest in a proposed methodology is exactly the kind of thing reviewers expect to see declared.
+### 6.4 Competing interests  *(finalized by the author)*
+> The author developed the AEPF methodology described in this work, and also developed the Dynametrix forecasting system that is itself evaluated in one of the case studies (the Dynametrix-HRRR viability gate). The author may explore future research, consulting, or evaluation applications related to the AEPF methodology. No commercial services based on AEPF are currently offered in connection with this manuscript, and no revenue has been derived from the results reported here. The author declares no other competing interests.
 
 ### 6.5 Authors' contributions (CRediT)
 > **Earl Dixon:** Conceptualization, Methodology, Software, Formal analysis, Investigation, Data curation, Visualization, Writing – original draft, Writing – review & editing, Project administration. (Sole author.)
@@ -92,7 +90,8 @@ pre-registration; research reproducibility; calibration assessment; null-result 
 
 - [ ] **`[YOU]` Register/confirm ORCID** and put it in §2.
 - [ ] **`[YOU]` Archive the repo to Zenodo for a citable DOI.** Link the GitHub repo to Zenodo, cut a release at the current state (commit `002f152` / the `rc-v1-*` tags), let Zenodo mint a DOI, and paste it into §6.3. (GitHub satisfies "public repository," but Zenodo gives the permanent, versioned DOI the data policy prefers and lets the dataset be cited in the reference list, which RSOS requires.)
-- [ ] **`[YOU]` Read and own §6.2 (AI use) and §6.4 (competing interests).**
+- [x] §6.2 (AI use) and §6.4 (competing interests) — finalized and confirmed by the author.
+- [x] Zenodo DOI minted and recorded in §6.3 (concept `10.5281/zenodo.20490326`).
 - [ ] Upload `AEPF.pdf` as the main document (format-free initial submission — no reformatting needed now).
 - [ ] Enter title, ≤200-word abstract (§3), and keywords (§4) in the form.
 - [ ] Enter the six end-section statements (§6) in the form.
