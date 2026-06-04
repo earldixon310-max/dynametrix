@@ -38,6 +38,16 @@ Smaller fixes from the same pass: Arm 3 reworded from "certifies" to "exercises/
 
 The reader also confirmed what holds: boundary handling (Inconclusive closed, the two verdicts open) genuinely partitions for the D-based rule; the v0.1/v0.2 scoping, second-statistic-is-a-new-version rule, gated-vs-witness arm logic, and anti-post-hoc provenance reasoning are internally coherent.
 
+**Fourth cold-reader pass (external).** A fresh external reader, spec body alone, returned three local blockers plus two clarity collisions and a scoping note — none architectural; the reader stated that with these fixed it would be "lockable on internal-consistency grounds." All accepted and fixed:
+1. *§2(2) simplicity loophole* — "strictly simpler" admitted "an established prior measure the candidate claims to improve upon," which need not be simpler, weakening every "beats baseline" verdict. Fixed by subordinating the established-prior clause to the simplicity bar (eligible only if no more complex than the candidate).
+2. *§4 over-claimed Inconclusive coverage* — asserted all three verdicts "fired at least once," but Arm 3 (the only Inconclusive source) is non-gated, so zero landings are permitted. Fixed: Inconclusive is *targeted but not gated*; band-occupancy is reported; zero occupancy is a recorded calibration finding, not a silent pass.
+3. *§1 permitted τ_lo = τ_hi* — collapsing the ambiguity band to a measure-zero point, making Inconclusive unreachable. Fixed: strict inequality `τ_lo < τ_hi` required.
+4. *"Positive control" double-used* — study-level (OVP_POSCONTROL_v1) vs Arm 1. Fixed: Arm 1 renamed "sensitivity arm"; "positive control" reserved for the study.
+5. *"Binary" vs three verdicts* — §0 called the question binary while §3 lists three. Fixed: Inconclusive framed as an *abstention* from the binary, not a third answer.
+Scoping note (not a defect): §8 inherits AEPF terms the body never defines. Added a pointer that they are defined in the parent AEPF spec, supplied among the locked artifacts per §7.
+
+Convergence trend across passes: four structural findings → two blockers + three localized → three local blockers + two clarity, none architectural. Defects are shrinking and localizing toward the leaves of the document.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.

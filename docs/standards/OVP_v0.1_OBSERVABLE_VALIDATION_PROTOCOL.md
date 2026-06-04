@@ -13,7 +13,7 @@
 
 OVP decides one question, repeatably and honestly: **does a candidate observable carry structure beyond a simpler, pre-existing baseline observable derived from the same substrate?**
 
-**Scope of this version.** OVP **v0.1** answers exactly that binary — structure beyond the baseline, or not. It deliberately does *not* yet separate the two ways a candidate can fail to add structure (being *redundant* with the baseline vs. being *indistinguishable from noise*); that separation requires a second pinned statistic and is the defined job of **v0.2** (§1, §9). Stating the binary v0.1 can support, and naming what it cannot, is itself the discipline.
+**Scope of this version.** OVP **v0.1** answers exactly that binary — structure beyond the baseline, or not. (The **Inconclusive** verdict of §3 is not a third answer to the binary but an **abstention**: the study completing without placing the candidate cleanly on either side. The question stays binary; the instrument is permitted to decline to answer it.) It deliberately does *not* yet separate the two ways a candidate can fail to add structure (being *redundant* with the baseline vs. being *indistinguishable from noise*); that separation requires a second pinned statistic and is the defined job of **v0.2** (§1, §9). Stating the binary v0.1 can support, and naming what it cannot, is itself the discipline.
 
 A *candidate observable* is any derived quantity proposed to capture structure in a system (e.g., a graph-topology measure, a calibration statistic, a coherence/novelty term). OVP abstracts the shared form of the question — *does observable X exceed baseline B on the same substrate?* — and carries the lesson that **the discriminating instrument must itself be validated on synthetic ground truth before its verdicts on real candidates are trusted.**
 
@@ -39,7 +39,7 @@ Instantiating the *same* measure differently across substrates (HDG-via-AUC here
 
 **The split protocol** must itself pin: the partition method (e.g., single held-out split, k-fold, blocked/grouped CV), the train/test fraction or fold count, any blocking or grouping required to prevent leakage between baseline and candidate, and the seed — all at lock.
 
-**Decision cut points.** The verdict is read from `D` against two pinned cut points, the upper cut point `τ_hi` (above which the verdict is Validated) and the lower cut point `τ_lo` (below which it is Not-Validated), with `0 < τ_lo ≤ τ_hi`. `τ_lo` is pinned **strictly positive** so that zero or negative out-of-sample gain — a candidate that adds nothing, or actively harms held-out discrimination — falls in **Not-Validated**; this is what makes the "`D` ≈ 0 → Not-Validated" guarantee hold rather than merely assert it. The pre-registered ambiguity band is the closed interval `[τ_lo, τ_hi]`.
+**Decision cut points.** The verdict is read from `D` against two pinned cut points, the upper cut point `τ_hi` (above which the verdict is Validated) and the lower cut point `τ_lo` (below which it is Not-Validated), with `0 < τ_lo < τ_hi`. The inequality is **strict**: `τ_lo = τ_hi` would collapse the ambiguity band to a single point that a continuous `D` reaches with probability zero, making the Inconclusive verdict unreachable and silently reducing the protocol to a two-verdict rule — so it is disallowed. `τ_lo` is pinned **strictly positive** so that zero or negative out-of-sample gain — a candidate that adds nothing, or actively harms held-out discrimination — falls in **Not-Validated**; this is what makes the "`D` ≈ 0 → Not-Validated" guarantee hold rather than merely assert it. The pre-registered ambiguity band is the closed interval `[τ_lo, τ_hi]`.
 
 **Cut-point provenance.** `τ_lo` and `τ_hi` are derived from a source *external* to the study they govern — established theory, a prior published study, or a separate pre-lock calibration study run under its own lock and seed — and that source is named in the pre-registration. They are never set from the study's own runs, and in particular never from the noise arm of the positive control they are later meant to vindicate: using Arm 4 to fix the bar Arm 4 must then clear is post-hoc by §2's own logic. The no-tuning rule binds the cut points' movement after results; the provenance rule anchors their origin before lock. The two together keep the threshold from floating free.
 
@@ -54,7 +54,7 @@ Instantiating the *same* measure differently across substrates (HDG-via-AUC here
 The baseline `B` against which the candidate is judged is selected and pinned in the pre-registration before any candidate-vs-baseline computation. A baseline selection is valid only if **all five** criteria hold:
 
 1. **Same substrate.** `B` is derived from the same input substrate as the candidate.
-2. **Strictly simpler.** `B` is simpler than the candidate — fewer parameters, lower structural complexity, or an established prior measure the candidate claims to improve upon.
+2. **Strictly simpler.** `B` is simpler than the candidate — fewer parameters or lower structural complexity. An established prior measure the candidate claims to improve upon is an eligible baseline **only when it is itself no more complex than the candidate**; the established-prior allowance does not waive the simplicity bar, it only clarifies that a recognized incumbent measure may serve as `B` when it meets that bar. A baseline more complex than the candidate is never admissible, because "Validated" means only "beats this baseline" (§0) and a more-complex baseline would quietly weaken every verdict that clears it.
 3. **Pre-registered.** `B` is committed at the lock commit; no baseline may be substituted after lock.
 4. **No post-hoc clause.** The candidate is never compared against a baseline chosen, tuned, or swapped after results are seen. A baseline change after lock invalidates the study and requires a new lock under a new tag.
 5. **Ancestry Statement.** The candidate's pre-registration must include an explicit **Ancestry Statement** naming the simpler observable it claims to extend, and why — e.g., "`F` (pair-fraction-in-same-component) extends `C` (pairwise edge density): graph topology extends pairwise consistency." Baseline selection is **not valid without this statement.** It prevents a candidate from passing a technically-valid baseline check while never stating, on the record, what it claims to extend.
@@ -63,7 +63,7 @@ The baseline `B` against which the candidate is judged is selected and pinned in
 
 ## 3. Verdict categories (tight)
 
-Every OVP **v0.1** study returns exactly one of **three** verdicts, read from `D` (HDG) against its two pinned cut points `τ_lo ≤ τ_hi` (§1):
+Every OVP **v0.1** study returns exactly one of **three** verdicts, read from `D` (HDG) against its two pinned cut points `τ_lo < τ_hi` (§1):
 
 - **Validated** — `D` > `τ_hi`: the candidate adds out-of-sample structure beyond the baseline. The candidate does work the baseline does not.
 - **Not-Validated** — `D` < `τ_lo`: the candidate adds no demonstrated out-of-sample structure beyond the baseline. Deliberately **mechanism-agnostic** — it covers both a candidate redundant with the baseline and one indistinguishable from noise, because v0.1's single measure cannot tell those apart (§1). Distinguishing the two is the job of v0.2.
@@ -85,7 +85,7 @@ Before any **real** candidate is judged, the protocol itself is validated agains
 
 **Arms (constructions pinned in the study):**
 
-- **Arm 1 — Known-meaningful.** A candidate constructed to carry genuine incremental structure beyond the baseline (structure the baseline provably cannot recover), with expected `D` above `τ_hi` by a pinned margin. Correct verdict: **Validated**. (Positive control; bounds the false-*reject* rate / Type-II floor.)
+- **Arm 1 — Known-meaningful.** A candidate constructed to carry genuine incremental structure beyond the baseline (structure the baseline provably cannot recover), with expected `D` above `τ_hi` by a pinned margin. Correct verdict: **Validated**. (Sensitivity arm; bounds the false-*reject* rate / Type-II floor. "Positive control" is reserved for the whole instrument-validation study, e.g. OVP_POSCONTROL_v1, not this arm.)
 - **Arm 2 — Deterministic-redundant.** A candidate that is a deterministic function of the baseline, carrying no incremental information by construction, with expected `D` below `τ_lo`. Correct v0.1 verdict: **Not-Validated**. (Specificity; bounds the false-*validate* rate against a redundant candidate.)
 - **Arm 3 — Partial-redundancy (Inconclusive witness).** A candidate mostly determined by the baseline but carrying a small, known increment, constructed so its expected `D` targets the ambiguity band `[τ_lo, τ_hi]`. **Non-gated**, because the "correct" verdict near the boundary is genuinely ambiguous — but its verdict distribution across replications is reported as a **band-occupancy** check: the fraction of replications landing Inconclusive (vs. spilling to Validated or Not-Validated) is recorded. This **exercises** the third verdict under its intended condition and maps the protocol's sensitivity gradient.
 - **Arm 4 — Pure-noise.** A candidate random/independent of the substrate's structure, with expected `D` ≈ 0 (hence below the strictly-positive `τ_lo`). Correct v0.1 verdict: **Not-Validated**. (False-discovery floor.)
@@ -103,7 +103,7 @@ Arms 2 and 4 both correctly return **Not-Validated** in v0.1, by construction un
 
 The spec names that the requirement exists; each instrument-validation study fills the numbers. A near-miss on a gated bar is reported as a near-miss (no kinder seed, no softened threshold), and the soundness-vs-power distinction is documented rather than collapsed.
 
-All three v0.1 verdicts are **exercised** by this control — Validated (Arm 1), Not-Validated (Arms 2/4), Inconclusive (Arm 3) — so none ships without having fired at least once under a known condition. The two gated verdicts are additionally **certified** by their pass bars; Inconclusive is exercised and its band-occupancy reported, but not gated (a non-gated arm with no single correct answer certifies nothing — it witnesses). An over-wide band is bounded indirectly anyway: Arm 1 would start missing its Validated bar. What Arm 3 adds is confirmation that the band fires correctly when it should, which no other arm can supply.
+The two gated verdicts are **certified** by their pass bars: Validated by Arm 1, Not-Validated by Arms 2/4. The third verdict, **Inconclusive**, is *targeted but not gated*: Arm 3 is constructed to drive `D` into the band `[τ_lo, τ_hi]` (which has positive width, since `τ_lo < τ_hi`, §1), and its realized **band-occupancy is reported, not guaranteed** — a non-gated arm with no single correct answer certifies nothing, it witnesses. The spec deliberately does **not** assert that Inconclusive must fire in any given run; **zero occupancy across all `R` replications is itself a recorded finding** — evidence the band is too narrow or Arm 3's increment is mis-targeted — not a silent pass. An over-wide band is bounded indirectly anyway: Arm 1 would start missing its Validated bar. What Arm 3 adds is a reported check that the band is reachable and fires when it should, which no other arm can supply.
 
 ---
 
@@ -152,6 +152,8 @@ Every OVP study — instrument-validation and candidate-validation alike — mus
 ## 8. Inheritance from AEPF
 
 Unchanged from AEPF and assumed here: the pre-registration, analysis script, and materialization manifest are committed in a single atomic lock commit and signed tag; the study runs once (single-execution); technical failures are documented and amended under a new tag, never silently re-run; every verdict — including Not-Validated and Inconclusive — is published with positive-result parity; and interpretation is constrained to what the locked measure and decision rule support.
+
+These inherited terms (pre-registration, materialization manifest, single atomic lock commit, single-execution, null-result parity, constrained-interpretation reporting) are **defined in the AEPF specification, not redefined here**; the body names what is inherited, not the definitions. A reader verifying the inheritance is faithful should consult the parent AEPF document, which §7 supplies among the locked artifacts.
 
 ---
 
