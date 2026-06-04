@@ -29,6 +29,15 @@ Control-failure was reclassified from a fourth verdict to a run-invalidating doc
 
 Smaller fixes from the same pass: Arm 3 reworded from "certifies" to "exercises/witnesses" the Inconclusive verdict (a non-gated arm certifies nothing); `R` defined (replications per study; OVP_POSCONTROL_v1 pins R = 100); split-protocol contents specified; and §6's overloaded word "usable" split into a three-rung ladder — **self-validated** (positive control passes) → **operational** (self-validated + ≥3 real ledger verdicts) → **community-validated** (operational + ≥1 externally-authored candidate).
 
+**Third cold-reader pass (external, post-extraction read).** A fresh external reader, given the rewritten spec body alone, returned two blocking findings in the verdict machinery plus three lesser, all accepted and fixed:
+1. *Inconclusive had a second, undefined entry route* — "or power was insufficient to place D cleanly" let a study return Inconclusive on non-D grounds, breaking the "partition the real line / read from D" claim and invoking an unpinned power/CI instrument. Fixed: the verdict is now a deterministic function of the single value `D` against the two cut points; the power disjunct is removed; uncertainty is handled by band placement and characterized by the positive control, not by a verdict-time test.
+2. *"Discrimination" had no pinned orientation* — log-loss (lower-is-better) was an admitted example metric, which would invert the sign of `D` and break the `τ_lo` guarantee. Fixed: discrimination is pinned higher-is-better; natively lower-is-better metrics are admitted only in negated/skill-score form.
+3. *Provenance satisfiability for the first study* — with an empty ledger and different-measure lineage, the first HDG study (OVP_POSCONTROL_v1) had no obvious admissible cut-point source. Fixed: the **separate pre-lock calibration study** bootstrap path is named explicitly.
+4. *"Validation/validated" overloaded* — against §6's own "distinct words" boast. Fixed the two sharpest collisions: "validation edge τ_hi" → "upper cut point"; "validation control" → "setup control."
+5. *§5 comparability vs §0* — "only verdicts compare" was in mild tension with §0's "a flip is two different questions." Fixed: verdicts compare only as categorical outcomes, each conditional on the row's pinned baseline/metric/estimator.
+
+The reader also confirmed what holds: boundary handling (Inconclusive closed, the two verdicts open) genuinely partitions for the D-based rule; the v0.1/v0.2 scoping, second-statistic-is-a-new-version rule, gated-vs-witness arm logic, and anti-post-hoc provenance reasoning are internally coherent.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
