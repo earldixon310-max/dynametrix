@@ -73,6 +73,34 @@ If the cold pass returns only non-blockers, the spec locks and the non-blockers 
 
 **Rationale for Option 1 over the alternatives** (recorded so the choice itself is auditable): zero-findings (Option 2) is asymmetric and likely unattainable — a careful cold reader almost always finds *something*, so the bar would equate a disengaged skim with a careful clean read, and would tend to fail on first attempt and become its own moving target. Two-reader concordance (Option 3) is the right bar for first-time validation of a novel instrument, but is wrong-sized for a *confirmatory* pass on an already-cold-reviewed structure where the open question is narrow (does the three-verdict reshape hold together?); §6's own independence note flags the single-operator sourcing constraint, so requiring two readers here costs timeline without proportional gain. Option 1 with a pinned blocker definition is the proportionate, pre-committed choice.
 
+## Fifth cold-reader pass (external, confirmatory — the clearing read)
+
+Run under the pre-committed bar above (pinned at commit `c806c2e` *before* this read). The external reader was shown the lock-blocker taxonomy first and classified each finding at the moment of finding. Result: **no lock-blocker.** Four findings, all non-blockers:
+
+1. §2(2) — "strictly simpler" (forbids equal complexity) vs the established-prior clause's "no more complex" (permits it): a wording inconsistency within the criterion. *Non-blocker (clarity).*
+2. §6 — "none is implied by another" (about the three *properties*) juxtaposed with rungs that are cumulative; defensible as written, but invites misreading. *Non-blocker (clarity/framing).*
+3. §1 vs §4 — "the seed" (singular) vs "one master seed" over R=100 replications; consistent, but the singular/master relationship is left implicit. *Non-blocker (clarity).*
+4. v0.2 material (baseline-recoverability, four-verdict structure, OVP_POSCONTROL_v2) — explicitly scoped out of v0.1. *Non-blocker (future-version; no action — confirms scoping is working as intended).*
+
+The reader's passed checks (recorded as positive evidence): D and its orientation/τ_lo guarantee; the strict cut-point ordering and non-circular bootstrap provenance; the three-verdict real-line partition with failures correctly outside the verdict set; §4 arm constructions/thresholds aligned to the cut points with cut points not sourced from Arm 4; and the §7 cross-pass spec consistent with the §5 ledger and the design-history exclusion.
+
+**Disposition under the bar:** the spec is cleared to lock as **v0.1**. The four non-blockers are **not** folded in before lock (the locked artifact is exactly the one that was read); they enter the v0.x revision queue below.
+
+### v0.x revision queue (deferred; do not fold in before lock)
+- [v0.x] §2(2): reconcile "strictly simpler" with "no more complex" — pick one complexity relation and use it consistently.
+- [v0.x] §6: separate the "distinct properties" claim from the cumulative-rungs structure so the disclaimer can't be misread as "the rungs don't imply each other."
+- [v0.x] §1/§4: state explicitly that the single pinned "seed" is the master seed from which per-replication draws are derived.
+- [v0.x] (no action) confirm v0.2 scope note remains accurate when v0.2 is opened.
+
+## LOCK RECORD — OVP v0.1
+
+**Status: LOCKED.** OVP v0.1 (`OVP_v0.1_OBSERVABLE_VALIDATION_PROTOCOL.md`) was locked on **2026-06-04** at signed tag **`ovp-v0.1-lock`**.
+
+- **Cleared by:** the fifth external cold pass, which returned **no lock-blocker** under the bar pinned at `c806c2e` (before the read). Four non-blocker findings, queued above for v0.x.
+- **Lock mechanics (decided deliberately):** *tag-only, byte-exact.* The spec body is **unmodified** from the version the cold reader cleared — its front matter still reads "working draft — not locked" by design. Editing even the status line would have broken the pre-committed "locked artifact = exactly what was read" property and set a precedent for carving exceptions out of "exactly." The lock is therefore carried by the signed tag, `OVP_v0.1_LOCK_NOTICE.md`, and this record — never by touching the reviewed file.
+- **Independence:** the fix-author (including the AI collaborator) did not serve as the clearing reader.
+- **Convergence ladder (§6):** OVP is **not** yet self-validated — locking the *spec* is distinct from passing `OVP_POSCONTROL_v1`. The instrument earns "self-validated" only when the positive control passes, "operational" at three real verdicts, "community-validated" with an externally-authored candidate. The locked spec is the rulebook; the rungs are still ahead.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
