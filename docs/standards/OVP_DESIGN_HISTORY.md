@@ -48,6 +48,31 @@ Scoping note (not a defect): §8 inherits AEPF terms the body never defines. Add
 
 Convergence trend across passes: four structural findings → two blockers + three localized → three local blockers + two clarity, none architectural. Defects are shrinking and localizing toward the leaves of the document.
 
+## Pre-committed lock bar (pinned 2026-06-04, before the fifth pass)
+
+The stopping rule for OVP v0.1 was pre-registered **before** the next cold read, so the read's result cannot move it: **the spec locks as v0.1 when an external cold pass returns no finding that falls in the lock-blocker set defined below.** The label "no lock-blocker = lock" is not self-sufficient; the discipline lives in pre-committing *what counts as a blocker*, so the classification is fixed at the moment of reading rather than negotiated after. The cold reader is shown this taxonomy **before** reading the spec and classifies each finding against it as they read.
+
+**Lock-blocker (returns the document to revision; no lock):**
+- Internal contradiction (two sections specifying inconsistent things)
+- Defect in the operational measure `D`'s definition, threshold/cut-points, or model/function-class pinning
+- Defect in the verdict categories (the three v0.1 verdicts; mutual exclusivity; joint exhaustiveness)
+- Defect in the convergence-criterion conditions (§6 ladder)
+- Defect in the cross-pass §7 specification
+- Defect in §4's control-arm constructions or thresholds
+- Anything that materially changes what `OVP_POSCONTROL_v1` would test
+
+**Non-blocker (document locks; finding logged for a v0.x revision queue):**
+- Wording, clarity, or readability improvement
+- v0.2 design suggestion
+- Additional example or worked-instance suggestion
+- Stylistic inconsistency
+- Forward-looking note about future-version capability
+- Improved framing of an honest limitation
+
+If the cold pass returns only non-blockers, the spec locks and the non-blockers go into a v0.x revision queue (not folded in before lock, so the locked artifact is exactly the one that was read). If even one lock-blocker is returned, the spec does not lock; it is revised, and earns a fresh pass under this same bar. The fix-author (including the AI collaborator) cannot be the clearing reader.
+
+**Rationale for Option 1 over the alternatives** (recorded so the choice itself is auditable): zero-findings (Option 2) is asymmetric and likely unattainable — a careful cold reader almost always finds *something*, so the bar would equate a disengaged skim with a careful clean read, and would tend to fail on first attempt and become its own moving target. Two-reader concordance (Option 3) is the right bar for first-time validation of a novel instrument, but is wrong-sized for a *confirmatory* pass on an already-cold-reviewed structure where the open question is narrow (does the three-verdict reshape hold together?); §6's own independence note flags the single-operator sourcing constraint, so requiring two readers here costs timeline without proportional gain. Option 1 with a pinned blocker definition is the proportionate, pre-committed choice.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
