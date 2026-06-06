@@ -1,0 +1,31 @@
+{
+  "framework": "AEPF OVP_POSCONTROL_v1 calibration materialization manifest",
+  "study": "OVP_POSCONTROL_v1 cut-point calibration",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "ovp-poscontrol-v1-calib-lock",
+  "generated_utc": "2026-06-06T02:11:07.181225+00:00",
+  "master_seed": "0xCA11B",
+  "data": {
+    "type": "synthetic",
+    "external_dataset": null,
+    "external_model": null,
+    "attestation": "All data are generated deterministically from master_seed=0xCA11B by the locked calibrate_cutpoints.py; no external dataset or model is used. Reproducibility follows from the seed plus the pinned environment below."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_OVP_POSCONTROL_v1_CALIB.md",
+      "sha256": "d04f74192c65da3a413c44440d55f56f46907df7f09d831bf8c694c99cef7876"
+    },
+    {
+      "path": "calibrate_cutpoints.py",
+      "sha256": "3b92826933fac1ec0bb508d1f070e84b7431a3337bda9e6f625b3668de6f9c6a"
+    }
+  ],
+  "note": "The pre-registration SHA-256 above is the authoritative record of all pinned parameters; this manifest does not restate them. scikit-learn's version is recorded (not just required) because the pinned estimator's numerical behavior can vary across versions."
+}
