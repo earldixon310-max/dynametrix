@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "master_seed": "0xfacade",
+    "R": 100,
+    "N": 4000,
+    "tau_lo": 0.0008520905552347899,
+    "tau_hi": 0.016157622564950937,
+    "arm1_sigma_C": 2.0,
+    "arm3_sigma3": 4.0,
+    "gate": 90,
+    "generated": "2026-06-07T02:37:21.579177+00:00"
+  },
+  "per_arm_verdicts": {
+    "arm1": {
+      "Validated": 95,
+      "Not-Validated": 0,
+      "Inconclusive": 5
+    },
+    "arm2": {
+      "Validated": 0,
+      "Not-Validated": 100,
+      "Inconclusive": 0
+    },
+    "arm3": {
+      "Validated": 4,
+      "Not-Validated": 5,
+      "Inconclusive": 91
+    },
+    "arm4": {
+      "Validated": 0,
+      "Not-Validated": 93,
+      "Inconclusive": 7
+    }
+  },
+  "per_arm_mean_HDG": {
+    "arm1": 0.027430372787769778,
+    "arm2": 0.0,
+    "arm3": 0.008076904887666323,
+    "arm4": -0.0006048735312543029
+  },
+  "baseline_auc_median": 0.6444856669401122,
+  "gated_bars": {
+    "arm1_Validated_ge_gate": true,
+    "arm2_NotValidated_ge_gate": true,
+    "arm4_NotValidated_ge_gate": true
+  },
+  "arm3_distribution_nongated": {
+    "Validated": 4,
+    "Not-Validated": 5,
+    "Inconclusive": 91
+  },
+  "setup_controls": {
+    "1_nondegeneracy_baseline_auc_gt_0.60": true,
+    "2_nulls_centered_mean_HDG_le_tau_lo": true,
+    "3_cutpoint_validity_0_lt_lo_lt_hi": true
+  },
+  "VERDICT": "PASS - OVP reaches the self-validated rung (sec 6.1)"
+}
