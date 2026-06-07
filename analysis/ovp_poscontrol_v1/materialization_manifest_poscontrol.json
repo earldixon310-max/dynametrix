@@ -1,0 +1,39 @@
+{
+  "framework": "AEPF OVP_POSCONTROL_v1 positive-control materialization manifest",
+  "study": "OVP_POSCONTROL_v1 positive control (self-validation gate)",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "ovp-poscontrol-v1-lock",
+  "generated_utc": "2026-06-07T02:31:10.783683+00:00",
+  "master_seed": "0xFACADE",
+  "inherited_cut_points": {
+    "source_tag": "ovp-poscontrol-v1-calib-result",
+    "tau_lo": 0.0008520905552347899,
+    "tau_hi": 0.016157622564950937,
+    "arm1_sigma_C": 2.0,
+    "arm3_sigma3": 4.0,
+    "note": "Hardcoded in validate_ovp.py and cross-checked against the locked calibration_results.json at startup."
+  },
+  "data": {
+    "type": "synthetic",
+    "external_dataset": null,
+    "external_model": null,
+    "attestation": "All data are generated deterministically from master_seed=0xFACADE by the locked validate_ovp.py; no external dataset or model is used. Reproducibility follows from the seed plus the pinned environment below."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_OVP_POSCONTROL_v1.md",
+      "sha256": "7636d5b0891db846af01eb73081179fa1c85f49a83ef5197c83d0f9797cb1e5f"
+    },
+    {
+      "path": "validate_ovp.py",
+      "sha256": "75ce4d1f3d3aff2d284906bebc5cf851ffa60a0fe18cc5d0f79b0aaea01800e4"
+    }
+  ],
+  "note": "The pre-registration SHA-256 above is the authoritative record of all pinned parameters; this manifest does not restate them. scikit-learn's version is recorded because the pinned estimator's numerical behavior can vary across versions."
+}
