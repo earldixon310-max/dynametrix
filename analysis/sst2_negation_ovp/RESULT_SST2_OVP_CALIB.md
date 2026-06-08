@@ -18,14 +18,14 @@
 
 This is the **pre-committed mis-specification exit** (pre-reg §6): a finding about the substrate–instrument pair, not a failure of the protocol. **Per the locked pre-registration, the negation candidate study (lock 2) does not proceed on this calibration.** Any continuation is a **new pre-registration under a new lock** — nothing is fudged into a band.
 
-## The numbers (all auditable from `sst2_calibration_results.json` without a re-run)
+## The numbers (auditable from the frozen artifacts without a re-run — `sst2_calibration_results.json` unless noted; all percentiles below use the pinned numpy `'linear'` rule)
 
 - Substrate: n = 872, errors = 78 (accuracy 0.911). Baseline `AUC(B→y)` median **0.860**.
-- **Confidence is extremely compressed:** median `B` = 0.9995, IQR [0.9969, 0.9998], 84% of examples above 0.99.
+- **Confidence is extremely compressed** (source: `sst2_per_example.csv`, sha256 `e9e5b12a…b7bec1c7` per the results meta — these three figures are *not* derivable from the results JSON): median `B` = 0.9995, IQR [0.9968, 0.9998], 84.4% of examples above 0.99.
 - **Noise null (`C ~ N(0,1)`): negative in 200/200 replications** — mean −0.240, max −0.011, P95 −0.086.
 - Redundant null (`2B−1`): HDG exactly 0.0 in all 200 replications (monotone affine of `B`; ranking-invariant).
-- Meaningful sweep: only σ_m = 0.5 clears (P5 +0.0162, positive in 200/200); σ_m ≥ 1.0 has **negative mean HDG** (−0.092 … −0.235), monotone in σ_m.
-- Error-class AP panel shows the same shape: noise null −0.154 mean, **P95 −0.038, 100% ≤ 0**; only σ_m = 0.5 positive (+0.338).
+- Meaningful sweep: only σ_m = 0.5 clears (P5 +0.01613, **positive in 199/200 replications** — the single exception −0.0070); σ_m ≥ 1.0 has **negative mean HDG** (−0.092 … −0.235), monotone in σ_m.
+- Error-class AP panel shows the same shape: noise null −0.154 mean, **P95 −0.0399, 100% ≤ 0** (max −0.0025); only σ_m = 0.5 positive (+0.338).
 
 ## Mechanism (why the exit fired here, and why it fired through this door)
 
@@ -37,7 +37,7 @@ The pinned "unstandardized features" choice — inherited faithfully from the sy
 
 ## What this result does and does not establish
 
-- **Does:** establish that the SST-2 confidence/correctness substrate, under *this* HDG instantiation (unstandardized L2 logistic, AUC, stratified 50/50 splits, n = 872), does not admit a strictly positive null floor via the max-of-95ths rule — and therefore no valid decision band. The instrument itself is not dead: a strong known signal (σ_m = 0.5) was detected in 200/200 replications.
+- **Does:** establish that the SST-2 confidence/correctness substrate, under *this* HDG instantiation (unstandardized L2 logistic, AUC, stratified 50/50 splits, n = 872), does not admit a strictly positive null floor via the max-of-95ths rule — and therefore no valid decision band. The instrument itself is not dead: a strong known signal (σ_m = 0.5) was detected in 199/200 replications.
 - **Does not:** say anything about `negation_count` (never reached); invalidate OVP (the exit firing *is* the protocol working); generalize to other substrates, estimators, or metric instantiations; move the spec-§6 maturity ladder (this study yields no ledger verdict, as pre-registered).
 
 ## Paths forward (each a new pre-registration; none is a continuation of this lock)
@@ -50,4 +50,6 @@ The pinned "unstandardized features" choice — inherited faithfully from the sy
 
 ## Provenance
 
-Dataset `sst2_validation.csv` sha256 `a0b4a680…6588376d` (verified at lock and at run); model `distilbert-base-uncased-finetuned-sst-2-english` @ `714eb0fa89d2f80546fda750413ed43d93601a13` (3-way identity enforced at lock); per-example materialization `sst2_per_example.csv` sha256 `e9e5b12a…7bec1c7` (durable file + results meta); environment per `materialization_manifest_sst2_calib.json` (Python 3.12.10, numpy 2.1.2, scikit-learn 1.8.0, transformers 5.9.0, torch 2.12.0+cpu). Full per-replication HDG distributions (AUC and AP, 10 constructions × 200) persisted under `hdg_distributions` per the §7 persistence contract — every claim above is checkable from the frozen artifacts alone.
+Dataset `sst2_validation.csv` sha256 `a0b4a680…2588376d` (verified at lock and at run); model `distilbert-base-uncased-finetuned-sst-2-english` @ `714eb0fa89d2f80546fda750413ed43d93601a13` (3-way identity enforced at lock); per-example materialization `sst2_per_example.csv` sha256 `e9e5b12a…b7bec1c7` (durable file + results meta); environment per `materialization_manifest_sst2_calib.json` (Python 3.12.10, numpy 2.1.2, scikit-learn 1.8.0, transformers 5.9.0, torch 2.12.0+cpu). Full per-replication HDG distributions (AUC and AP, 10 constructions × 200) persisted under `hdg_distributions` per the §7 persistence contract — every claim above is checkable from the frozen artifacts alone.
+
+*Lock-convention note:* the locked pre-registration's body retains its "Status: DRAFT — not locked" line; per the project's tag-only/byte-exact convention (as with the OVP v0.1 spec itself), the lock is carried by the signed tag `sst2-ovp-calib-lock` and the cross-pass record, not by a status edit that would have broken byte-identity with the artifacts the cold readers cleared. Verify via `git tag -v sst2-ovp-calib-lock`.
