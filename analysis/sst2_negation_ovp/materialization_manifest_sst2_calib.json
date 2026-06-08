@@ -1,0 +1,45 @@
+{
+  "framework": "AEPF SST2_OVP_CALIB materialization manifest",
+  "study": "SST2_OVP_CALIB cut-point calibration (lock 1 of the two-lock real-candidate arc)",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "sst2-ovp-calib-lock",
+  "generated_utc": "2026-06-08T00:20:46.118164+00:00",
+  "master_seed": "0x55712",
+  "substrate": {
+    "type": "external dataset + external model (real)",
+    "dataset": {
+      "path": "../../case_studies/distilbert_sst2/sst2_validation.csv",
+      "sha256": "a0b4a680efac87830814939fea80664e23e0208a0db801472888a9672588376d",
+      "recorded_sha256": "a0b4a680efac87830814939fea80664e23e0208a0db801472888a9672588376d",
+      "matches_audit_record": true,
+      "source": "DistilBERT-SST2 calibration audit (case_studies/distilbert_sst2)"
+    },
+    "model": {
+      "id": "distilbert-base-uncased-finetuned-sst-2-english",
+      "revision": "714eb0fa89d2f80546fda750413ed43d93601a13",
+      "identity_checked_at_lock": true,
+      "source": "identical to the DistilBERT-SST2 audit (model_revision.txt / calibration_summary.json)",
+      "inference": "deterministic (no sampling); per-example outputs reproducible"
+    },
+    "attestation": "B=max-softmax-confidence and y=correctness are materialized by running the pinned model (id+revision above) once over the pinned, hash-verified dataset. negation_count is NOT computed here (it is the lock-2 candidate). sst2_per_example.csv is an output of the single locked run, hashed by the run."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0",
+    "transformers": "5.9.0",
+    "torch": "2.12.0+cpu"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_SST2_OVP_CALIB.md",
+      "sha256": "7385403a35993fc073ad3fc5def5b5f7141a704dd2f46ce6e0e2d69f9236ea62"
+    },
+    {
+      "path": "calibrate_sst2_cutpoints.py",
+      "sha256": "5785513c12ce897c31ce479449b301dce1ab5623cf82afc2d5276e089cfa34a4"
+    }
+  ],
+  "note": "The pre-registration SHA-256 above is the authoritative record of all pinned parameters; this manifest does not restate them. scikit-learn, transformers, and torch versions are recorded because the pinned estimator and model inference can vary numerically across versions."
+}
