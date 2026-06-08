@@ -1,0 +1,47 @@
+{
+  "framework": "AEPF DETECTOR_OVP_CALIB materialization manifest",
+  "study": "DETECTOR_OVP_CALIB cut-point calibration (lock 1 of the detector-truncation two-lock arc)",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "detector-ovp-calib-lock",
+  "generated_utc": "2026-06-08T13:28:31.539696+00:00",
+  "master_seed": "0xD37EC7",
+  "substrate": {
+    "type": "external dataset + external model (real); empirically eligible (noise-null P95 > 0)",
+    "dataset": {
+      "path": "../../case_studies/chatgpt_detector_roberta_v1/chatgpt_detector_roberta_test_set.csv",
+      "sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+      "recorded_sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+      "matches_audit_record": true,
+      "source": "ChatGPT-detector RoBERTa audit RAID subsample (case_studies/chatgpt_detector_roberta_v1)"
+    },
+    "model": {
+      "id": "Hello-SimpleAI/chatgpt-detector-roberta",
+      "revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+      "ai_class_index": 1,
+      "max_length": 512,
+      "identity_checked_at_lock": true,
+      "source": "identical to the ChatGPT-detector audit (model_revision.txt)",
+      "inference": "deterministic (no sampling); cross-checked against the audit predictions.csv at run time"
+    },
+    "attestation": "B=max-softmax-confidence, y=correctness, and truncated (full-token-len>512) are materialized by running the pinned model (id+revision above) once over the pinned, hash-verified RAID test subsample, with a determinism cross-check against the audit predictions.csv. truncated is the lock-2 candidate (stored, not used in calibration). detector_per_example.csv is an output of the single locked run, hashed by the run."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0",
+    "transformers": "5.9.0",
+    "torch": "2.12.0+cpu"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_DETECTOR_OVP_CALIB.md",
+      "sha256": "f5a699103b8841e7f99c3ff7a8355306bd3ce8a97387ec17a96d69a7c4ba0e67"
+    },
+    {
+      "path": "calibrate_detector_cutpoints.py",
+      "sha256": "794f04e9130abda31bfe41d239f5ad425f0c38350040b53e83bbf7e310ff9915"
+    }
+  ],
+  "note": "The pre-registration SHA-256 above is the authoritative record of all pinned parameters (incl. the standardized estimator and the eps_null=delta check-3 tolerance); this manifest does not restate them. scikit-learn, transformers, and torch versions are recorded because the pinned estimator and model inference can vary numerically across versions."
+}
