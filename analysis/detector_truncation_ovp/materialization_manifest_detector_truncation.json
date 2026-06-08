@@ -1,0 +1,52 @@
+{
+  "framework": "AEPF DETECTOR_TRUNCATION_OVP materialization manifest",
+  "study": "DETECTOR_TRUNCATION_OVP real candidate study (lock 2): does `truncated` add HDG beyond confidence",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "detector-truncation-ovp-lock",
+  "generated_utc": "2026-06-08T14:56:48.797312+00:00",
+  "master_seed": "0x77C0DE",
+  "candidate": "truncated",
+  "baseline": "confidence (max softmax)",
+  "inherited_cut_points": {
+    "tau_lo": 0.02458901317356486,
+    "tau_hi": 0.06829080323934116,
+    "provenance": "detector-ovp-calib-result",
+    "identity_checked_at_lock": true
+  },
+  "substrate": {
+    "type": "inherited per-example (B, y, truncated) from the calibration lock; external model+dataset pinned",
+    "inherited_per_example": {
+      "path": "detector_per_example.csv",
+      "sha256": "24dac07828949a7e93fcc686ff3df70229c026195d3db873e688c1b401afc643",
+      "source": "DETECTOR_OVP_CALIB locked materialization (detector-ovp-calib-result)"
+    },
+    "dataset": {
+      "path": "../../case_studies/chatgpt_detector_roberta_v1/chatgpt_detector_roberta_test_set.csv",
+      "sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+      "matches_audit_record": true
+    },
+    "model": {
+      "id": "Hello-SimpleAI/chatgpt-detector-roberta",
+      "revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+      "identity_checked_at_lock": true
+    },
+    "attestation": "No model re-run: (B, y, truncated) are inherited byte-identical from the calibration-locked detector_per_example.csv (hash-verified). truncated's HDG is computed only by the single locked run of judge_truncation.py."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_DETECTOR_TRUNCATION_OVP.md",
+      "sha256": "9a145d94284593fb9198fde9fee3c1fd733d38978972b3dadc5543c267ab4f64"
+    },
+    {
+      "path": "judge_truncation.py",
+      "sha256": "027e83c4551d909ced65c34199fdbe5872d52a61e1d26593c14063aa7e86a86d"
+    }
+  ],
+  "note": "The pre-registration SHA-256 is the authoritative record of all pinned parameters (estimator, D=median form, verdict rule, inherited cut points). transformers/torch are NOT required at lock-2 runtime (no model re-run); numpy + scikit-learn govern the verdict."
+}
