@@ -1,0 +1,54 @@
+{
+  "framework": "AEPF DETECTOR_LENGTH_OVP materialization manifest",
+  "study": "DETECTOR_LENGTH_OVP real candidate study (#2): does `text_length` add HDG beyond confidence",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "detector-length-ovp-lock",
+  "generated_utc": "2026-06-08T16:12:36.552541+00:00",
+  "master_seed": "0x73C0DE",
+  "candidate": "text_length",
+  "baseline": "confidence (max softmax)",
+  "inherited_cut_points": {
+    "tau_lo": 0.02458901317356486,
+    "tau_hi": 0.06829080323934116,
+    "provenance": "detector-ovp-calib-result",
+    "identity_checked_at_lock": true
+  },
+  "substrate": {
+    "type": "B,y,truncated inherited from the calibration lock; text_length materialized fresh (tokenizer only); external model+dataset pinned",
+    "inherited_per_example": {
+      "path": "../detector_truncation_ovp/detector_per_example.csv",
+      "sha256": "24dac07828949a7e93fcc686ff3df70229c026195d3db873e688c1b401afc643",
+      "source": "DETECTOR_OVP_CALIB locked materialization (detector-ovp-calib-result)"
+    },
+    "dataset": {
+      "path": "../../case_studies/chatgpt_detector_roberta_v1/chatgpt_detector_roberta_test_set.csv",
+      "sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+      "matches_audit_record": true
+    },
+    "model": {
+      "id": "Hello-SimpleAI/chatgpt-detector-roberta",
+      "revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+      "tokenizer_only_for_length": true,
+      "identity_checked_at_lock": true
+    },
+    "attestation": "B,y,truncated inherited byte-identical from the calibration-locked per-example (hash-verified). text_length is materialized by the single locked run via the pinned tokenizer (no model inference) and cross-checked: 1[text_length>512] must equal the inherited truncated column or the run aborts. detector_length_per_example.csv is an output of the run."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0",
+    "transformers": "5.9.0"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_DETECTOR_LENGTH_OVP.md",
+      "sha256": "7b7e116f660ab421e7494be895a0f3962f17ac76010324ae64d3b7a2845c3999"
+    },
+    {
+      "path": "judge_length.py",
+      "sha256": "cbda6444065b5b14dfb57c86dbba3f4c74bf45e484808fb46eb800166b426994"
+    }
+  ],
+  "note": "The pre-registration SHA-256 is the authoritative record of all pinned parameters. transformers is required at runtime for the tokenizer only (text_length); torch/model inference is NOT used; numpy + scikit-learn govern the verdict."
+}
