@@ -1,0 +1,49 @@
+# Cross-Pass Record — DETECTOR_OVP_CALIB (cut-point calibration sub-study, lock 1 of the detector arc)
+
+Tracks the two-pass review + lock progress for `PRE_REGISTRATION_DETECTOR_OVP_CALIB.md`, per spec §7 and the §7 two-pass interpretation in `OVP_DESIGN_HISTORY.md`. The pre-reg does not narrate its own review-progress; this file holds the mutable status.
+
+**Lock bar:** two independent passes return **no lock-blocker on byte-identical artifacts**; a blocker resets the count; non-blockers queue without folding; the fix-author cannot clear.
+
+## Current status: **CLEARED TO LOCK** — 2 of 2 clean cold passes (NO LOCK-BLOCKER) on byte-identical artifacts. Remaining: operator §11 sign-off, then lock (`detector-ovp-calib-lock`) + single run. All non-blockers queued for v0.x, **not folded** — the locked bytes are exactly what both cold readers read.
+
+## Cold pass 2 (external, genuine fresh reader): NO LOCK-BLOCKER — BAR MET
+Independent cold reader, no design context. All A–J conforming; **(D)** no leakage with both invariants proved (incl. the L2-strict-convexity stability note for the rank-deficient redundant fit); **(F)** `ε_null = δ` independently judged principled (reuses pinned δ, one-sided, correct sign-of-sampling-noise rationale). Output/pin conformance complete; `SEPARABLE` independently placed **within** the pinned separability-boolean set (matching pass 1's resolution). **VERDICT: NO LOCK-BLOCKER.**
+**Cross-pass corroboration:** the two cold readers converged on the same items with the same classifications — both non-gated NB1 (conditional determinism cross-check) for the same reason (unconditional dataset-sha abort + pinned revision + deterministic inference keep soundness), and both resolved `SEPARABLE` identically. Independent agreement = the §7 signal working.
+New pass-2 non-blockers (queued un-folded): (a) the two §3 invariants aren't *asserted in code* — a one-line self-check (`null_redundant` HDG ≡ 0 within tol) would make invariant 2 self-checking rather than reader-verified; (b) the `predictions.csv` join assumes a `truncated` column — a clearer error message if absent is a robustness nicety. (NB1-conditional and spec-body-working-draft overlap pass 1.)
+
+## Cold pass 1 (external, genuine fresh reader): NO LOCK-BLOCKER
+
+## Cold pass 1 (external, genuine fresh reader): NO LOCK-BLOCKER
+Independent cold reader (spec body + lock notice + pre-reg + script only; assumed no prior review correct). All A–J conforming, including the two weighted checks: **(D)** no test leakage — scaler fit on train, applied to held-out; both §3 invariants proved sound (monotone single-feature standardization preserves baseline AUC; z-scored `2B−1` ≡ z-scored `B` → HDG≡0); **(F)** `ε_null = δ` judged **principled, not outcome-driven** (reuses pinned δ, one-sided, correct rationale re: sign-of-sampling-noise on eligible substrates). Output/pin conformance, provenance, scope, substrate pinning + determinism cross-check all confirmed. **VERDICT: NO LOCK-BLOCKER.**
+
+### v0.x queue from cold pass 1 (queued un-folded to preserve byte-identity for pass 2)
+1. **Determinism cross-check conditional on `predictions.csv` existing** — silently no-ops if absent, whereas §2 frames it as an always-abort guard. Non-gating for this lock (`predictions.csv` is present + committed → guard runs; dataset-hash + manifest 3-way revision check independently guard integrity). Hardening for a future revision: require presence + abort if missing.
+2. `hdg_distributions` adds an `AUC`/`AP` nesting level beyond §7's literal "keys: null_redundant…" phrasing — faithful; one-line §7 note.
+3. `SEPARABLE` persisted alongside `separability_checks` + `verdict` — derived duplicate (`all(checks)`), bijective with the verdict; name it in §7 or drop, at next forced revision. (Same item SST-2's passes resolved as within "check booleans and verdict string.")
+4. Per-example CSV is a **superset** of the §7-named `B, y, truncated` (also `predicted_prob_ai`, `pred`, `source_domain`, `is_ai_generated`) — audit-useful materialization byproducts; note "CSV is a superset" in §2/§7.
+5. Dead branch: `hdg(..., want_ap=False)` is never reached (`calibrate` always passes `want_ap=True`). Cosmetic.
+6. Spec body's "working draft — not locked" line — by-design tag-only/byte-exact; non-defect (recorded explicitly).
+
+## Warm conformance audit (operator, full design context — explicitly NOT a §7 cold pass): NO LOCK-BLOCKER
+
+## Pre-cold-pass steps (complete)
+- **Build-and-smoke** (`calibrate_detector_cutpoints.py`, `SCRIPT_BUILD_FINDINGS_DETECTOR_OVP_CALIB.md`): built strictly to the pre-reg; pins verified to carry forward from SST-2 v2 (AP error-class, σ_m grid, R_cal, numpy 'linear', stratified 50/50, L2 C=1.0, train-fit StandardScaler, δ). Smoke on **real (B, y)**: invariant 2 (redundant null ≡ 0) exact; invariant 1 (baseline AUC ≈0.60) within the widened expectation; **the substrate produced a clean USABLE BAND [0.0251, 0.0686]** under the corrected gate.
+- **Design finding fixed pre-cold-pass (operator-approved):** check-3's null-mean condition was encoded `≤ 1e-9` (strict), a knife-edge on an eligible substrate whose null centers at ~0. Corrected to a one-sided tolerance **`ε_null = δ = 0.01`** (§6.3, §11.4, script `EPS_NULL`). The generic encoding lesson (`≈`/`~` → explicit pinned-constant tolerance) and the milestone distinction are recorded in `OVP_DESIGN_HISTORY.md`.
+- **Output-conformance check (check F):** every §7 pinned output is produced by the script (top/support/meta keys + `hdg_distributions` AUC+AP), and nothing beyond the pinned set is written — confirmed against the file-tool-authoritative source. (Three tail meta keys read false under the sandbox bash mount due to a known truncation artifact; confirmed present via file-tool Read of lines 245–247.)
+- **Manifest generator** (`build_manifest_detector_calib.py`): built; aborts the lock on a dataset-hash mismatch or a 3-way model-revision identity mismatch (audit `model_revision.txt` == manifest pin == script). Both checks verified PASS against the real files (dataset `a29f8f2c…`, revision `d2b342c6…`).
+- **Operator local `py_compile`** of `calibrate_detector_cutpoints.py`: **PASS (2026-06-08)** — the real on-disk file compiles clean; the sandbox bash-mount truncation was cosmetic only.
+
+## Warm conformance audit (operator, full design context — explicitly NOT a §7 cold pass): NO LOCK-BLOCKER
+Reviewer disclosed maximum design-context overlap (OVP build, SST-2 retirement, substrate-eligibility refinement, ε_null correction, spec lock) and correctly filed this as a **warm** audit that **cannot count toward either required cold pass**. Adversarial A–J walk, all conforming: HDG form = spec §1; provenance (nulls→τ_lo, meaningful→τ_hi; `truncated` materialized but absent from `cons`/calibration); strict band + pre-committed MIS-SPECIFIED; **(D, weighted) standardization fit on train only** — `Pipeline` re-created per call, `fit` learns scaler on train rows, `predict_proba` transforms test rows with train stats, no leakage; both §3 invariants sound; AP error-class relabel both terms, non-gating; **(F, weighted) ε_null = δ judged PRINCIPLED** — ties to the pinned δ, one-sided, an explicit transcription-correction of a documented strict-≤0 bug, not an outcome-driven relaxation; output/pin conformance (every §7 item produced, nothing unpinned); grid/percentile/seed parity; scope held; substrate pinning + determinism cross-check. **VERDICT: NO LOCK-BLOCKER.**
+Two editorial non-blockers (warm-pass) — **both FOLDED (2026-06-08)** before routing the cold passes (codified rule: warm-pass NBs fold freely, the two-cold-pass byte-clock had not started). Pure §3 prose edits; no pin/logic change, script + check F untouched, no re-smoke needed:
+- **NB1 (folded)** — §3 invariant 2 reworded "≡ 0 in every replication" → "= 0 in every replication (exactly, up to optimizer numerics — far inside the check-3 `ε_null` tolerance)."
+- **NB2 (folded)** — §3 estimator description sharpened: scaler `fit`→`transform` on train, `transform` on held-out with train-fit stats; held-out never influences the scaler (no leakage).
+
+## Remaining gates
+- **(decision) Fold NB1/NB2 or queue?** Per the codified rule, warm-pass non-blockers are foldable (the two-cold-pass byte-clock has not started); operator preference at audit time was to queue. Pending confirmation before routing the cold passes.
+- ~~Two cold passes~~ **DONE: 2 of 2 clean on byte-identical artifacts — BAR MET.** All non-blockers queued for v0.x (not folded).
+- **Operator §11 sign-off** on the 7 discretionary pins — the one open gate before lock.
+- Lock: run `build_manifest_detector_calib.py` from this dir on the authoritative machine (aborts on dataset-hash or 3-way revision-identity mismatch) → atomic commit of pre-reg + `calibrate_detector_cutpoints.py` + `materialization_manifest_detector_calib.json` → signed tag `detector-ovp-calib-lock` → **single run** of `calibrate_detector_cutpoints.py` (no flags) → commit outputs + signed tag `detector-ovp-calib-result`. If a band holds → **the milestone** (first usable band on real data) + freeze cut points into lock 2 (`DETECTOR_TRUNCATION_OVP`, candidate = `truncated`).
+
+### Combined v0.x queue (both cold passes; un-folded)
+1. Require `predictions.csv` presence (fail-closed) so the determinism cross-check is enforced, not merely attempted. 2. Code-assert the two §3 invariants (esp. redundant-null ≡ 0) as a self-check. 3. Clearer error if the audit join lacks a `truncated` column. 4. §7 nesting note (`hdg_distributions` is metric-first). 5. Name `SEPARABLE` in §7 (or drop). 6. Note the per-example CSV is a superset of `B,y,truncated`. 7. Remove the dead `want_ap=False` branch.
