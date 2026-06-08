@@ -1,0 +1,52 @@
+{
+  "framework": "AEPF DETECTOR_DIRECTION_OVP materialization manifest",
+  "study": "DETECTOR_DIRECTION_OVP real candidate study (#3): does directional predicted_prob_ai add HDG beyond folded confidence",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "detector-direction-ovp-lock",
+  "generated_utc": "2026-06-08T21:16:38.370509+00:00",
+  "master_seed": "0xDEC0DE",
+  "candidate": "predicted_prob_ai",
+  "baseline": "confidence (folded max(p,1-p))",
+  "inherited_cut_points": {
+    "tau_lo": 0.02458901317356486,
+    "tau_hi": 0.06829080323934116,
+    "provenance": "detector-ovp-calib-result",
+    "identity_checked_at_lock": true
+  },
+  "substrate": {
+    "type": "ALL of B,y,predicted_prob_ai,pred inherited from the calibration lock; NO new materialization; external model+dataset pinned for provenance",
+    "inherited_per_example": {
+      "path": "../detector_truncation_ovp/detector_per_example.csv",
+      "sha256": "24dac07828949a7e93fcc686ff3df70229c026195d3db873e688c1b401afc643",
+      "source": "DETECTOR_OVP_CALIB locked materialization (detector-ovp-calib-result)"
+    },
+    "dataset": {
+      "path": "../../case_studies/chatgpt_detector_roberta_v1/chatgpt_detector_roberta_test_set.csv",
+      "sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+      "matches_audit_record": true
+    },
+    "model": {
+      "id": "Hello-SimpleAI/chatgpt-detector-roberta",
+      "revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+      "identity_checked_at_lock": true
+    },
+    "attestation": "B,y,predicted_prob_ai,pred are inherited byte-identical from the calibration-locked per-example (hash-verified). No tokenizer, no model inference, no new materialization. predicted_prob_ai's HDG is computed only by the single locked run of judge_direction.py."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_DETECTOR_DIRECTION_OVP.md",
+      "sha256": "0d0f5bff234127e843d25e8f05bfd759a1aa5e4149fcd3167db8853b0ce56644"
+    },
+    {
+      "path": "judge_direction.py",
+      "sha256": "86bc32a980196f77a407dedc1b42a29c5ecb63019adf8d8d23399576ca1bf350"
+    }
+  ],
+  "note": "The pre-registration SHA-256 is the authoritative record of all pinned parameters. transformers/torch are NOT required at runtime (no materialization); numpy + scikit-learn govern the verdict."
+}
