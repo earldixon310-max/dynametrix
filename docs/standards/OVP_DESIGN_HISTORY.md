@@ -186,6 +186,14 @@ That the first verdict is **Inconclusive** is itself notable: the hardest verdic
 
 **Program note.** The full arc that produced this verdict is the integrity story in miniature: SST-2 MIS-SPECIFIED twice (honest negatives) → the failures forged the substrate-eligibility criterion → the empirical screen selected an eligible substrate → the calibration produced the first real band → the candidate study issued the first real verdict, with build-and-smoke catching four distinct latent defects and a no-peeking fold along the way. The framework returned the right answer at every step, *including the steps where the right answer was "no result."*
 
+## LEDGER — OVP real candidate verdict #2 (2026-06-08): `text_length` → Not-Validated
+
+DETECTOR_LENGTH_OVP (tags `detector-length-ovp-lock` → `detector-length-ovp-result`, 2/2 clean cold passes) ran once under seed `0x73C0DE` and returned **`D = −0.011778` → Not-Validated** against the same inherited band `[0.024589, 0.068291]` — **199/200 replications below `τ_lo`**, the gain slightly negative. This is OVP's **second** real verdict (§6 ladder: **2 of 3** toward operational); one more real candidate reaches the operational rung, all reusing the one locked detector calibration (no new calibration).
+
+**Scientific reading (with verdict #1).** `truncated` (discrete >512 ceiling) → Inconclusive, D=+0.029; `text_length` (continuous full range) → Not-Validated, D=−0.012. The detector's **confidence is approximately a sufficient statistic for smooth length-related uncertainty**; the only residual signal beyond confidence sits at the discrete truncation regime, not in continuous length. Mechanistic detail: `text_length`'s marginal association with correctness is weak (r=0.090) and **non-monotonic** (hump-shaped), which the pinned *linear* estimator cannot exploit — so the verdict is explicitly **estimator-conditional** (a nonlinear estimator is a separate legitimately-recorded question per spec §0/§9), and recorded as such in the result doc.
+
+**Pattern across two real verdicts:** both negatives/abstentions (Inconclusive, Not-Validated) — the framework has not produced a false positive; the band is doing real work. The candidate scaffolding's compounding hardening showed again: candidate #2's two cold passes found only documentation-level notes, the no-peeking discipline held (text_length materialized only at the locked run), and the result is fully self-consistent. Outcome doc `RESULT_DETECTOR_LENGTH_OVP.md` pending its citation cross-pass.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
