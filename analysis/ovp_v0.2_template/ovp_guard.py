@@ -68,7 +68,11 @@ def assert_locked_or_refuse(lock_tag, sealed_sources, self_path):
             raise GuardRefusal("REFUSE: %s bytes != %s blob (expected %s, got %s)"
                                % (rel_path, lock_tag, expected_oid[:12], working_oid[:12]))
         sys.stderr.write("[ovp-guard] verified %s:%s == %s\n" % (lock_tag, rel_path, working_oid))
-        if os.path.samefile(os.path.abspath(abs_file), os.path.abspath(self_path)) if os.path.exists(abs_file) else False:
+        try:
+            is_judge = os.path.exists(abs_file) and os.path.samefile(abs_file, self_path)
+        except OSError:
+            is_judge = False
+        if is_judge:
             judge_oid = working_oid
     sys.stderr.write("[ovp-guard] LOCKED ok: all %d sealed-path sources verified\n" % len(sealed_sources))
     return judge_oid
@@ -109,8 +113,14 @@ def verify_input_hashes(expected, allow_empty=False):
 # libc IO in an arbitrary extension remains unprovable by construction (R-1 reference-suite
 # assertion); numpy's own readers DO raise the `open` event and are covered.
 _io_allow = None  # None => inactive; set => only these absolute real paths may be opened
+# DENYLIST of spawn/network/enumeration audit events. NOTE (cold-pass-A reader #4): a denylist
+# can never be exhaustive (the spec says so) - os.system was a demonstrated hole, now closed, but
+# the GUARANTEE is the `open` allowlist below; spawn/network denial is best-effort defense-in-depth,
+# and the real closure for spawn/network exfiltration is the operator's external sandbox (no-network,
+# restricted process) for the canonical run.
 _DENY_EVENTS = ("os.listdir", "os.scandir", "socket.connect", "socket.getaddrinfo",
-                "subprocess.Popen", "os.exec", "os.posix_spawn", "shutil.copyfile")
+                "subprocess.Popen", "os.exec", "os.posix_spawn", "os.posix_spawnp",
+                "os.system", "os.popen", "os.spawnv", "shutil.copyfile")
 
 
 def _audit(event, args):

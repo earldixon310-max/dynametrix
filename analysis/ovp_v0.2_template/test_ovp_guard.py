@@ -89,4 +89,12 @@ check("15 widened closed-world: subprocess REFUSES", sp_blk); shutil.rmtree(d)
 d,p=make_repo(); absent=os.path.join(os.path.dirname(p),"not_in_tree.py"); open(absent,"wb").write(SRC)
 check("16 path-absent-from-tagged-tree REFUSES", refuses(assert_locked_or_refuse,TAG,{"not_in_tree.py":absent},p)); shutil.rmtree(d)
 
+# 17 widened closed-world: os.system REFUSES (cold-pass-A reader #4 demonstrated exploit, now closed)
+d=tempfile.mkdtemp(); fx=os.path.join(d,"s.npy"); open(fx,"wb").write(b"syn"); sys_blk=False; out=os.path.join(d,"x")
+with closed_world_io(fx):
+    try: os.system("echo leak > %s" % out)
+    except GuardRefusal: sys_blk=True
+leaked = os.path.exists(out)
+check("17 widened closed-world: os.system REFUSES (no child exfiltration)", sys_blk and not leaked); shutil.rmtree(d)
+
 print("\n%d/%d checks passed"%(sum(R),len(R))); sys.exit(0 if all(R) else 1)
