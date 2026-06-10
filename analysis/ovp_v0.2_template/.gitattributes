@@ -1,0 +1,4 @@
+judge_template.py -text
+smoke_template.py -text
+compute_core.py -text
+ovp_guard.py -text
