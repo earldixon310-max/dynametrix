@@ -275,6 +275,17 @@ Proposed *refinements to the framework itself* (new disciplines, candidate-gener
 
 **Descriptor Justification Layer — first contact, recorded.** Exercised end-to-end and prospectively: mechanism disclosed (not gated), dual interpretation pre-committed and honored, surface foil operative *and* informative (it validated the band, and through the CP2-N1 fold it taught the layer that a pre-committed caveat's causal attribution must itself be cold-checked). First contact also banked three template-scoped v0.2 seeds — sealed-run self-guard (H1), re-route-depth taxonomy, lock-the-smoke-harness (T-2) — each motivated by a specific cold-pass finding. The layer survived first contact without any revision to the layer itself; only its *application* generated lessons, which is the outcome the design seed was built to produce.
 
+## OPEN THREAD — community-validated rung is a SOURCING problem, not a template or candidate problem (position note, 2026-06-10)
+
+The operational rung (§6.2) is reached and clean (four real verdicts, zero false positives). The **community-validated** rung (§6.3) has a single binding constraint — **operator-independence: at least one candidate the principal operator did not author/design** — and that constraint is moved by **neither** drafting v0.2 **nor** running more internal candidates. It is a *sourcing* problem: the program currently has no concrete plan to obtain externally-authored input.
+
+**Possible paths (none decided; recorded so the gate is not forgotten):**
+- **Collaborator engagement** — invite a specific external researcher to propose a candidate observable on an existing locked substrate.
+- **Public framework posting with an open invitation** — publish OVP v0.1 + the detector ledger and solicit external candidates (the AEPF paper / public-audit attestation work is adjacent infrastructure).
+- **Run an externally-proposed candidate** — take a candidate someone else proposes (even informally) and audit it under the existing discipline, recording its external authorship explicitly.
+
+**Why flag it now.** Whatever direction the program takes (template hardening, more internal candidates, v0.2), §6.3 standing remains the long-term gate, and it needs its **own** thinking — separate from template work and from internal candidate generation. It does not block anything currently in flight; it is the structural ceiling on the maturity ladder until an external candidate exists.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
