@@ -28,7 +28,9 @@ Five files in the atomic lock commit, hashed in the manifest: **pre-registration
 ```
 python3 test_ovp_guard.py      # 12 unit properties (each builds a real temp git repo)
 python3 test_integration.py    # 2 end-to-end (smoke pre-lock; judge across the lock boundary)
+python3 test_ovp_attest.py     # 5 attestation properties (anchored/unanchored/temporal/tamper x2)
 ```
+19 properties total, all asserted by execution.
 
 ## Properties verified by execution (mapping to spec + cold-pass findings)
 
@@ -51,8 +53,20 @@ python3 test_integration.py    # 2 end-to-end (smoke pre-lock; judge across the 
 
 **Lesson surfaced by execution (not prose):** numpy's lazy submodule imports open `.pyc` files, which the closed-world audit correctly refuses if they happen *inside* the data phase — so the harness must **warm libraries before** the closed-world block. This is exactly the "benign library-load IO vs data IO" distinction rev7 flagged as a reference-suite assertion; the test that caught it is why §6 is right that execution beats prose here.
 
-## Built vs. still spec'd (honest scope)
+## The §3 attestation tool (`ovp_attest.py`)
 
-- **Built + tested:** the guard, the full closure chain (H1 + output-exists + input-hash + closed-world), the `(sealed-loader, synthetic-loader, shared-core)` factoring, the judge/harness skeletons.
-- **Spec'd (§3), not yet implemented:** the **signed additive attestation tool** for grandfathered #1–#4 — the two schema-enforced distinctions (verifiable/attested; anchored/unanchored). It's additive metadata tooling, separable from the judge path; the next build item.
+Signed, study-bound, **additive** attestation (zero re-tagging → immutability preserved) for a study's smoke harness. `build_attestation` emits a structured record with the two mandatory distinctions; `verify_attestation` re-derives the verifiable claims from the repo. A real run creates the additive record as a **signed** tag (`git tag -s …-harness-attest <lock-commit>`); signature authenticity is the separate `git tag -v` human-trust step.
+
+| # | property | spec |
+|---|---|---|
+| A | anchored (harness in lock tree) → **proof-grade**, anchoring + claim-scope VERIFIED | §3 |
+| B | unanchored grandfathered (harness committed after lock) → **attestation-grade**, temporal bound honestly "not before lock" | §3 (3d) |
+| C | unanchored, harness blob in history at/before lock date → temporal bound **holds** | §3 (3d) |
+| D | forged "anchored" claim → **CONTRADICTED** (blob not in lock tree) | §3 |
+| E | `non_execution` over-claimed as verifiable → **CONTRADICTED** (claim-scope guard) | §3 |
+
+## Scope notes (honest)
+
+- **Built + tested:** the guard; the full closure chain (H1 + output-exists + input-hash + closed-world); the `(sealed-loader, synthetic-loader, shared-core)` factoring; the judge/harness skeletons; **the §3 signed additive attestation tool**.
 - **Documented boundary, not mechanized:** the hostile-`info/attributes` lossy-filter case is out-of-model tamper (R-1); test 12 asserts the boundary (locked `.gitattributes` tracked, `info/attributes` untracked) rather than constructing the collision.
+- **Human-trust layer (by design, R-1, not this code's job):** git signature verification (`git tag -v`) on both the lock tag and the attestation tag — the identity layer the guards explicitly disclaim.
