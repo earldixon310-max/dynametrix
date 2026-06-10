@@ -1,16 +1,12 @@
 """
-ovp_guard.py - OVP v0.2 reference template: the sealed-run self-guard and chain guards.
+ovp_guard.py - OVP v0.2 reference template: sealed-run self-guard + chain guards (rev2).
 
-Implements docs/standards/OVP_v0.2_TEMPLATE_HARDENING_DRAFT.md (rev7). Every guarantee is
-scoped to ACCIDENT-PREVENTION (R-1): a forged tag or an edited-out guard defeats it; that
-residual is the signature/human-trust layer's job, explicitly disclaimed.
+rev2 closes cold-pass-A finding 1 (demonstrated fail-open): H1 now verifies EVERY source file on
+the sealed compute path - the judge, the shared compute-core, and the guard module itself - not
+just the judge's blob. An accidental post-lock edit to any of them now refuses. This satisfies
+the spec's sec 1 self-containment-OR-cover-every-import rule by the *cover* branch.
 
-Pieces (the full closure chain adopts together, sec 2.5):
-  H1  assert_locked_or_refuse  - compute the sealed quantity only if this study is locked,
-                                 by git OBJECT identity, FAIL-CLOSED on every git-error path.
-  re-run  output_exists_or_refuse - single-execution: refuse a silent same-output re-run.
-  inputs  verify_input_hashes  - right-data: expected hashes are pinned in the guarded blob.
-  B2  closed_world_io          - the harness's deny-by-default input surface (allowlist).
+Accident-prevention scope (R-1): a forged tag, a deleted guard, or a SHA-1 collision defeat it.
 """
 import hashlib
 import os
@@ -19,66 +15,64 @@ import sys
 
 
 class GuardRefusal(Exception):
-    """Raised to REFUSE. A judge lets this propagate to a top-level handler that exits non-zero
-    BEFORE the sealed quantity is ever computed."""
+    """Raised to REFUSE, BEFORE the sealed quantity is ever computed."""
 
 
 def _git(args, cwd):
-    """Run git; never raise. Returns (rc, stdout, stderr). git absent -> rc 127 (fail-closed)."""
     try:
         p = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
         return p.returncode, p.stdout.strip(), p.stderr.strip()
     except FileNotFoundError:
         return 127, "", "git-binary-absent"
-    except Exception as e:  # pragma: no cover - defensive; still fail-closed
+    except Exception as e:  # defensive; still fail-closed
         return 1, "", "git-exec-error:%r" % (e,)
 
 
-def assert_locked_or_refuse(lock_tag, locked_path, self_path):
-    """H1 self-guard. Returns the verified blob OID, or raises GuardRefusal (refuse).
+def assert_locked_or_refuse(lock_tag, sealed_sources, self_path):
+    """H1 self-guard. Returns the judge's verified OID, or raises GuardRefusal.
 
-    lock_tag, locked_path : constants PINNED in the locked script bytes (never derived from
-                            __file__). locked_path is repo-relative; it selects the expected
-                            blob (LOCK_TAG:locked_path) and the filter set (--path).
-    self_path             : the RUNNING script's path; its bytes are hashed, so a moved-AND-
-                            modified copy refuses while a byte-identical relocation passes.
+    lock_tag       : constant PINNED in the locked judge bytes (never derived from __file__).
+    sealed_sources : dict {repo_relative_path: absolute_file_to_hash} covering EVERY source file
+                     on the sealed compute path - the judge, the shared compute-core, the guard,
+                     and any other locked module imported before/at sealed compute. Pin this
+                     explicitly in the judge (a lint can assert it covers all sealed-path imports).
+                     The repo-relative path selects the expected blob + filter; the absolute path
+                     (e.g. module.__file__) is the actually-loaded bytes hashed - so a modified
+                     copy refuses while a byte-identical relocation passes.
+    self_path      : the running judge's path (used to discover the repo root).
 
-    FAIL-CLOSED on every git-error path: no git binary, no .git, tag missing, blob unresolved,
-    working-file unhashable, or OID mismatch -> refuse. This is the only place a guard could
-    wrongly COMPUTE, so every error path must refuse.
+    FAIL-CLOSED on every git-error path. Refuses unless ALL sealed sources match.
     """
+    if not sealed_sources:
+        raise GuardRefusal("REFUSE: empty sealed_sources (the judge must enumerate its sealed-path files)")
     start_dir = os.path.dirname(os.path.abspath(self_path)) or "."
     rc, repo_root, err = _git(["rev-parse", "--show-toplevel"], start_dir)
     if rc != 0 or not repo_root:
         raise GuardRefusal("REFUSE: not in a git work tree (%s)" % (err or "no .git/git",))
 
-    # Expected: blob recorded at the PINNED path in the named tag. OID resolved DYNAMICALLY,
-    # never hard-coded (hard-coding reintroduces the fixpoint circularity).
-    rc, expected_oid, err = _git(["rev-parse", "--verify", "%s:%s" % (lock_tag, locked_path)], repo_root)
-    if rc != 0 or not expected_oid:
-        raise GuardRefusal("REFUSE: cannot resolve %s:%s (%s)" % (lock_tag, locked_path, err or "tag/path missing"))
-
-    # Working side: hash the RUNNING file through git's filters for the pinned path
-    # (--path applies clean-filter + EOL per gitattributes; filter-aware, not a raw byte hash).
-    rc, working_oid, err = _git(["hash-object", "--path", locked_path, "--", os.path.abspath(self_path)], repo_root)
-    if rc != 0 or not working_oid:
-        raise GuardRefusal("REFUSE: cannot hash working file (%s)" % (err or "hash-object failed",))
-
-    if working_oid != expected_oid:
-        raise GuardRefusal("REFUSE: working bytes != %s blob (expected %s, got %s)"
-                           % (lock_tag, expected_oid[:12], working_oid[:12]))
-
-    # Audit log: the tag + the verified code OID. NEVER the sealed value.
-    sys.stderr.write("[ovp-guard] LOCKED ok: %s:%s == %s\n" % (lock_tag, locked_path, working_oid))
-    return working_oid
+    judge_oid = None
+    for rel_path, abs_file in sorted(sealed_sources.items()):
+        rc, expected_oid, err = _git(["rev-parse", "--verify", "%s:%s" % (lock_tag, rel_path)], repo_root)
+        if rc != 0 or not expected_oid:
+            raise GuardRefusal("REFUSE: cannot resolve %s:%s (%s)" % (lock_tag, rel_path, err or "tag/path missing"))
+        rc, working_oid, err = _git(["hash-object", "--path", rel_path, "--", os.path.abspath(abs_file)], repo_root)
+        if rc != 0 or not working_oid:
+            raise GuardRefusal("REFUSE: cannot hash %s (%s)" % (rel_path, err or "hash-object failed",))
+        if working_oid != expected_oid:
+            raise GuardRefusal("REFUSE: %s bytes != %s blob (expected %s, got %s)"
+                               % (rel_path, lock_tag, expected_oid[:12], working_oid[:12]))
+        sys.stderr.write("[ovp-guard] verified %s:%s == %s\n" % (lock_tag, rel_path, working_oid))
+        if os.path.samefile(os.path.abspath(abs_file), os.path.abspath(self_path)) if os.path.exists(abs_file) else False:
+            judge_oid = working_oid
+    sys.stderr.write("[ovp-guard] LOCKED ok: all %d sealed-path sources verified\n" % len(sealed_sources))
+    return judge_oid
 
 
 def output_exists_or_refuse(out_path):
-    """Single-execution guard. Refuse a silent SAME-OUTPUT re-run. Scope (honest): a re-run to a
-    DIFFERENT --out path survives this and falls back to single-execution discipline (R-2)."""
+    """Single-execution: refuse a silent SAME-OUTPUT re-run (a different --out falls back to the
+    single-execution rule; a crashed run is amended under a NEW lock tag)."""
     if os.path.exists(out_path):
-        raise GuardRefusal("REFUSE: output %s exists (single-execution; a crashed run is amended "
-                           "under a NEW lock tag, not silently re-run)" % out_path)
+        raise GuardRefusal("REFUSE: output %s exists (single-execution; amend under a NEW lock tag)" % out_path)
 
 
 def _sha256(path):
@@ -89,9 +83,12 @@ def _sha256(path):
     return h.hexdigest()
 
 
-def verify_input_hashes(expected):
-    """Right-data guard. `expected` is {path: sha256} with the hashes PINNED in the guarded blob
-    (identity-covered by H1), never read from an unverified ambient file. Refuse on any mismatch."""
+def verify_input_hashes(expected, allow_empty=False):
+    """Right-data guard. `expected` = {path: sha256}, hashes PINNED in the guarded blob. rev2:
+    refuses an EMPTY expected-set unless allow_empty=True, so a study that forgets to populate it
+    fails closed instead of silently skipping the check (cold-pass-A secondary finding)."""
+    if not expected and not allow_empty:
+        raise GuardRefusal("REFUSE: empty input-hash set (populate EXPECTED_INPUT_SHA256 or pass allow_empty=True)")
     for path, want in expected.items():
         if not os.path.exists(path):
             raise GuardRefusal("REFUSE: input %s absent" % path)
@@ -100,28 +97,38 @@ def verify_input_hashes(expected):
             raise GuardRefusal("REFUSE: input %s sha256 %s != pinned %s" % (path, got[:12], want[:12]))
 
 
-# --- B2: the harness's deny-by-default closed-world input surface -------------------------------
-_io_allow = None  # None => guard inactive; set => only these absolute real paths may be opened
+# --- B2: the harness's deny-by-default closed-world surface (rev2: IO-closed, not just open) ----
+# rev2 widens the audit coverage past `open`: directory enumeration, network, subprocess, and exec
+# are denied outright during the data phase (a synthetic generator does none of them). C-level
+# libc IO in an arbitrary extension remains unprovable by construction (R-1 reference-suite
+# assertion); numpy's own readers DO raise the `open` event and are covered.
+_io_allow = None  # None => inactive; set => only these absolute real paths may be opened
+_DENY_EVENTS = ("os.listdir", "os.scandir", "socket.connect", "socket.getaddrinfo",
+                "subprocess.Popen", "os.exec", "os.posix_spawn", "shutil.copyfile")
 
 
-def _open_audit(event, args):
-    if event == "open" and _io_allow is not None:
-        path = args[0]
+def _audit(event, args):
+    if _io_allow is None:
+        return
+    if event == "open":
         try:
-            ap = os.path.realpath(path)
+            ap = os.path.realpath(args[0])
         except Exception:
-            ap = str(path)
+            ap = str(args[0])
         if ap not in _io_allow:
-            raise GuardRefusal("REFUSE: closed-world harness opened %r (not in the pinned fixture allowlist)" % (path,))
+            raise GuardRefusal("REFUSE: closed-world harness opened %r (not in the pinned allowlist)" % (args[0],))
+    elif event in _DENY_EVENTS:
+        raise GuardRefusal("REFUSE: closed-world harness used %s (denied in the data phase)" % event)
 
 
-sys.addaudithook(_open_audit)  # installed once; gated by _io_allow
+sys.addaudithook(_audit)
 
 
 class closed_world_io:
-    """Context manager for the smoke harness's DATA phase: inside it, the ONLY paths that may be
-    open()ed are the pinned fixtures. Library imports happen BEFORE entering (allowlist=None).
-    Absolute-path reads, $HOME, /tmp, globbed sweeps -> all refuse. Deny-by-default."""
+    """Context manager for the harness DATA phase. Inside: the ONLY paths open()-able are the
+    pinned fixtures, and enumeration/network/subprocess/exec are denied. Libraries must be WARMED
+    before entering (lazy imports open .pyc files). Deny-by-default. Note: process-global, not
+    thread-local - concurrent code during the block is also restricted (safe)."""
     def __init__(self, *fixture_paths):
         self.allow = frozenset(os.path.realpath(p) for p in fixture_paths)
 

@@ -47,7 +47,7 @@ H1's hard-refuse-pre-lock makes the judge **un-smoke-testable on real shapes**, 
 
 ## 2. Seed 2 — Smoke-harness lock-inclusion
 
-**Requirement.** The synthetic smoke harness is a **named file in the atomic lock commit**, hashed in the manifest. Locked set = **five files**: pre-registration, judge, smoke harness, manifest, **`.gitattributes`** (the normalization pin, §1).
+**Requirement.** The synthetic smoke harness is a **named file in the atomic lock commit**, hashed in the manifest. Locked set = pre-registration, **every sealed-path source file** (judge + shared compute-core + guard — see §1 self-containment-or-cover; corrected from "five files" by cold-pass-A finding 1, which demonstrated that omitting the imported core left a post-lock-edit wrong-compute), smoke harness, manifest, **`.gitattributes`** (the normalization pin, §1). H1 verifies every sealed-path source at runtime, not just the judge.
 
 **Input surface — deny-by-default closed-world allowlist (gating).** A denylist can never prove exhaustiveness, and because the harness is H1-exempt it concentrates the entire residual peek-risk — so state it positively:
 

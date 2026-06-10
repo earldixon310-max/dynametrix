@@ -13,24 +13,24 @@ Reference implementation of `docs/standards/OVP_v0.2_TEMPLATE_HARDENING_DRAFT.md
 
 ## The locked set (per study)
 
-Five files in the atomic lock commit, hashed in the manifest: **pre-registration, judge, smoke harness, manifest, `.gitattributes`** (the `-text` filter-free pin that makes the guard's comparison deterministic and forecloses lossy-filter collisions under the accident model).
+In the atomic lock commit, hashed in the manifest: **pre-registration, every sealed-path source file (the judge + the shared `compute_core.py` + `ovp_guard.py`), the smoke harness, the manifest, and `.gitattributes`** (the `-text` filter-free pin). **rev2 correction (cold-pass-A finding 1):** H1 verifies *every* sealed-path source at runtime, not just the judge — so an accidental post-lock edit to the shared core refuses instead of silently corrupting the verdict. The earlier "five files" count omitted the imported core and the guard; the locked set is "pre-reg + manifest + `.gitattributes` + *all* sealed-path sources + harness."
 
 ## Instantiate a study
 
 1. Copy `judge_template.py`, `smoke_template.py`, `compute_core.py`, `ovp_guard.py`, `.gitattributes`.
 2. Fill `compute_core.compute_sealed` with the study's estimator (keep it **pure + seeded**).
-3. In the judge: pin `LOCK_TAG`, `LOCKED_PATH`, `OUT_PATH`, and `EXPECTED_INPUT_SHA256` **as constants in the file** (so H1's blob check covers the input hashes); implement `sealed_loader`.
+3. In the judge: pin `LOCK_TAG`, `LOCKED_PATH`, `OUT_PATH`, `EXPECTED_INPUT_SHA256`, and **`SEALED_SOURCES`** (every source file on the sealed path — judge + core + guard; a lint should assert it covers all sealed-path imports) **as constants in the file**; implement `sealed_loader`. (`EXPECTED_INPUT_SHA256` empty ⇒ the judge refuses.)
 4. In the harness: pin the synthetic seed (or the hashed fixture path); never read the candidate.
-5. Lock: atomic commit of the five files, then `git tag -s <LOCK_TAG>`. Run the judge **once**.
+5. Lock: atomic commit of all sealed-path sources + harness + manifest + `.gitattributes`, then `git tag -s <LOCK_TAG>`. Run the judge **once**.
 
 ## Run the tests
 
 ```
-python3 test_ovp_guard.py      # 12 unit properties (each builds a real temp git repo)
-python3 test_integration.py    # 2 end-to-end (smoke pre-lock; judge across the lock boundary)
-python3 test_ovp_attest.py     # 5 attestation properties (anchored/unanchored/temporal/tamper x2)
+python3 test_ovp_guard.py      # 14 unit properties (incl. widened closed-world, empty-input refuse)
+python3 test_integration.py    # 3 end-to-end (smoke pre-lock; judge across lock; post-lock core edit REFUSES)
+python3 test_ovp_attest.py     # 7 attestation (tiers/temporal/claim-scope/binding/tamper/honest-label)
 ```
-19 properties total, all asserted by execution.
+24 properties total, all asserted by execution (rev2).
 
 ## Properties verified by execution (mapping to spec + cold-pass findings)
 
@@ -59,14 +59,24 @@ Signed, study-bound, **additive** attestation (zero re-tagging → immutability 
 
 | # | property | spec |
 |---|---|---|
-| A | anchored (harness in lock tree) → **proof-grade**, anchoring + claim-scope VERIFIED | §3 |
-| B | unanchored grandfathered (harness committed after lock) → **attestation-grade**, temporal bound honestly "not before lock" | §3 (3d) |
+| A | anchored → **proof-grade**; anchoring VERIFIED, **binding** VERIFIED (recorded sha256 == actual blob), claim-scope well-formed | §3 |
+| B | unanchored grandfathered (harness after lock) → **attestation-grade**, temporal "not before lock" | §3 (3d) |
 | C | unanchored, harness blob in history at/before lock date → temporal bound **holds** | §3 (3d) |
-| D | forged "anchored" claim → **CONTRADICTED** (blob not in lock tree) | §3 |
-| E | `non_execution` over-claimed as verifiable → **CONTRADICTED** (claim-scope guard) | §3 |
+| D | forged "anchored" → **CONTRADICTED** (blob not in lock tree) | §3 |
+| E | `non_execution` over-claimed verifiable → **CONTRADICTED** | §3 |
+| F | recorded sha256 ≠ actual blob bytes → **binding CONTRADICTED** (rev2, cold-pass-A finding 3) | §3 |
+| G | candidate-reading harness → source-synthetic label **HONEST** ("read-the-blob, NOT machine-confirmed"), never rubber-stamped VERIFIED (rev2) | §3 |
+
+**rev2 honesty fix (cold-pass-A finding 3):** `verify_attestation` now cross-checks the recorded sha256 against the actual blob bytes (binding), and does **not** machine-claim source-synthetic — synthetic-ness is a read-the-blob property, so the tool reports the *binding* as verified and the synthetic claim as human-readable, never rubber-stamping a candidate-reading harness.
 
 ## Scope notes (honest)
 
-- **Built + tested:** the guard; the full closure chain (H1 + output-exists + input-hash + closed-world); the `(sealed-loader, synthetic-loader, shared-core)` factoring; the judge/harness skeletons; **the §3 signed additive attestation tool**.
-- **Documented boundary, not mechanized:** the hostile-`info/attributes` lossy-filter case is out-of-model tamper (R-1); test 12 asserts the boundary (locked `.gitattributes` tracked, `info/attributes` untracked) rather than constructing the collision.
-- **Human-trust layer (by design, R-1, not this code's job):** git signature verification (`git tag -v`) on both the lock tag and the attestation tag — the identity layer the guards explicitly disclaim.
+- **Built + tested (24 properties):** H1 over all sealed-path sources; the full closure chain (H1 + output-exists + input-hash + closed-world); the `(sealed-loader, synthetic-loader, shared-core)` factoring; the judge/harness skeletons; **the §3 signed additive attestation tool**.
+- **Closed-world is IO-closed, not merely file-open-closed (rev2, cold-pass-A finding 2):** `closed_world_io` denies `open` outside the allowlist **and** directory enumeration, network, subprocess, and exec audit events during the data phase. Residual (R-1 reference-suite assertion, not a guarantee): C-level libc reads in an arbitrary extension that bypass the audit events — numpy's own readers raise them and are covered.
+- **Documented boundary, not mechanized:** the hostile-`info/attributes` lossy-filter case is out-of-model tamper (R-1); test 12 asserts the boundary.
+- **Human-trust layer (by design, R-1, not this code's job):** git signature verification (`git tag -v`) on both the lock tag and the attestation tag — the identity layer the guards explicitly disclaim. The *signed* path (`git tag -s`) is exercised by the operator; tests use `git tag -a` and verify content, not signature.
+- **Known scoped limitation (cold-pass-A):** the input-hash check verifies a path on disk; coupling it to the exact bytes `sealed_loader` loads (closing the TOCTOU) is left to the study's loader, which should hash the bytes it actually reads.
+
+## rev2 — cold-pass-A disposition (one reader, blocker; reset to two fresh passes)
+
+cold-pass-A reader #1 ran all suites green, then *demonstrated* three findings by probe. All folded: **(1)** H1 now covers every sealed-path source — the post-lock-core-edit wrong-compute is reproduced as a refusal (integration test 17); **(2)** closed-world widened to IO-closed (guard test 14); **(3)** attestation binding cross-check + honest source-synthetic label (attest tests F/G). Secondaries: empty input-hash refuses (test 13); test-6 raw-hash divergence now asserted. A blocker resets the count → rev2 re-routes **two fresh** passes; author cannot clear.

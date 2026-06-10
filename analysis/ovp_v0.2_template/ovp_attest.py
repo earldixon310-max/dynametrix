@@ -91,9 +91,22 @@ def emit_sign_command(record):
     return tag, ("git tag -s %s %s -F - <<'MSG'\n%s\nMSG" % (tag, record["study_lock_commit"], payload))
 
 
+
+def _git_blob_sha256(oid, cwd):
+    """sha256 of the ACTUAL blob bytes at `oid` (binary-safe), or None if unretrievable."""
+    try:
+        p = subprocess.run(["git", "cat-file", "blob", oid], cwd=cwd, capture_output=True)
+        if p.returncode != 0:
+            return None
+        return hashlib.sha256(p.stdout).hexdigest()
+    except Exception:
+        return None
+
+
 def verify_attestation(repo_root, attest_tag):
-    """Re-derive the verifiable claims from the repo; report VERIFIED / ATTESTED-ONLY / CONTRADICTED.
-    (Signature authenticity is a separate `git tag -v` step - the human-trust layer.)"""
+    """Re-derive the verifiable claims from the repo. rev2: cross-checks the recorded sha256
+    against the ACTUAL blob bytes (binding), and does NOT claim source-synthetic is machine-
+    confirmed - synthetic-ness is a read-the-blob property. Signature authenticity is `git tag -v`."""
     rc, body, err = _git(["for-each-ref", "--format=%(contents)", "refs/tags/%s" % attest_tag], repo_root)
     if rc != 0 or not body:
         return {"ok": False, "error": "cannot read attestation tag %s (%s)" % (attest_tag, err)}
@@ -101,7 +114,14 @@ def verify_attestation(repo_root, attest_tag):
     record = json.loads(body[start:body.rfind("}") + 1])
 
     report = {"attest_tag": attest_tag, "study_lock_tag": record["study_lock_tag"], "checks": {}}
-    # 1. anchoring claim re-derivation
+
+    # BINDING: the recorded sha256 must equal the sha256 of the actual blob bytes at the recorded oid.
+    actual = _git_blob_sha256(record["harness_git_oid"], repo_root)
+    binding_ok = (actual is not None and actual == record["harness_sha256"])
+    report["checks"]["binding"] = ("VERIFIED (recorded sha256 == actual blob bytes)" if binding_ok
+                                   else "CONTRADICTED/UNVERIFIABLE (sha256 != blob, or blob absent)")
+
+    # anchoring re-derivation
     rc, tree_oid, _ = _git(["rev-parse", "--verify", "%s:%s" % (record["study_lock_tag"], record["harness_path"])], repo_root)
     in_lock_tree = (rc == 0 and tree_oid == record["harness_git_oid"])
     if record["anchoring"] == "anchored":
@@ -109,15 +129,22 @@ def verify_attestation(repo_root, attest_tag):
     else:
         report["checks"]["anchoring"] = "consistent: unanchored, blob not in original lock tree" if not in_lock_tree \
             else "NOTE: labeled unanchored but blob is in lock tree (could be upgraded to anchored)"
-    # 2. claim scope: must not assert non_execution as verifiable
-    report["checks"]["claim_scope"] = ("VERIFIED (source_synthetic only; non_execution attested-only)"
+
+    # claim scope: schema well-formedness - non_execution must NOT be presented as verifiable
+    report["checks"]["claim_scope"] = ("well-formed (non_execution attested-only, not verifiable)"
                                        if record["claim"]["non_execution"].startswith("ATTESTED")
-                                       else "CONTRADICTED (over-claims non_execution)")
-    # 3. temporal bound (unanchored)
+                                       else "CONTRADICTED (over-claims non_execution as verifiable)")
+    # source-synthetic: HONEST label - the binding is machine-checked; synthetic-ness is NOT.
+    report["checks"]["source_synthetic"] = ("binding-checked; SYNTHETIC-NESS is read-the-blob, NOT machine-confirmed"
+                                            if binding_ok else "binding FAILED - do not trust the source-synthetic claim")
+
     if record["anchoring"] == "unanchored" and record.get("temporal_bound"):
         tb = record["temporal_bound"]
         report["checks"]["temporal_bound"] = ("harness in history at/before lock date" if tb["present_at_or_before_lock_date"]
                                               else "NOT before lock date (earliest seen: %s; lock: %s) - weaker" % (tb["earliest_seen"], tb["lock_date"]))
+
     report["grade"] = record["grade"]
-    report["ok"] = report["checks"]["anchoring"].startswith(("VERIFIED", "consistent")) and report["checks"]["claim_scope"].startswith("VERIFIED")
+    report["ok"] = (binding_ok
+                    and report["checks"]["anchoring"].startswith(("VERIFIED", "consistent"))
+                    and report["checks"]["claim_scope"].startswith("well-formed"))
     return report
