@@ -4,7 +4,7 @@
 **Governing spec:** OVP v0.1 @ `ovp-v0.1-lock`.
 **Lock:** signed tag `detector-direction-ovp-lock` (pre-reg + `judge_direction.py` + manifest; **two clean cold passes on byte-identical artifacts**, warm pass clean, after the §3/§9 ancestry correction).
 **Execution:** single run, master seed `0xDEC0DE`, `R = 200` paired stratified splits, 2026-06-08 UTC; outputs at signed tag `detector-direction-ovp-result`.
-**Citation gate:** citable only after this document's own cold cross-pass (spec §7).
+**Citation gate:** citable only after this document's own cold cross-pass (spec §7). **CLEARED 2026-06-10** — result-doc cold pass recomputed every figure from the JSON arrays (zero drift), all five charges passed; **citable.**
 
 ---
 
@@ -39,7 +39,7 @@ The non-gating **per-predicted-class diagnostic** (computed once in the locked r
 
 The detector is **far more reliable when it predicts AI than when it predicts Human** (and it predicts Human more often — 1348 vs 652 — so it is conservative and frequently wrong when it clears text as human, i.e. it misses AI). This is a **substantial asymmetry**. Yet the candidate verdict is only a borderline Inconclusive — because this asymmetry is overwhelmingly **intercept-level** (a base-rate shift in correctness by predicted class), and the `[B,p]` candidate under the linear estimator can only access direction through the **slope-coupled** term (one parameter `w_p` drives both); it **cannot cleanly represent a pure-intercept shift** (that would require `w_p = 0`). So `[B,p]` registers only a weak, near-floor gain.
 
-This is exactly the **scoped reading the locked §3/§9 framing committed to**: an Inconclusive on `[B,p]` means **no strong slope-type class-asymmetry on the axis `[B,p]` spans** — and it explicitly does **not** rule out a pure-intercept asymmetry, which the diagnostic shows is in fact large. *(The pre-lock draft that called raw `p` "strictly more powerful" and a non-positive verdict a "symmetric null in both slope and intercept" was corrected before lock under cross-pass; this run's 14-point intercept gap would have directly contradicted that overstatement — the correction was borne out by the data.)*
+This is exactly the **scoped reading the locked §3/§9 framing committed to**: an Inconclusive on `[B,p]` means **no strong slope-type class-asymmetry on the axis `[B,p]` spans** — and it explicitly does **not** rule out a pure-intercept asymmetry, which the diagnostic shows is in fact large. *(The pre-lock draft that called raw `p` "strictly more powerful" and a non-positive verdict a "symmetric null in both slope and intercept" was corrected before lock under cross-pass; this run's 14-point intercept gap would have directly contradicted that overstatement — the data are consistent with the correction, directly refuting the intercept-symmetry half (the slope scoping rests on the estimator argument, not this run).)*
 
 **Estimator-conditional (spec §0/§9).** The verdict is conditional on the pinned linear estimator and the *folded-vs-directional* contrast. The intercept asymmetry the diagnostic reveals would be the natural target of a separate **`[B, pred]`-shaped** candidate study (the binary predicted-class direction), which — on this evidence — would plausibly **Validate**. That is a distinct, legitimately-recorded question, not a contradiction.
 
@@ -58,7 +58,9 @@ This is exactly the **scoped reading the locked §3/§9 framing committed to**: 
 | measure `D` | median HDG via AUC; standardized L2 logistic; stratified 50/50 paired × 200; seed `0xDEC0DE` |
 | cut points | `τ_lo=0.024589`, `τ_hi=0.068291`; provenance `detector-ovp-calib-result` |
 | **verdict** | **Inconclusive** (`D=0.026446 ∈ [τ_lo, τ_hi]`, borderline) |
-| cross-pass | warm clean; 2/2 cold clean on byte-identical (corrected) artifacts (`CROSSPASS_DETECTOR_DIRECTION_OVP.md`) |
+| operator | principal operator (Earl Dixon) |
+| date | 2026-06-08 UTC (lock + single run); result-doc cold pass 2026-06-10 |
+| cross-pass | warm clean; 2/2 cold clean (pre-lock) on byte-identical corrected artifacts; result-doc cold pass cleared 2026-06-10 → citable (`CROSSPASS_DETECTOR_DIRECTION_OVP.md`) |
 
 ## Provenance
 

@@ -55,3 +55,16 @@ Adversarial A–I walk; all conform — measure form (§4 = spec §1); **(B)** a
 
 ## Note
 Verdict sealed: `predicted_prob_ai`'s HDG and the directional marginal have not been computed pre-lock (smoke synthetic-only). This is the candidate most likely to land Validated (if the detector's reliability is class-asymmetric) — the first Validated would be a notable first, so the no-peeking discipline is held especially tightly here.
+
+## === RESULT-DOC COLD PASS — CLEAR; CITATION GATE SATISFIED (2026-06-10) ===
+Genuinely cold reader recomputed **every figure in `RESULT_DETECTOR_DIRECTION_OVP.md` from the `detector_direction_results.json` 200-element arrays** (not the prose): D, mean, min/P5/P95/max, the +0.00186 margin, 0/200 above `τ_hi`, 44.5%/55.5% split, 97% positive, AP median +0.0042, per-class diagnostic (504+852=1356 correct → 644 errors, gap +0.141). **All match exactly — zero drift.** No seal to honor (run complete, `D` committed).
+- **(1) Numerical fidelity:** clean, every figure traces.
+- **(2) Verdict conformance:** `D ∈ band` → Inconclusive read per §6; abstention with parity; 97%-positive immediately counterweighted by borderline framing — no spin; operational rung correctly claimed, community-validated correctly declined.
+- **(3) Keystone (ancestry scoping):** HOLDS — "no strong slope-type asymmetry on the axis `[B,p]` spans," explicitly does not rule out the (large) pure-intercept asymmetry; never reverts to "strictly more powerful" / "symmetric null in both"; correction parenthetical accurate, not gloating.
+- **(4) Forward speculation:** "[B,pred] would plausibly Validate" properly hedged, framed as a distinct question, disclaimed in "Does not"; fair on #3's evidence alone.
+- **(5) Fair framing + provenance:** intercept-level framing accurate and bounded; "misses AI" logically sound; seed `0xDEC0DE`, R=200, model/dataset/per-example hashes, `τ` provenance tag, estimator all match across JSON/calibration/judge.
+- **Verdict: CLEAR — citable. Two non-blocking nits, both folded post-clear (precision/completeness, fix-author-applied, cold-reader-prescribed; no re-route):**
+  - **N1 (precision):** "the correction was borne out by the data" → "the data are consistent with the correction, directly refuting the intercept-symmetry half (the slope scoping rests on the estimator argument, not this run)." The data refute the intercept half; they do not confirm the slope null.
+  - **N2 (§5 completeness):** ledger-row table now includes `operator` and `date` fields; citation-gate line marked CLEARED 2026-06-10.
+
+**DETECTOR_DIRECTION_OVP COMPLETE:** locked → run → result cold-passed (citable). Last open citation gate on the detector arc now closed; all four detector candidate verdicts (#1–#4) fully recorded and citable.
