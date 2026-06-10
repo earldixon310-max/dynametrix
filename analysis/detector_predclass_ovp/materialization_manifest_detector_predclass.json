@@ -1,0 +1,54 @@
+{
+  "framework": "AEPF DETECTOR_PREDCLASS_OVP materialization manifest",
+  "study": "DETECTOR_PREDCLASS_OVP real candidate study (#4): does pred add HDG beyond folded confidence (first under the Descriptor Justification Layer)",
+  "governing_spec": "OVP v0.1 @ signed tag ovp-v0.1-lock",
+  "lock_tag": "detector-predclass-ovp-lock",
+  "generated_utc": "2026-06-10T12:56:19.816924+00:00",
+  "master_seed": "0xC1A55D",
+  "foil_seed_xor": "0xF011",
+  "candidate": "pred",
+  "baseline": "confidence (folded max(p,1-p))",
+  "descriptor_justification_layer": "v0.2 seed; first prospective use (mechanism disclosure + dual interpretation lock + permuted-pred surface foil)",
+  "inherited_cut_points": {
+    "tau_lo": 0.02458901317356486,
+    "tau_hi": 0.06829080323934116,
+    "provenance": "detector-ovp-calib-result",
+    "identity_checked_at_lock": true
+  },
+  "substrate": {
+    "type": "ALL of B,y,pred inherited from the calibration lock; NO new materialization; external model+dataset pinned for provenance",
+    "inherited_per_example": {
+      "path": "../detector_truncation_ovp/detector_per_example.csv",
+      "sha256": "24dac07828949a7e93fcc686ff3df70229c026195d3db873e688c1b401afc643",
+      "source": "DETECTOR_OVP_CALIB locked materialization (detector-ovp-calib-result)"
+    },
+    "dataset": {
+      "path": "../../case_studies/chatgpt_detector_roberta_v1/chatgpt_detector_roberta_test_set.csv",
+      "sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+      "matches_audit_record": true
+    },
+    "model": {
+      "id": "Hello-SimpleAI/chatgpt-detector-roberta",
+      "revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+      "identity_checked_at_lock": true
+    },
+    "attestation": "B,y,pred are inherited byte-identical from the calibration-locked per-example (hash-verified). No tokenizer, no model inference, no new materialization. pred's HDG (and the permuted-pred foil's) are computed only by the single locked run."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.1.2",
+    "scikit_learn": "1.8.0"
+  },
+  "artifacts": [
+    {
+      "path": "PRE_REGISTRATION_DETECTOR_PREDCLASS_OVP.md",
+      "sha256": "fdc82a3766f880d7f0ab624e7895ff8edd6a00824f0d6879ac3f7a4ebbb49e83"
+    },
+    {
+      "path": "judge_predclass.py",
+      "sha256": "af3a2518d57af360c04b2e9f8402bc2097eee2547d830115971dfcd2b6b1c564"
+    }
+  ],
+  "note": "The pre-registration SHA-256 is the authoritative record of all pinned parameters incl. the permuted-pred foil construction. transformers/torch NOT required (no materialization)."
+}
