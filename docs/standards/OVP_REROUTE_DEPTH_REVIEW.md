@@ -50,3 +50,24 @@ Author's lean (non-binding): **retire** is the likely honest outcome — the cos
 ## 6. Boundary
 
 Tier A and the full-re-route default already operate (they are current practice, not new). This thread decides only the **fate of Tier B** and the formalization (or retirement) of the taxonomy as a written rule. Nothing here changes any locked artifact; it changes only the *forward* review discipline, and only if it survives its own pass.
+
+## 7. RULING — RETIRE (independent decision pass, 2026-06-10)
+
+**Tier B is retired.** Two independent reasons, the second stronger:
+
+1. **Cost (the author's argument holds).** Counting the expensive resource — independent cold reads on the *freshly-changed delta* — a *safe* Tier B needs **two** cold reads on the delta (the delta is the highest-risk region: zero post-fold coverage, and the on-record one-clean-vs-three-blocker divergence proves one read does not bound the miss rate). So safe Tier B = Tier C minus only the *warm* pass — the cheapest read, and the one most targeted at "did the fold integrate correctly," i.e. the worst to drop right after an edit. Hardening erases the saving.
+
+2. **The target population is EMPTY (the decisive structural argument).** A substantive-but-narrow fold is exactly one of two things, and neither is a Tier-B occupant:
+   - **Non-false imprecision** (the unfolded version is merely less precise, not wrong) → existing discipline already says **queue it, do not fold pre-lock** (non-blockers go to the v0.x queue so the locked artifact is exactly what was read). Folding it pre-lock is an *unforced byte-identity violation*. No re-route, no Tier B.
+   - **False / integrity-critical** (the unfolded version would lock a false or misleading statement — verdict-#3's "strictly more powerful"; CP2-N1's causal mis-attribution) → the *only* reason the program folds a non-gating finding pre-lock, and precisely where the divergence evidence bites hardest (a false claim is what a second independent reader catches) → **full re-route (Tier C)**.
+   The middle has no occupants. The only escape — a must-fold with *mechanically-provable* zero ripple — requires a complete dependency-enumeration infrastructure OVP does not have (and which would itself need review); both real motivating folds had genuine multi-section ripple.
+
+**Condition-3 (action-invariance) is not salvageable:** invariance is demonstrated against an *enumerated* outcome set, so whoever enumerates controls the test (the same ripple-completeness problem the second reader exists to catch); and it misses meaning-changes whose action-consequences are *future* (verdict-#3 didn't change the current verdict but would have contradicted the later 14-pt gap). Precision-vs-meaning is a continuum, gameable by re-description unless anchored to an independently-fixed complete outcome set — which is the expensive second-reader work itself.
+
+**Constructive disposition (the seed's answer):**
+- **Retire Tier B.** Lock **"substantive fold → full re-route"** as the standing default.
+- **Record the decision rule that dissolves the apparent need:** *non-false substantive imprecision → queue (do not fold pre-lock); false/integrity-critical substantive fold → full re-route. No middle tier.* This removes the unnecessary pre-lock folding that made Tier B look necessary.
+- **Fold the mechanical ripple/spec↔impl conformance cross-check into Tier C** — cheap, deterministic, catches the *enumerable* divergence class (supplements, cannot substitute for, the semantic second read).
+- **Tighten Tier A** beyond "a downstream pass exists" to: the downstream pass is (i) independent and blocker-powered; (ii) scoped to actually re-read the *changed bytes*; (iii) before this artifact's own lock (not after immutability); (iv) treats the post-fold bytes as fresh (no carry-forward of the pre-fold clearance); **plus** the downstream reader independently confirms both that the applied bytes match what was prescribed *and* that "verbatim" was a true description (no smuggled meaning-change). With those, Tier A = "defer a genuinely-editorial fold's verification to an already-scheduled full independent pass on the changed bytes before lock" — coherent and genuinely free.
+
+The seed's value was **naming the question and forcing the bifurcation that shows the middle is empty** — not producing a tier.

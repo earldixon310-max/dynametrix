@@ -314,6 +314,21 @@ A finding **FOLDS without resetting** iff it is:
 
 **Precedent.** This is the standard for **every** future best-effort component the program produces (the smoke-harness closed-world surface; any self-guard that ends up with disclosed residuals; future RTVP instruments with disclosed measurement limits). Lock against *accuracy of claim*; reset on a false claim or too-narrow disclosure; fold on a correctly-disclosed residual instance. Adopted for the v0.2 template's remaining two cold passes against rev6.
 
+## RESOLVED — re-route-depth taxonomy: Tier B RETIRED; the middle tier is empty (2026-06-10, independent decision pass)
+
+The re-route-depth seed asked: is there a principled middle tier (cheaper than full re-route) for substantive-but-narrow folds? **Answer: NO — Tier B is retired, because its target population is empty.** (Full ruling in `OVP_REROUTE_DEPTH_REVIEW.md` §7.)
+
+**The standing forward rule (codifies the seed's answer):**
+- **Substantive fold → full re-route (warm + two cold) is the standing default.** No middle tier.
+- **The bifurcation that dissolves the apparent need for one:** a substantive-but-narrow fold is exactly one of two things — **non-false imprecision → QUEUE it, do NOT fold pre-lock** (non-blockers go to the v0.x queue so the locked artifact is exactly what was read; pre-lock folding here is an unforced byte-identity violation); or **false / integrity-critical → full re-route** (the only reason to fold a non-gating finding pre-lock, and exactly where a second independent reader earns its keep — verdict-#3, CP2-N1). The middle has no occupants.
+- **Why no cheap test rescues it:** the action-invariance condition relocates the leak (whoever enumerates the outcome set controls the test; and it misses meaning-changes whose action-consequences are *future*). Precision-vs-meaning is a continuum, gameable by re-description unless anchored to an independently-fixed complete outcome set — which is the expensive second-reader work itself. Risk-proportionality also forbids it: one pass on the freshly-changed delta applies the weakest coverage to the highest-risk region.
+
+**Two keepers from the pass (forward improvements, not new tiers):**
+- **Add a mechanical ripple / spec↔impl conformance cross-check to Tier C** — cheap, deterministic, catches the *enumerable* divergence class (supplements, never substitutes for, the semantic second cold read).
+- **Tighten Tier A** (the prescribed-editorial-fix case) beyond "a downstream pass exists" to: the downstream pass is independent + blocker-powered + scoped to re-read the *changed bytes* + before this artifact's own lock + treats post-fold bytes as fresh (no carry-forward); **and** the downstream reader independently confirms both that applied bytes match what was prescribed *and* that "verbatim" was true (no smuggled meaning). Then Tier A = "defer a genuinely-editorial fold's verification to an already-scheduled full independent pass on the changed bytes before lock" — coherent and free.
+
+This closes the re-route-depth thread. The seed's value was naming the question and forcing the bifurcation that shows the middle is empty — not producing a tier.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
