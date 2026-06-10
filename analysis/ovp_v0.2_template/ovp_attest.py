@@ -143,8 +143,15 @@ def verify_attestation(repo_root, attest_tag):
         report["checks"]["temporal_bound"] = ("harness in history at/before lock date" if tb["present_at_or_before_lock_date"]
                                               else "NOT before lock date (earliest seen: %s; lock: %s) - weaker" % (tb["earliest_seen"], tb["lock_date"]))
 
-    report["grade"] = record["grade"]
-    report["ok"] = (binding_ok
+    # GRADE must be DERIVED from the re-derived anchoring, never trusted from the record
+    # (cold-pass-A reader #2: a forged grade on honest anchoring would otherwise pass through).
+    derived_grade = "proof-grade" if in_lock_tree else "attestation-grade"
+    grade_ok = (record.get("grade") == derived_grade)
+    report["checks"]["grade"] = ("VERIFIED (matches derived tier)" if grade_ok
+                                 else "CONTRADICTED (record grade %r != derived %r)" % (record.get("grade"), derived_grade))
+    report["grade"] = derived_grade  # report the DERIVED grade, not the record's self-claim
+
+    report["ok"] = (binding_ok and grade_ok
                     and report["checks"]["anchoring"].startswith(("VERIFIED", "consistent"))
                     and report["checks"]["claim_scope"].startswith("well-formed"))
     return report

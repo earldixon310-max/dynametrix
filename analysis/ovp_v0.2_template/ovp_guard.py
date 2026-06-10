@@ -42,6 +42,12 @@ def assert_locked_or_refuse(lock_tag, sealed_sources, self_path):
     self_path      : the running judge's path (used to discover the repo root).
 
     FAIL-CLOSED on every git-error path. Refuses unless ALL sealed sources match.
+
+    Bootstrap note (cold-pass-A reader #2): ovp_guard.py is itself in sealed_sources and verifies
+    its own ON-DISK bytes, but it is already imported (running) when it does so. An ACCIDENTAL edit
+    is still caught - the running code hashes the edited on-disk file and sees the mismatch. A
+    DELIBERATE edit that disables the check is R-1 tamper, out of model. Empty-OID and path-absent
+    git results both fall to the `not expected_oid` / `rc != 0` refuse branches above.
     """
     if not sealed_sources:
         raise GuardRefusal("REFUSE: empty sealed_sources (the judge must enumerate its sealed-path files)")

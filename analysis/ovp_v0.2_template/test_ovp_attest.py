@@ -66,4 +66,11 @@ rep=ovp_attest.verify_attestation(d,"g-attest")
 honest = ("NOT machine-confirmed" in rep["checks"]["source_synthetic"]) and ("VERIFIED" not in rep["checks"]["source_synthetic"])
 check("G candidate-reading harness: source_synthetic label HONEST (not rubber-stamped 'VERIFIED')", honest); shutil.rmtree(d)
 
+# H forged grade on HONEST anchoring: unanchored record mislabeled proof-grade -> grade CONTRADICTED (reader #2)
+d=tempfile.mkdtemp(prefix="att_h_"); init(d); w(d,"judge_x.py",J); sh(["git","add","judge_x.py"],d); sh(["git","commit","-qm","lock"],d); sh(["git","tag","study-h-lock"],d); w(d,"smoke_x.py",H)
+rec=ovp_attest.build_attestation(d,"study-h-lock","smoke_x.py","2026-06-10T00:00:00Z")  # legit unanchored/attestation-grade
+rec["grade"]="proof-grade"  # forge the grade while leaving anchoring honestly 'unanchored'
+mk_tag(d,rec,"h-attest","study-h-lock"); rep=ovp_attest.verify_attestation(d,"h-attest")
+check("H forged grade (unanchored mislabeled proof-grade) CONTRADICTED", rep["checks"]["grade"].startswith("CONTRADICTED") and not rep["ok"]); shutil.rmtree(d)
+
 print("\n%d/%d attestation checks passed"%(sum(R),len(R))); sys.exit(0 if all(R) else 1)

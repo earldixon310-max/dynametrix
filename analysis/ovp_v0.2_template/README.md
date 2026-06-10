@@ -26,11 +26,11 @@ In the atomic lock commit, hashed in the manifest: **pre-registration, every sea
 ## Run the tests
 
 ```
-python3 test_ovp_guard.py      # 14 unit properties (incl. widened closed-world, empty-input refuse)
+python3 test_ovp_guard.py      # 16 unit (closed-world open/listdir/socket/subprocess; absent-path; empty-input)
 python3 test_integration.py    # 3 end-to-end (smoke pre-lock; judge across lock; post-lock core edit REFUSES)
-python3 test_ovp_attest.py     # 7 attestation (tiers/temporal/claim-scope/binding/tamper/honest-label)
+python3 test_ovp_attest.py     # 8 attestation (tiers/temporal/claim-scope/binding/tamper/honest-label/grade-derived)
 ```
-24 properties total, all asserted by execution (rev2).
+27 properties total, all asserted by execution (rev3).
 
 ## Properties verified by execution (mapping to spec + cold-pass findings)
 
@@ -66,13 +66,15 @@ Signed, study-bound, **additive** attestation (zero re-tagging → immutability 
 | E | `non_execution` over-claimed verifiable → **CONTRADICTED** | §3 |
 | F | recorded sha256 ≠ actual blob bytes → **binding CONTRADICTED** (rev2, cold-pass-A finding 3) | §3 |
 | G | candidate-reading harness → source-synthetic label **HONEST** ("read-the-blob, NOT machine-confirmed"), never rubber-stamped VERIFIED (rev2) | §3 |
+| H | honest `unanchored` + forged `grade="proof-grade"` → **grade CONTRADICTED** — grade is **derived** from anchoring, never trusted (rev3, cold-pass-A reader #2) | §3 |
 
 **rev2 honesty fix (cold-pass-A finding 3):** `verify_attestation` now cross-checks the recorded sha256 against the actual blob bytes (binding), and does **not** machine-claim source-synthetic — synthetic-ness is a read-the-blob property, so the tool reports the *binding* as verified and the synthetic claim as human-readable, never rubber-stamping a candidate-reading harness.
 
 ## Scope notes (honest)
 
 - **Built + tested (24 properties):** H1 over all sealed-path sources; the full closure chain (H1 + output-exists + input-hash + closed-world); the `(sealed-loader, synthetic-loader, shared-core)` factoring; the judge/harness skeletons; **the §3 signed additive attestation tool**.
-- **Closed-world is IO-closed, not merely file-open-closed (rev2, cold-pass-A finding 2):** `closed_world_io` denies `open` outside the allowlist **and** directory enumeration, network, subprocess, and exec audit events during the data phase. Residual (R-1 reference-suite assertion, not a guarantee): C-level libc reads in an arbitrary extension that bypass the audit events — numpy's own readers raise them and are covered.
+- **Closed-world is IO-closed, not merely file-open-closed (rev2, cold-pass-A finding 2):** `closed_world_io` denies `open` outside the allowlist **and** directory enumeration, network, subprocess (tested, rev3), and exec audit events during the data phase. Residual (R-1 reference-suite assertion, not a guarantee): C-level libc reads in an arbitrary extension that bypass the audit events — numpy's own readers raise them and are covered.
+- **Guard bootstrap asymmetry (rev3, cold-pass-A reader #2 — named honestly):** `ovp_guard.py` is in the sealed set and verifies its own on-disk bytes, but it is already imported (running) when it does so. An *accidental* edit is still caught (the running code hashes the edited file and sees the mismatch); a *deliberate* edit that disables the check is R-1 tamper, out of model.
 - **Documented boundary, not mechanized:** the hostile-`info/attributes` lossy-filter case is out-of-model tamper (R-1); test 12 asserts the boundary.
 - **Human-trust layer (by design, R-1, not this code's job):** git signature verification (`git tag -v`) on both the lock tag and the attestation tag — the identity layer the guards explicitly disclaim. The *signed* path (`git tag -s`) is exercised by the operator; tests use `git tag -a` and verify content, not signature.
 - **Known scoped limitation (cold-pass-A):** the input-hash check verifies a path on disk; coupling it to the exact bytes `sealed_loader` loads (closing the TOCTOU) is left to the study's loader, which should hash the bytes it actually reads.
@@ -80,3 +82,5 @@ Signed, study-bound, **additive** attestation (zero re-tagging → immutability 
 ## rev2 — cold-pass-A disposition (one reader, blocker; reset to two fresh passes)
 
 cold-pass-A reader #1 ran all suites green, then *demonstrated* three findings by probe. All folded: **(1)** H1 now covers every sealed-path source — the post-lock-core-edit wrong-compute is reproduced as a refusal (integration test 17); **(2)** closed-world widened to IO-closed (guard test 14); **(3)** attestation binding cross-check + honest source-synthetic label (attest tests F/G). Secondaries: empty input-hash refuses (test 13); test-6 raw-hash divergence now asserted. A blocker resets the count → rev2 re-routes **two fresh** passes; author cannot clear.
+
+**rev3 — cold-pass-A reader #2.** Two process errors (packet omitted `ovp_guard.py`/`ovp_attest.py`; charge carried stale rev1 "12/2/5" + "five-file" counts) plus one real static finding: `verify_attestation` *trusted* `record["grade"]` instead of deriving it — a forged grade on honest anchoring would pass. Folded: grade is now **derived** from re-derived anchoring and cross-checked (attest test H). Backfills the reader named: closed-world **subprocess** probe (guard test 15), **path-absent-from-tagged-tree** refusal (guard test 16). The guard **bootstrap asymmetry** is now documented. Route fix: send the **whole committed directory**, not pasted files, with the rev3 counts (**16/3/8 = 27**). Reader #2 could not execute (modules absent) so it isn't a clearing pass; rev3 still needs **two fresh executing passes**.

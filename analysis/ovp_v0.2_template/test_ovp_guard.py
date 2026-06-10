@@ -77,4 +77,16 @@ with closed_world_io(fx):
     except OSError: net_blk=False   # if it got past the hook to a real connect error, that's a leak
 check("14 widened closed-world: listdir REFUSES and socket REFUSES", ls_blk and net_blk); shutil.rmtree(d)
 
+# 15 widened closed-world: subprocess REFUSES (backs the README subprocess/exec claim)
+import subprocess as _sp
+d=tempfile.mkdtemp(); fx=os.path.join(d,"s.npy"); open(fx,"wb").write(b"syn"); sp_blk=False
+with closed_world_io(fx):
+    try: _sp.Popen(["true"])
+    except GuardRefusal: sp_blk=True
+    except Exception: sp_blk=False
+check("15 widened closed-world: subprocess REFUSES", sp_blk); shutil.rmtree(d)
+# 16 tag exists but LOCKED_PATH absent from the tagged tree -> REFUSE (distinct from moved-file)
+d,p=make_repo(); absent=os.path.join(os.path.dirname(p),"not_in_tree.py"); open(absent,"wb").write(SRC)
+check("16 path-absent-from-tagged-tree REFUSES", refuses(assert_locked_or_refuse,TAG,{"not_in_tree.py":absent},p)); shutil.rmtree(d)
+
 print("\n%d/%d checks passed"%(sum(R),len(R))); sys.exit(0 if all(R) else 1)
