@@ -26,6 +26,9 @@ SEALED_SOURCES = {
     LOCKED_PATH: os.path.abspath(__file__),
     "compute_core.py": os.path.abspath(compute_core.__file__),
     "ovp_guard.py": os.path.abspath(ovp_guard.__file__),
+    # .gitattributes governs the -text filter H1's hash-object --path comparison relies on, so an
+    # accidental post-lock edit to it must also refuse (cold-pass-A reader #3). Keys are repo-relative.
+    ".gitattributes": os.path.join(os.path.dirname(os.path.abspath(__file__)), ".gitattributes"),
 }
 
 

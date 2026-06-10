@@ -73,4 +73,19 @@ rec["grade"]="proof-grade"  # forge the grade while leaving anchoring honestly '
 mk_tag(d,rec,"h-attest","study-h-lock"); rep=ovp_attest.verify_attestation(d,"h-attest")
 check("H forged grade (unanchored mislabeled proof-grade) CONTRADICTED", rep["checks"]["grade"].startswith("CONTRADICTED") and not rep["ok"]); shutil.rmtree(d)
 
+# I forged temporal: unanchored record claims present-before-lock but re-derivation says NO -> CONTRADICTED (rev4)
+d=tempfile.mkdtemp(prefix="att_i_"); init(d); w(d,"judge_x.py",J)
+sh(["git","add","judge_x.py"],d); sh(["git","commit","-qm","lock"],d,at("2026-06-01T00:00:00")); sh(["git","tag","study-i-lock"],d)
+w(d,"smoke_x.py",H); sh(["git","add","smoke_x.py"],d); sh(["git","commit","-qm","rec"],d,at("2026-06-05T00:00:00"))   # harness AFTER lock
+rec=ovp_attest.build_attestation(d,"study-i-lock","smoke_x.py","2026-06-10T00:00:00Z")  # honest temporal: False
+rec["temporal_bound"]["present_at_or_before_lock_date"]=True; rec["temporal_bound"]["earliest_seen"]="2025-01-01T00:00:00"  # FORGE
+mk_tag(d,rec,"i-attest","study-i-lock"); rep=ovp_attest.verify_attestation(d,"i-attest")
+check("I forged temporal CONTRADICTED (re-derived, not trusted)", rep["checks"]["temporal_bound"].startswith("CONTRADICTED") and not rep["ok"]); shutil.rmtree(d)
+# J emit_sign_command produces the signed-tag command (README's real-run mechanism, now exercised)
+d=tempfile.mkdtemp(prefix="att_j_"); init(d); w(d,"judge_x.py",J); w(d,"smoke_x.py",H); sh(["git","add","."],d); sh(["git","commit","-qm","lock"],d); sh(["git","tag","study-j-lock"],d)
+rec=ovp_attest.build_attestation(d,"study-j-lock","smoke_x.py","2026-06-10T00:00:00Z")
+tag,cmd=ovp_attest.emit_sign_command(rec)
+check("J emit_sign_command: tag '-harness-attest', cmd has 'git tag -s' + lock commit",
+      tag=="study-j-harness-attest" and "git tag -s study-j-harness-attest" in cmd and rec["study_lock_commit"] in cmd); shutil.rmtree(d)
+
 print("\n%d/%d attestation checks passed"%(sum(R),len(R))); sys.exit(0 if all(R) else 1)
