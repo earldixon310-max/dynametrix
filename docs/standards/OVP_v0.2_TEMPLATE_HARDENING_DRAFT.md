@@ -1,85 +1,104 @@
-# OVP v0.2 — Template Hardening (DRAFT rev2 — post cold-pass-1)
+# OVP v0.2 — Template Hardening (DRAFT rev3 — post cold-pass-2)
 
-**Status:** DRAFT, revised after cold-pass-1. Subject to the program-evolution discipline (same bar as artifacts): re-routed cold passes before it hardens into the v0.2 standard. v0.1 and the locked detector arc are unchanged.
+**Status:** DRAFT, revised after cold-pass-2 (which returned three blockers, all fixable without redesign — the architecture was affirmed). Subject to the program-evolution discipline: rev3 re-routes **two fresh** cold passes on the new bytes before it hardens. v0.1 and the locked detector arc are unchanged.
 
-**Scope (narrowed at cold-pass-1).** This draft now folds **two** mechanical, structure-*adding* template seeds — both judge/lock script discipline that only *adds* guarantees:
+**Scope.** Two mechanical, structure-*adding* judge/lock seeds: **Seed 1 — sealed-run self-guard (H1)** and **Seed 2 — smoke-harness lock-inclusion (T-2)**. **They adopt together, not independently** (see §2.5): H1's harness exemption is non-relaxing *only* because T-2's input constraint guarantees the harness cannot reach the candidate.
 
-1. **Sealed-run self-guard** (seed H1)
-2. **Smoke-harness lock-inclusion** (seed T-2)
+**Split out (own thread):** the re-route-depth taxonomy (`OVP_REROUTE_DEPTH_REVIEW.md`) — a discipline-*relaxing* change, higher risk class, its own pass.
 
-**Split out at cold-pass-1:** the **re-route-depth taxonomy** has been removed from this draft to its own thread (`OVP_REROUTE_DEPTH_REVIEW.md`). Cold-pass-1's decisive scope finding: that seed *relaxes* a safety invariant (two-independent-pass coverage of a fold's delta), which is a different — and higher — risk class than two guards that only add structure. Grouping them under "mechanism-independent, designable now" sorted on independence, not on risk-direction. A discipline-*relaxing* change earns its own adversarial pass; it does not ride this one.
-
-**Still OUT of scope — deferred/queued (unchanged, see §5):** Descriptor Justification Layer formalization (defer to ≥1 more candidate); Class-C target-fit (open, roadmap not rule); community-validated sourcing (separate thread, position note recorded).
+**Deferred/queued (unchanged, §5):** Descriptor Justification Layer formalization; Class-C target-fit; community-validated sourcing.
 
 ---
 
 ## 1. Seed 1 — Sealed-run self-guard
 
-**Hazard (H1).** Every `judge_*.py` invocation computes the sealed verdict in memory and (default `--out`) writes a results file; the no-peeking seal on a real-candidate run rests on operator discipline + WARN text. Every other guard in the judge is structural; this one is not.
+**Hazard (H1).** Every `judge_*.py` invocation computes the sealed verdict and (default `--out`) writes it; the no-peeking seal rests on operator discipline + WARN text. Every other guard is structural; this one is not.
 
-**Requirement.** A judge must **refuse to compute the sealed quantity unless its study is locked** — verified, not attested. The smoke harness (Seed 2) is the sole exemption (it computes nothing sealed).
+**Requirement.** A judge **refuses to compute the sealed quantity unless its study is locked** — verified, not attested. The smoke harness (Seed 2) is the sole exemption.
 
-**Mechanism — a single hard-refuse rule (the composition in rev1 was rejected at cold-pass-1).**
+**Mechanism — single hard-refuse rule, by git *object identity* (not raw byte hash — cold-pass-2 B1).**
 
-> **Compute the sealed quantity iff git positively verifies that *this study's named lock tag* exists and the running script's on-disk bytes hash-match that tag's committed blob. In every other state — git unavailable, the named tag missing, or a blob mismatch — hard-refuse before any sealed computation.** No override flag.
+> Let `LOCK_TAG` be a constant string **pinned inside the locked script bytes** (the script names its own study's tag, so script→tag→blob is a fixpoint the lock fixes). Compute the sealed quantity **iff** all hold, else **hard-refuse before any sealed computation**:
+> 1. `LOCK_TAG` exists as a tag in the repo;
+> 2. the judge's working-tree file is **git-object-identical** to the blob recorded for its tracked path at that tag — i.e. `git hash-object <judge_file>` (which applies git's clean-filter/normalization) equals `git rev-parse LOCK_TAG:<judge_tracked_path>`. **Not** `sha256(open(file,'rb'))` — a raw byte hash mismatches under `autocrlf`/gitattributes filters and would false-refuse a legitimate locked run (the common Windows case).
 
-- **No flag.** rev1's `--unlocked-acknowledged` is deleted. It had no legitimate use case: the smoke harness already answers "does it run?", so there is never a reason to compute the *real* sealed value on an unlocked script — the flag was a pure intentional-peek path that reintroduced the exact discipline-dependence this seed exists to remove.
-- **"No git → no sealed run" is a feature, not a gap.** The canonical sealed run should occur *only* where its provenance is verifiable; tarball/CI/detached-checkout cases are not environments in which to produce the locked verdict. Refuse there.
-- **Refuse *before* compute.** Because the guard refuses before the sealed value is ever formed, there is no value to leak — closing the stdout/logs/pipe hole (`judge.py > out.json`) by construction, not by a "don't write" promise.
-- **Bind to the *named* tag, not "any tag whose blob matches."** Blob identity is content-addressed (identical bytes ⇒ identical blob — robust to commit graph), but a judge byte-shared across studies must verify *its own* study's tag, or a sibling tag could satisfy it.
-- **The guard's claim, stated precisely.** It verifies tag-existence + blob-identity — *when* (post-lock) and *which script bytes* — and **not** the tag's cryptographic signature (signature verification is the human-trust layer applied at lock, not the accident-prevention layer; rev1's "signed lock tag" phrasing over-promised what the check delivers). Input identity is the **manifest's** job, not this guard's. The guard is one link — *when/which-bytes* — in a chain whose other links (inputs, signature) live elsewhere.
+No override flag (rev1's `--unlocked-acknowledged` stays deleted: the harness already answers "does it run?", so computing the *real* sealed value on an unlocked script has no legitimate use). Refusing *before* the value is formed closes the file/stdout/pipe/log leak by construction.
 
-**Orthogonal guard (separated out at cold-pass-1).** Output-exists refusal — refuse to overwrite an existing canonical results file — is a **single-execution / silent-re-run** guard, a *different property* than peeking. It belongs with the re-run discipline, not folded into the peek guard. Keep it; name it correctly.
+**Required companions to the comparison (cold-pass-2 B1-adjacent + minors):**
+- **Pin `.gitattributes` for the judge path** (deterministic normalization across checkouts), so (2) is stable.
+- **Name the canonical-run environment:** a full clone with the signed `LOCK_TAG` fetched locally. "No git → refuse" is a *feature* only because the canonical verdict is produced *only* where provenance is verifiable; a shallow/tagless CI runner is correctly not such an environment.
+- **Path resolution:** the comparison is against the judge's *tracked path* in the tag's tree; a post-lock file move invalidates and must be handled explicitly (re-verify), not silently refused.
 
-**Self-charge (widened).** This seed's own cold pass must be free to **choose the mechanism**, not merely "stress the composition" — rev1 presupposed a composition it should have been free to reject (and was).
+**Scope of the guarantee, stated precisely (cold-pass-2):**
+- It closes every leak path **for the sealed quantity** — because the value is never formed pre-lock. It does **not** hide *precursors* computed before the refuse point (the disclosed marginal, baseline-only discrimination); those are visible **by design** (the marginal is disclosed). "Closes every peek path" means *of the sealed quantity*, not of inference about it from disclosed precursors.
+- It secures **when** (post-lock) and **which script bytes** — **not** the tag's **signature** (signature is the human-trust layer at lock, disclaimed here) and **not** input identity (the manifest's job, §1b).
+- **Boundary, stated plainly so the guard is not over-read as tamper-proof:** a self-issued `LOCK_TAG` or deleting the guard bypasses it. That residual is correctly the signature/human-trust layer's job; the guard converts "a peek is one casual run away" into "a peek requires deliberately forging the named lock tag or editing the guard out" — the intended structure-over-discipline upgrade, nothing more.
 
-**Retroactive (#1–#4):** moot — see §3.
+## 1b. Adjacent required elements (so the chain has no soft link — cold-pass-2 residual)
+
+- **Single-execution / re-run guard (the separated output-exists refusal) has a home here.** Refuse to overwrite an existing canonical results file. It is a *different property* than peeking and lives as a named element of this template (not orphaned by the split from the peek guard). Composition check: post-lock canonical run computes (tag verifies) and writes (no prior output); any second run refuses on output-exists. Clean.
+- **Input identity must be *enforced*, not merely manifested.** H1 hands input identity to the manifest — correct scoping — but "the manifest's job" is only real if the judge **verifies input hashes against the manifest/locked anchors at runtime** (as the detector judges already do: `verify_cut_points`, `load_inherited` hash-verify). The template **requires** this runtime input-hash check, so a locked script cannot compute against wrong inputs while the guard happily passes. Enforced, not attested.
+
+**Self-charge (open).** This seed's cold pass chooses/stresses the *mechanism* (B1 and the self-issued-tag boundary were mechanism-level findings, not composition tweaks) — it does not presuppose a design.
+
+**Retroactive (#1–#4):** moot — §3.
 
 ---
 
 ## 2. Seed 2 — Smoke-harness lock-inclusion
 
-**Hazard (T-2).** A judge's no-peeking claim rests on its smoke being synthetic-only, but the smoke harness is not in the locked set, so an auditor cannot verify *from the locked record* that the smoke never touched the sealed candidate.
+**Hazard (T-2).** A judge's no-peeking claim rests on its smoke being synthetic-only, but the harness is not in the locked set — so an auditor cannot verify *from the locked record* that the smoke never touched the sealed candidate.
 
-**Requirement.** The synthetic smoke harness is a **named file in the atomic lock commit**, hashed in the manifest. The locked set becomes **four files**: pre-registration, judge, smoke harness, manifest.
+**Requirement.** The synthetic smoke harness is a **named file in the atomic lock commit**, hashed in the manifest. The locked set is **four files**: pre-registration, judge, smoke harness, manifest.
 
-**What this does and does not buy (corrected at cold-pass-1 — rev1 overclaimed "auditable end-to-end").**
-- It makes auditable: *is the harness source synthetic?* — yes, now provable from the locked bytes.
-- It does **not** make auditable: *was nothing else run against the sealed candidate?* Under build-time (not single-execution) smoke, an operator could run a separate unlocked peeking script and still commit an innocent harness. No committed artifact can prove non-execution of things outside the set.
-- **Honest claim:** *the locked artifacts (judge, harness) are auditable; non-execution of anything outside the locked set remains operator-attested.* The gap moves from "is the harness synthetic?" (now closed) to "did the operator run nothing else?" (still attested) — a real narrowing, not a closure.
+**Harness input constraint — over ALL channels (cold-pass-2 B2; this is what makes H1's exemption safe).**
+> The harness reads **no redirectable external input of any kind** — no CLI parameter, environment variable, stdin, network fetch, or external file path (hardcoded or cwd-relative). Its **only** inputs are bytes literal in the locked source, or data generated in-process from a **seed pinned in the locked source**.
 
-**Harness properties (pinned, cold-checkable — strengthened at cold-pass-1):**
-- **No candidate-redirect input surface.** The harness accepts **no parameter** that can point it at the real candidate (no `--input <path>`). Inputs are hardcoded or generated in-process — so the locked bytes cannot read clean while the *invocation* peeked (`smoke.py --input real_candidate.csv`).
-- **Synthetic data is itself in the locked/hashed set.** If the harness loads a fixture, that fixture is hashed in the manifest; if it generates data, the generation seed is pinned *in the locked harness*. Otherwise the four-file set has a fifth, unaudited dependency that could carry real candidate data.
-- exercises only synthetic null + synthetic-meaningful (+ foil-mechanic) checks; writes **no** output matching the judge's canonical `--out` schema (the positive definition of "results-shaped", so the refusal is testable);
-- is the one script exempt from Seed 1's self-guard — an exemption made *safe* by the no-candidate-redirect input constraint above.
+Stating it only as "no `--input`" (rev2) closed the CLI redirect but left env/stdin/path/network channels open; an exempt script with *any* live channel to the real candidate is a peek path routing around H1. The exemption is safe *only* under the all-channel constraint above.
 
-**Retroactive (#1–#4):** see §3.
+**Synthetic data in the locked/hashed set:** a loaded fixture is hashed in the manifest, or generation uses a seed pinned in the locked harness — else the four-file set has a fifth, unaudited dependency that could carry real candidate data.
+
+**What this buys, claimed honestly (cold-pass-2 affirmed; if anything under-claims, the safe direction):**
+- *Auditable:* is the harness source synthetic? — yes, provable from the locked bytes; and the four-file lock binds *which* harness to *this* study (provenance).
+- *Still attested:* non-execution of anything *outside* the locked set. No committed artifact proves the operator ran nothing else against the candidate. (With H1 in place the judge itself leaves the attested set pre-lock — it refuses — narrowing the residual to ad-hoc non-judge scripts.)
+- **Claim:** *the locked artifacts are auditable; non-execution of anything outside the locked set remains operator-attested.*
+
+**"Results-shaped" defined on content/schema, not filename** (cold-pass-2 minor) — the judge's canonical `--out` schema — so a rename cannot dodge a refusal.
+
+## 2.5 H1 + T-2 adopt together (coupling — cold-pass-2)
+
+H1 and T-2 are **not independent**. H1 exempts the harness from the self-guard; that exemption is non-relaxing **only because** T-2's all-channel input constraint guarantees the harness cannot reach the candidate. **You cannot adopt H1 without T-2's (corrected) input constraint**, or H1's exemption becomes an unguarded peek path. They are reviewed and adopted as one unit.
 
 ---
 
 ## 3. Grandfather #1–#4 (no re-lock) + signed additive attestation
 
-**Grandfather, do not re-lock — and the deciding argument is the program's own precedent.** Re-locking #1–#4 to add a now-moot guard or a fourth locked file would replace the exact bytes the cold readers cleared with new bytes, **destroying "locked == what was read"** — the very property the lock exists to guarantee. This is not a new judgment call: rc-v1 / ersaf / ct-v1 are unsigned and were **not** retroactively re-signed, precisely because re-tagging a locked study violates the immutability the lock guarantees. Grandfathering is therefore not just locally right but **consistency-required**. For the self-guard specifically the seal-relevant window is closed (runs complete), so the guard is genuinely moot for #1–#4.
+**Grandfather, do not re-lock — consistency-required.** Re-tagging #1–#4 to add a now-moot guard or a fourth locked file replaces the exact bytes the cold readers cleared, destroying "locked == what was read." Precedent governs: rc-v1 / ersaf / ct-v1 were **not** retroactively re-signed, because re-tagging a locked study violates the immutability the lock guarantees. The precedent carries the **re-tagging prohibition**; the attestation does the **retroactive-auditability** work — two jobs, correctly separated.
 
-**Signed additive attestation (the provenance-optimal strengthening).** Bare grandfathering leaves #1–#4's no-peeking operator-attested (their harnesses were not in the lock commits), and re-locking cannot fix that. A **signed, study-bound additive note** — recording each harness's hash and "this synthetic-only harness was the smoke for study X," tied to the original study **without re-tagging it** — captures the retroactive-auditability value at **zero cost to immutability**. (rev1's "committed as supplementary reference" stopped short of *signed* and *study-bound*; this is the same call, done right.)
+**Signed additive attestation — and it must carry its post-hoc status on its face (cold-pass-2 B3).** A signature applied *now* authenticates *who asserts the claim and when (now)* — it does **not** prove the historical fact that harness H was the smoke for study X *back then* (there was no contemporaneous anchor; the harness was not in the original locked set). So the attestation MUST state on its face that it is:
+- **retroactive**, dated now, not part of study X's original locked set;
+- a record of the operator's **post-hoc identification** of the smoke harness;
+- **explicitly weaker than contemporaneous lock-inclusion** (authenticates the assertion, not the history);
+- claiming **only** what Seed 2's downgraded claim allows — *harness source synthetic* (provable from the now-hashed bytes), **not** non-execution of anything else (unprovable retroactively, exactly as in the forward case).
+
+With that label it informs without misleading; without it, a signed "study-bound" note manufactures the appearance of contemporaneous provenance it cannot deliver. (Mechanically — zero re-tagging, separate signed artifact referencing by hash — it preserves immutability; the only defect was what the artifact says about itself.)
 
 ---
 
 ## 4. Adoption path
 
-This draft remains an artifact under the program-evolution discipline: re-routed cold passes (cold-pass-1 found blockers → count reset) before it hardens. On adoption it becomes the standard judge-study template (4-file locked set; single hard-refuse self-guard; separated re-run guard), **forward-looking** for new studies; **#1–#4 grandfathered without re-lock**, strengthened by the signed additive harness attestation. The re-route taxonomy is **not** part of this adoption — it is decided separately in its own thread.
-
----
+rev3 re-routes **two fresh** cold passes (cold-pass-2 found blockers → count reset; author cannot clear). On adoption: standard judge template (4-file locked set; git-object-identity self-guard; separated re-run guard; enforced runtime input-hash check), **forward-looking**; **#1–#4 grandfathered without re-lock**, strengthened by the labeled signed additive attestation. H1 and T-2 adopt as one unit (§2.5). The re-route taxonomy is decided separately.
 
 ## 5. Explicitly deferred / queued (unchanged)
 
-- **Descriptor Justification Layer — spec-level formalization: DEFERRED** to ≥1 more mechanism-driven candidate (n=1 = `pred` is thin; freezing now bakes in #4's idiosyncrasies).
-- **Class-C target-fit: EXPLICITLY OPEN** — roadmap to a Class-C worked example, not a frozen rule. (The RTVP charter, developed separately, is the realization of this roadmap as a distinct instrument.)
-- **Community-validated rung (§6.3): QUEUED** as its own sourcing thread — moved by neither template hardening nor more internal candidates; position note in `OVP_DESIGN_HISTORY.md`.
+- **Descriptor Justification Layer formalization: DEFERRED** to ≥1 more mechanism-driven candidate (n=1 = `pred` too thin).
+- **Class-C target-fit: OPEN** — roadmap, not rule (RTVP, developed separately, is its realization as a distinct instrument).
+- **Community-validated rung (§6.3): QUEUED** sourcing thread; position note in `OVP_DESIGN_HISTORY.md`.
 
 ---
 
-## Appendix — cold-pass-1 disposition (for the record)
+## Appendix — cross-pass disposition (for the record)
 
-Single adversarial cold reader, process/template review. Findings accepted in full and folded: Seed 1 collapsed to a single hard-refuse mechanism (flag deleted, stdout closed by refuse-before-compute, named-tag binding, "signed" claim corrected, output-exists separated); Seed 2 input-surface constrained, fixture/seed hashed, "end-to-end" downgraded to "locked artifacts auditable, non-execution attested," "results-shaped" given a positive definition; grandfather landed on the rc-v1/ersaf/ct-v1 precedent + signed additive attestation; the re-route taxonomy split out as a higher-risk discipline-relaxing change deserving its own pass. The two errors owned: rev1's override flag (a peek path) and rev1's "auditable end-to-end" overclaim. Author cannot clear; rev2 re-routes fresh.
+**cold-pass-1** (rev1→rev2): collapsed Seed 1 to a single hard-refuse mechanism (deleted the override flag, closed stdout by refuse-before-compute, named-tag binding, corrected the "signed" overclaim, separated output-exists); constrained Seed 2's input surface + hashed the fixture/seed + downgraded "end-to-end" to "locked artifacts auditable, non-execution attested"; landed grandfather on precedent + signed additive attestation; split out the re-route taxonomy as a higher-risk discipline-relaxing change. Errors owned: rev1's override flag and "auditable end-to-end" overclaim.
+
+**cold-pass-2** (rev2→rev3): three blockers, all folded without redesign. **B1** — git-object-identity comparison (`git hash-object` vs `LOCK_TAG:<path>`) replaces the raw byte hash that would false-refuse under `autocrlf`; pinned `.gitattributes`; named canonical-run environment; path-resolution + tag-name-pinned-in-locked-bytes fixpoint; signature-omission boundary and sealed-quantity-only scope stated. **B2** — input constraint restated over *all* channels (CLI/env/stdin/path/network), which is what makes H1's harness exemption safe (now explicit as a coupling, §2.5). **B3** — the signed attestation must carry its retroactive / weaker-than-contemporaneous / Seed-2-claim-scoped status on its face, or it forges contemporaneous provenance. Plus tighten-ups: results-shaped by content not filename; output-exists guard given a definite home; input identity enforced (runtime hash check) not merely manifested. Architecture affirmed; author cannot clear; rev3 re-routes two fresh passes.
