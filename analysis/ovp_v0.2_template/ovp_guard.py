@@ -113,14 +113,16 @@ def verify_input_hashes(expected, allow_empty=False):
 # libc IO in an arbitrary extension remains unprovable by construction (R-1 reference-suite
 # assertion); numpy's own readers DO raise the `open` event and are covered.
 _io_allow = None  # None => inactive; set => only these absolute real paths may be opened
-# DENYLIST of spawn/network/enumeration audit events. NOTE (cold-pass-A reader #4): a denylist
-# can never be exhaustive (the spec says so) - os.system was a demonstrated hole, now closed, but
-# the GUARANTEE is the `open` allowlist below; spawn/network denial is best-effort defense-in-depth,
-# and the real closure for spawn/network exfiltration is the operator's external sandbox (no-network,
-# restricted process) for the canonical run.
+# DENYLIST of spawn/network/enumeration audit events - ONLY events confirmed to fire in-process.
+# HONEST LIMIT (cold-pass-A reader #5): in-process audit hooks cannot reliably cover all spawn/exec
+# paths. os.fork WITHOUT exec is bounded (the child inherits this hook, so it can't read the
+# candidate either). But fork+EXEC paths whose exec the PARENT never observes (e.g. os.spawnv -
+# demonstrated to escape) are NOT reliably caught, and ctypes dlopen + C-level libc reads are
+# invisible to audit hooks entirely. The GUARANTEE is the `open` allowlist below; spawn/network
+# denial is best-effort, and the operator's EXTERNAL sandbox is the real closure for the canonical run.
 _DENY_EVENTS = ("os.listdir", "os.scandir", "socket.connect", "socket.getaddrinfo",
-                "subprocess.Popen", "os.exec", "os.posix_spawn", "os.posix_spawnp",
-                "os.system", "os.popen", "os.spawnv", "shutil.copyfile")
+                "subprocess.Popen", "os.system", "os.popen", "os.posix_spawn", "os.exec",
+                "shutil.copyfile")
 
 
 def _audit(event, args):

@@ -296,6 +296,24 @@ The v0.2 template-hardening effort reached its structural terminus. The spec (`O
 
 **Remaining gate (the lock for the template itself):** a two-pass review **on code + tests** (run the suites; hunt a fail-open path or a hollow assertion) — the review now reads behavior, not prose, which is the whole point. **On adoption** the template becomes the standard judge instantiation (forward-looking), and #1–#4 are grandfathered without re-lock, their no-peeking made retroactively auditable by signed additive attestations. The re-route-depth taxonomy remains its own separate redesign-or-retire thread (not part of this adoption).
 
+## OVP v0.2 LESSON — best-effort artifacts lock against ACCURACY OF CLAIM, not absence of all possible failures (2026-06-10, from the v0.2 template cold-pass-A arc)
+
+**Origin.** The v0.2 reference template's cold-pass-A review ran five executing readers (rev1→rev6). Findings walked from a *demonstrated wrong-compute* (reader #1: H1 covered only the judge, not imported sealed-path modules), through *trusted-not-derived* attestation fields (readers #2/#3: grade, then temporal, then `.gitattributes` coverage), to the *inherent limit of in-process IO sandboxing* (readers #4/#5: `os.system` then `os.spawnv` escaping the closed-world denylist). The architecture never moved; each fix tightened a real claim. Reader #5's finding forced the rule below: it was correctly a blocker, but **because the artifact *overstated* its coverage** (a dead `os.spawnv` denylist string; a false "`ctypes dlopen` routes through `open`" claim) — not because a disclosed limit had another instance.
+
+**The lesson.** Lock-discipline protects the **integrity of what the artifact claims**, not the impossible standard of zero residual failure. A *best-effort* component (one that explicitly discloses it cannot catch all cases — here, the closed-world spawn/network/C-level denylist) admits demonstrable leaks *within its disclosed residual* by definition. Requiring "two readers find literally nothing" of such an artifact demands what it never claimed and the platform can't support — a category error masquerading as strictness.
+
+**The locked bar for any best-effort component (the reset/fold rule, auditable):**
+A cold-pass finding **RESETS the count** iff it:
+- **(a)** falsifies a **provable guarantee** in the artifact's *positive enumeration* (e.g. the git-identity self-guard's fail-closed behavior, the `open` allowlist, the input-hash/output-exists chain, the attestation's derive-never-trust invariant); **OR**
+- **(b)** demonstrates a gap that **should have been disclosed** under reasonable documentation standards but wasn't — i.e. the disclosure section is **too narrow**, or the positive enumeration advertises coverage that isn't delivered (reader #5's `os.spawnv`/`dlopen`).
+
+A finding **FOLDS without resetting** iff it is:
+- **(c)** a new **instance of a correctly-disclosed best-effort limit** — the disclosure already covers the *class* conceptually (a future `os.posix_spawn` variant or another C-level `fopen` path, all covered by the "denylist cannot be exhaustive; external sandbox is the real closure" disclaimer). Record it as confirmation that the disclosed limit exists; add the entry if cheap; do **not** reset.
+
+**The judgment lives in (b)** and is auditable: read the disclosure section, ask whether the finding is a class the disclosure covers *conceptually*. Reader #5's `os.spawnv` was a (b) failure because the artifact specifically claimed spawn-*family* coverage and listed a dead string; a future reader's `posix_spawn` variant is a (c) case because the C-level/denylist-non-exhaustive disclaimer covers it conceptually.
+
+**Precedent.** This is the standard for **every** future best-effort component the program produces (the smoke-harness closed-world surface; any self-guard that ends up with disclosed residuals; future RTVP instruments with disclosed measurement limits). Lock against *accuracy of claim*; reset on a false claim or too-narrow disclosure; fold on a correctly-disclosed residual instance. Adopted for the v0.2 template's remaining two cold passes against rev6.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.

@@ -97,4 +97,14 @@ with closed_world_io(fx):
 leaked = os.path.exists(out)
 check("17 widened closed-world: os.system REFUSES (no child exfiltration)", sys_blk and not leaked); shutil.rmtree(d)
 
+# 18 numpy reader routes through the `open` allowlist: np.load of a NON-allowlisted path REFUSES
+import numpy as _np, numpy.lib.format
+d=tempfile.mkdtemp(); fxa=os.path.join(d,"allowed.npy"); _np.save(fxa,_np.arange(3)); fxb=os.path.join(d,"other.npy"); _np.save(fxb,_np.arange(3))
+_np.load(fxa)  # warm np.load machinery before the block
+np_blk=False
+with closed_world_io(fxa):
+    try: _np.load(fxb)   # not in allowlist -> must refuse via the `open` event
+    except GuardRefusal: np_blk=True
+check("18 numpy np.load of non-allowlisted path REFUSES (routes through open)", np_blk); shutil.rmtree(d)
+
 print("\n%d/%d checks passed"%(sum(R),len(R))); sys.exit(0 if all(R) else 1)
