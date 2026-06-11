@@ -107,4 +107,20 @@ with closed_world_io(fxa):
     except GuardRefusal: np_blk=True
 check("18 numpy np.load of non-allowlisted path REFUSES (routes through open)", np_blk); shutil.rmtree(d)
 
+# 19 os.open of a non-allowlisted path REFUSES (backs the README os.open claim, previously untested)
+d=tempfile.mkdtemp(); fx=os.path.join(d,"s.npy"); open(fx,"wb").write(b"syn"); osopen_blk=False
+with closed_world_io(fx):
+    try: os.open("/etc/hostname", os.O_RDONLY)
+    except GuardRefusal: osopen_blk=True
+check("19 os.open non-allowlisted REFUSES", osopen_blk); shutil.rmtree(d)
+# 20 socket.connect ISOLATED: socket created OUTSIDE the block, connect INSIDE -> refuses via socket.connect
+d=tempfile.mkdtemp(); fx=os.path.join(d,"s.npy"); open(fx,"wb").write(b"syn")
+s=socket.socket()  # created outside, so its setup opens don't confound the probe
+sock_blk=False
+with closed_world_io(fx):
+    try: s.connect(("127.0.0.1",9))
+    except GuardRefusal: sock_blk=True
+    except OSError: sock_blk=False
+s.close(); check("20 socket.connect isolated REFUSES (via socket.connect event)", sock_blk); shutil.rmtree(d)
+
 print("\n%d/%d checks passed"%(sum(R),len(R))); sys.exit(0 if all(R) else 1)

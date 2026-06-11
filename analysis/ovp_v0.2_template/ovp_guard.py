@@ -121,8 +121,10 @@ _io_allow = None  # None => inactive; set => only these absolute real paths may 
 # invisible to audit hooks entirely. The GUARANTEE is the `open` allowlist below; spawn/network
 # denial is best-effort, and the operator's EXTERNAL sandbox is the real closure for the canonical run.
 _DENY_EVENTS = ("os.listdir", "os.scandir", "socket.connect", "socket.getaddrinfo",
-                "subprocess.Popen", "os.system", "os.popen", "os.posix_spawn", "os.exec",
-                "shutil.copyfile")
+                "subprocess.Popen", "os.system", "os.posix_spawn", "os.exec", "shutil.copyfile")
+# NB (cold-pass adoption-2): `os.popen` was REMOVED here - it fires only `subprocess.Popen`
+# (already covered), never an `os.popen` event, so listing it overstated "confirmed-live". Every
+# remaining entry is verified to fire live and refuse.
 
 
 def _audit(event, args):

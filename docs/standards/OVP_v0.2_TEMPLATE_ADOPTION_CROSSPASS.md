@@ -24,4 +24,13 @@ All non-false; queuing keeps the locked artifact exactly what the two passes rea
 2. **Guard/judge self-edit tests** — a post-lock edit of `ovp_guard.py` or the judge file itself refuses (holds by construction + pass-1 probe) but isn't pinned by a shipped integration test; add them.
 3. **rev7 §1/§4 stale "five-file/fifth locked artifact" wording** — §2 already corrected the count to "every sealed-path source file"; §1/§4 prose is residual and overridden. Wording-only; does not affect the artifact.
 
-## Adoption pass 2 — PENDING (frozen rev6; independent executing reader)
+## Adoption pass 2 — BLOCKER (executing); count RESET → rev7
+Independent executing reader reproduced 33/33 and every provable guarantee held — but found one **class-(b)** defect: **`os.popen` was a dead string** in `_DENY_EVENTS` (CPython fires only `subprocess.Popen`, never `os.popen`), so the explicit "ONLY events confirmed to fire in-process" claim was **false** — the same accuracy-of-claim defect class the program reset on at rev6 (`os.spawnv`). By the bar and precedent, **(b) resets**; author cannot clear. (Weakest possible (b): no functional gap — `os.popen` is still denied via the live `subprocess.Popen` entry.) The C-level libc read (F2) and `os.spawnv` (F3) were correctly **(c)** — disclosed-residual confirmations, not resets.
+
+**Because the reset was forced, the queue-don't-fold rule no longer pinned the non-blockers** — so rev7 folds the blocker AND everything both passes flagged:
+- **F1 (blocker):** removed dead `os.popen`; remaining denylist entries verified live.
+- **F3:** corrected the `os.spawnv` reasoning (platform/version-dependent best-effort, not "parent doesn't observe").
+- **pass-1 queued #1/#2:** `os.open` + isolated `socket.connect` now tested (guard 19/20); **guard-module and judge self-edit** post-lock cases now pinned by shipped tests (integration 20/21).
+- **pass-1/2 queued #3:** rev7 spec §1/§4 "five-file/fifth" wording reconciled to §2's "every sealed-path source."
+
+**rev7 = 37/37 (20/7/10), execution-tested.** Adoption gate **restarts: two fresh executing passes on rev7** under the refined bar; fix-author cannot clear. (This record is superseded; pass 1's rev6-clean status does not carry — rev7 is new bytes.)
