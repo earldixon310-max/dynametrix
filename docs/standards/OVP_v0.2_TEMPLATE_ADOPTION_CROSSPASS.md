@@ -41,3 +41,19 @@ Independent executing reader reproduced 20/7/10=37, confirmed all four provable 
 **rev8 fix (test-only):** after test 19, **restore `Bdata.bin`** so 20/21 run with intact input (only H1 can refuse them), and **assert the refusal message names the edited file** (`"ovp_guard.py bytes !="` / `"judge_y.py bytes !="`). **Mutation-verified:** breaking H1 now turns 20/21 RED (3/7); restored, 7/7. rev8 = 37/37, the test pair is no longer hollow.
 
 **Adoption gate restarts: two fresh executing passes on rev8.** Author cannot clear.
+
+## Adoption pass 1 (on rev8) — CLEAN (executing, mutation-testing; no lock-blocker)
+Independent executing reader (Python 3.10.12, numpy 2.2.6, git 2.34.1). Reproduced **20/7/10 = 37**. The most thorough pass to date:
+- **Provable guarantees all hold under direct probing:** git-identity fail-closed on all 7 git-error paths (each via a specific branch; branches *layered* so removing one early branch still fails closed downstream — defense-in-depth, not fail-open); `open` allowlist denied every read attempt (`open`/`os.open`/`np.load`); input-hash + output-exists chain end-to-end (input tamper + same-output re-run both refuse); attestation derive-never-trust across all four fields (forging any → CONTRADICTED).
+- **Mutation testing (18 mutations) — no hollow test.** 15 caught outright; the 3 follow-ups resolved as defense-in-depth redundancy + a mis-targeted mutation. **The rev8 20/21 fix confirmed:** "cover only the judge" turns core/`.gitattributes`/`ovp_guard` checks red while the judge check stays green → each sealed source independently pinned.
+- **Dead-string class RETIRED:** all 9 `_DENY_EVENTS` verified live, incl. the 5 the suite never exercises; `socket.getaddrinfo` chased down (own event fires first on a warmed call, not a dead string).
+- **Findings: zero (a), zero (b).** Class-(c) only — `os.rename`/`replace`/`symlink`/`mkdir` (filesystem mutations, can't read the candidate), `os.spawnv`, ctypes/C-level read — all disclosed residuals → fold.
+- **Verdict: CLEAN, no lock-blocker.** Wants a second independent pass before lock.
+
+### Non-blocking queue (POST-adoption; do NOT fold pre-lock — would reset the clean pass)
+1. **Add regression tests for the 5 currently-untested-but-live denylist entries** (`os.scandir`, `socket.getaddrinfo`, `os.exec`, `shutil.copyfile`, `os.posix_spawn`) so the "each verified to fire and refuse" claim is self-checking. (Capability delivered + claim accurate → not (b), just completeness.)
+2. **`SEALED_SOURCES` completeness lint** (operator-asserted; disclosed; ship a CI lint).
+3. **input-hash TOCTOU** — already disclosed scoped limitation; couple the hash to the bytes the loader reads.
+4. **Cosmetic:** README version label still reads "rev7" (artifact is rev8, test-only fix); integration check labels run 15–21 (renumber 1–7). Both cosmetic; fix at adoption.
+
+## Adoption pass 2 (on rev8) — PENDING (frozen rev8; independent executing reader; not shown this record)
