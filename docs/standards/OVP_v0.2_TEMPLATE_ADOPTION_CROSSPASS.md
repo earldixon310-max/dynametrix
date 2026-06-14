@@ -56,4 +56,18 @@ Independent executing reader (Python 3.10.12, numpy 2.2.6, git 2.34.1). Reproduc
 3. **input-hash TOCTOU** — already disclosed scoped limitation; couple the hash to the bytes the loader reads.
 4. **Cosmetic:** README version label still reads "rev7" (artifact is rev8, test-only fix); integration check labels run 15–21 (renumber 1–7). Both cosmetic; fix at adoption.
 
-## Adoption pass 2 (on rev8) — PENDING (frozen rev8; independent executing reader; not shown this record)
+## Adoption pass 2 (on rev8) — CLEAN (executing, mutation-testing; no lock-blocker)
+Independent executing reader (Python 3.10.12, git 2.34.1, numpy 2.2.6), not shown the pass-1 record. Reproduced **20/7/10 = 37**.
+- **Provable guarantees all held under direct probe:** git-identity fail-closed on every error path (tag/path/work-tree/git-binary/hash-object/empty-sealed-sources); `open` allowlist deny-by-default (`open`/`os.open`/`np.load`); chain end-to-end (output-exists fires *in situ* in the integrated chain, not just isolation; input tamper + absent-input refuse); attestation derive-never-trust across all four fields (mutating each derivation flips its forge-test).
+- **Mutation testing — no test passes for the wrong reason.** 16 enforcement points broken; 12 red immediately; 4 survivors all benign (H1 git-error sub-branches caught by a downstream branch + the absent-input branch lacking an isolating test). Zero hollow/confounded tests.
+- **Dead-string class clean:** all 9 `_DENY_EVENTS` triggered live and refuse; `socket.getaddrinfo` confirmed live via numeric-host recording-hook probe.
+- **Findings: zero (a), zero (b).** Two class-(c)-style coverage notes (absent-input branch; H1 hash-object-failure branch — both fail-closed, no isolating test) → fold/queue, no reset (the README doesn't claim them, so not too-narrow).
+- **Verdict: CLEAN, no lock-blocker.**
+
+---
+
+# ✅ ADOPTED — OVP v0.2 reference template (rev8, commit `03ce7a4`), 2026-06-10
+
+**Two independent executing passes on frozen rev8, both CLEAN under the refined bar (no (a)/(b)); confirmed 37/37 on the authoritative committed bytes.** The adoption gate is satisfied. The `analysis/ovp_v0.2_template/` reference (rev8) is the **standard v0.2 judge/harness/guard template**: future studies instantiate it; #1–#4 are grandfathered without re-lock (their no-peeking made retroactively auditable by the signed additive attestation tool). H1+T-2+B2 adopt as one unit.
+
+**Post-adoption improvement rev (queued; gets its own review cycle, does NOT block adoption):** the 5 untested-but-live denylist regression tests; the absent-input and H1 hash-object-failure isolating tests; the `SEALED_SOURCES` CI lint; the input-hash TOCTOU coupling; cosmetic (README "rev7"→rev8 label; integration check renumber 15–21→1–7).

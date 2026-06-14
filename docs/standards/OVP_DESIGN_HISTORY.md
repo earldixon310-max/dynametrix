@@ -329,6 +329,14 @@ The re-route-depth seed asked: is there a principled middle tier (cheaper than f
 
 This closes the re-route-depth thread. The seed's value was naming the question and forcing the bifurcation that shows the middle is empty — not producing a tier.
 
+## MILESTONE — OVP v0.2 reference template ADOPTED (2026-06-10): spec → tested implementation → two clean executing passes
+
+The v0.2 template-hardening arc is **complete**. Trajectory: spec `OVP_v0.2_TEMPLATE_HARDENING_DRAFT.md` converged rev1→rev7 under four cold readers (architecture stable from rev2); then per §6 the lock bar moved to a **tested reference implementation** (`analysis/ovp_v0.2_template/`), which hardened rev1→rev8 under a series of **executing** readers. The implementation review found — and closed — a real demonstrated **wrong-compute** (H1 covered only the judge, not imported sealed-path modules), a **class** of *trusted-not-derived* attestation fields (grade, temporal), two **dead denylist strings** (`os.spawnv`, `os.popen` — accuracy-of-claim defects), and a **hollow test pair** (20/21 passing via the input-hash gate, caught by mutation testing). **Adoption:** two independent executing passes on frozen rev8 (`03ce7a4`), both CLEAN under the refined bar, **37/37 confirmed on the authoritative committed bytes** — every provable guarantee held under adversarial probing + mutation, all nine denylist entries independently verified live, no hollow test.
+
+**What §6 bought, proven:** execution-by-probe and mutation testing caught defects five rounds of prose review missed — a wrong-compute, dead strings, and a test passing for the wrong reason. The locked artifact is code+tests, and the bar locks against *accuracy of claim*; the two clean passes confirm the claims now match behavior.
+
+**Standing outputs of the arc:** the adopted template; the **refined cold-pass bar** (best-effort artifacts lock against accuracy of claim — above); the **re-route-depth resolution** (Tier B retired, queue-vs-re-route bifurcation — above); three template-level seeds (sealed-run self-guard, smoke-harness lock-inclusion, re-route taxonomy) now realized in the template. **Forward:** instantiate the template on a real mechanism-driven candidate (which also gives the deferred Descriptor-Justification-Layer formalization its second contact); the queued post-adoption improvement rev (denylist regression tests, lint, TOCTOU, cosmetics) runs with its own review.
+
 ## Standing discipline
 
 The spec is **not locked**. Per §7/§9, locking to v0.1 requires an independent cold-reader pass on the spec body alone, with any divergence recorded. The spec's author — including the AI collaborator that drafted and revised it — is the most context-saturated reader and cannot be that pass. Each revision above that changed structure earned a fresh cold read; this file records that history so the spec need not.
