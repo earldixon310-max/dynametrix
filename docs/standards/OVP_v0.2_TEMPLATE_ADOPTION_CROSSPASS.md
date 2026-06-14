@@ -34,3 +34,10 @@ Independent executing reader reproduced 33/33 and every provable guarantee held 
 - **pass-1/2 queued #3:** rev7 spec §1/§4 "five-file/fifth" wording reconciled to §2's "every sealed-path source."
 
 **rev7 = 37/37 (20/7/10), execution-tested.** Adoption gate **restarts: two fresh executing passes on rev7** under the refined bar; fix-author cannot clear. (This record is superseded; pass 1's rev6-clean status does not carry — rev7 is new bytes.)
+
+## Adoption pass 3 (on rev7) — BLOCKER (executing, mutation-testing); count RESET → rev8
+Independent executing reader reproduced 20/7/10=37, confirmed all four provable guarantees hold under adversarial probing, and folded the disclosed limits (ctypes/C-level read; `os.spawnv` child-exec caught; a new `os.rename`/`os.link` instance) as **(c)**. **One class-(b) blocker, caught by MUTATION TESTING:** the rev7-headline integration tests **20/21 passed for the wrong reason** — test 19 left `Bdata.bin` tampered and never restored it, and 20/21 asserted only `returncode==2`, so the refusal came from the input-hash gate, not H1. Mutation proof: with H1's byte-mismatch detection disabled, 17/18 correctly failed but **20/21 still passed** — a hollow assertion / overstated coverage, the same defect *class* the program resets on. The underlying guarantee is sound (isolated, editing either file refuses at H1 naming it); only the test was hollow. **(b) resets.** (Reader confirmed every *other* guard's tests have real teeth via mutation: H1→6 guard+3 integ fails, audit no-op→7, attest always-trust→5.)
+
+**rev8 fix (test-only):** after test 19, **restore `Bdata.bin`** so 20/21 run with intact input (only H1 can refuse them), and **assert the refusal message names the edited file** (`"ovp_guard.py bytes !="` / `"judge_y.py bytes !="`). **Mutation-verified:** breaking H1 now turns 20/21 RED (3/7); restored, 7/7. rev8 = 37/37, the test pair is no longer hollow.
+
+**Adoption gate restarts: two fresh executing passes on rev8.** Author cannot clear.
