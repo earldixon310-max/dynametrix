@@ -7,8 +7,9 @@ is_ai_generated (pre-reg sec 8.1(a)). It never READS the outcome/ground-truth co
 is_ai_generated as data (sec 8.1(b)); `id2label` and the prompt word "labels" are the detector's
 output-class metadata / prompt text, not the OVP target.
 
-REVISION 2 (2026-06-19): paraphraser auto-selects Qwen2.5-7B-Instruct in 4-bit (bitsandbytes) when
-available, else Qwen2.5-3B-Instruct fp16; temperature 0.5 + fidelity-first prompt (spend the Jaccard
+REVISION 3 (2026-06-19): paraphraser is the UNIQUELY PINNED Qwen2.5-7B-Instruct 4-bit (bitsandbytes nf4)
+@ revision a09a35458c702b33eeacc393d103063234e8bc28 - single path, NO fallback (bitsandbytes required,
+revision-checked; cold-pass #1 (b) fix). temperature 0.5 + fidelity-first prompt (spend the Jaccard
 headroom on cosine fidelity). GATE REDEFINED: the operative gate is per-text >= MIN_VALID valid
 paraphrases (the judge excludes texts below it as substrate attrition). The set-level pass rate is
 REPORTED ONLY (no threshold, no gating) - so it can never trigger a bar-recalibration loop.
@@ -37,9 +38,6 @@ OUT_QUALITY = "detector_perturbation_quality_summary.json"
 
 DETECTOR_ID = "Hello-SimpleAI/chatgpt-detector-roberta"
 DETECTOR_REVISION = "d2b342c61775d5dd0221808a79983ed3b86ffd86"
-# Paraphraser: prefer 7B-Instruct in 4-bit (bitsandbytes) for fidelity on the paraphraseable bulk;
-# auto-fall back to 3B-Instruct fp16 if bitsandbytes is unavailable. The model actually used is
-# recorded in the quality summary + manifest (that recorded value is the pin for the lock).
 # UNIQUELY PINNED materialization path (cold-pass #1 (b) fix: no auto-detect / no 3B fallback). The
 # rev-2 run that produced the committed artifact used exactly this path; it is now the single pinned
 # procedure. GPU sampling is not bit-reproducible, so the COMMITTED artifact (sha in the manifest) is

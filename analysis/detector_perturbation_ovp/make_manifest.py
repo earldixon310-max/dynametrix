@@ -7,7 +7,8 @@
 
 Pins: inherited per-example, derived input, materialized per-example, paraphrase artifacts, dataset,
 model + paraphraser + embedder revisions, decoding + seeds + prompt hashes, quality-gate result,
-cut-point provenance, judge seeds/eps. No y/label is referenced.
+cut-point provenance, judge seeds/eps. No y/label DATA is read or pinned; the label column NAMES appear
+only in the banned-column guard (BANNED_LABEL_COLUMNS), which asserts the derived header carries none.
 """
 import argparse
 import csv

@@ -9,9 +9,12 @@ source-level ban on y/label references (sec 8.1(b)) is the other half, checkable
 Deterministic + pure (sorted by id, fixed column order, no index): re-running produces identical
 bytes, so the derived-input sha256 is stable and pinned in the manifest.
 
-Reads ONLY:
-  - the inherited calibration per-example  -> (id, predicted_prob_ai)   [explicitly NOT the label cols]
-  - the RAID test-set CSV                  -> (id, text)                [explicitly NOT is_ai_generated]
+Reads via csv.DictReader (which parses each full source row) but SELECTS and writes ONLY:
+  - the inherited calibration per-example  -> (id, predicted_prob_ai)   [label/domain cols parsed, never selected]
+  - the RAID test-set CSV                  -> (id, text)                [is_ai_generated parsed, never selected]
+No label column is ever used as data or written downstream; the 3-column output is the no-peeking
+firewall. (A literal "never in memory" is unachievable - any CSV parse reads the full line; the
+enforced guarantee is non-selection + the output barrier, not memory-residency.)
 """
 import csv
 import hashlib
@@ -39,7 +42,8 @@ def main():
     if actual != EXPECTED_INHERITED_SHA256:
         sys.exit("ABORT: inherited per-example sha256 %s != pinned %s." % (actual, EXPECTED_INHERITED_SHA256))
 
-    # inherited: select ONLY id + predicted_prob_ai (label columns are never read into memory)
+    # inherited: csv.DictReader parses the full row; we SELECT only id + predicted_prob_ai
+    # (label/domain cols are never used as data or written downstream - not a memory-residency claim).
     prob_by_id = {}
     with open(INHERITED_PER_EXAMPLE, newline="", encoding="utf-8") as f:
         rd = csv.DictReader(f)
@@ -47,7 +51,8 @@ def main():
             prob_by_id[row["id"]] = row["predicted_prob_ai"]
     need = set(prob_by_id)
 
-    # RAID: select ONLY id + text for the inherited id set (is_ai_generated is never read)
+    # RAID: csv.DictReader parses the full row; we SELECT only id + text for the inherited id set
+    # (is_ai_generated is never used as data or written downstream).
     text_by_id = {}
     with open(RAID_TEXT_CSV, newline="", encoding="utf-8") as f:
         rd = csv.DictReader(f)

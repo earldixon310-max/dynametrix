@@ -17,7 +17,8 @@ C = perturbation_spread (+ flip_rate sensitivity + text_length confound covariat
 separately and hash-verified here. Non-gating: permuted-C foil, [B,length,domain] confound diagnostic
 (eps_confound), flip-rate sensitivity panel. Single-execution under seed 0x5B5EAD.
 
-Guard is the FIRST action in main(), before any candidate load (v0.2 template).
+The lock/H1 guard runs before any candidate or input load; only the single-execution argv
+refusal and the constant seed/reps/out assignment precede it (v0.2 template).
 """
 import hashlib
 import json
