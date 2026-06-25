@@ -1,0 +1,63 @@
+{
+  "study": "DETECTOR_PERTURBATION_OVP",
+  "hashes": {
+    "inherited_per_example": "24dac07828949a7e93fcc686ff3df70229c026195d3db873e688c1b401afc643",
+    "derived_input": "4b6fcb543994dcc4dafa056d13dc42532e661177af00d60eea0e650b5a31ced8",
+    "materialized_per_example": "ad5901b160b37c763752607f85cfd2f3ed2a3fe2bf5d0d48627ae5b1bddd5318",
+    "paraphrases": "5951dcea997647066bbc2cff69c5709434b564ed64725b258c95a228e255fa00",
+    "quality_summary": "ab0118ebd3a4b40b994de30b7f1ed2c54b280f30106630b8e21958b8e01c101c"
+  },
+  "pinned_expected": {
+    "inherited_per_example_sha256": "24dac07828949a7e93fcc686ff3df70229c026195d3db873e688c1b401afc643",
+    "derived_input_sha256": "4b6fcb543994dcc4dafa056d13dc42532e661177af00d60eea0e650b5a31ced8",
+    "materialized_per_example_sha256": "ad5901b160b37c763752607f85cfd2f3ed2a3fe2bf5d0d48627ae5b1bddd5318",
+    "dataset_sha256": "a29f8f2c0ff8f5eca1a1a3c07e771a28b0709d0f9f060a9024c935eaff615a47",
+    "detector_revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+    "paraphraser_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "tau_lo": 0.02458901317356486,
+    "tau_hi": 0.06829080323934116
+  },
+  "detector": {
+    "id": "Hello-SimpleAI/chatgpt-detector-roberta",
+    "revision": "d2b342c61775d5dd0221808a79983ed3b86ffd86",
+    "ai_class_index": 1
+  },
+  "paraphraser": {
+    "id": "Qwen/Qwen2.5-7B-Instruct",
+    "fourbit": true,
+    "engine": "transformers",
+    "resolved_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "seed": 20260618,
+    "K": 5,
+    "temperature": 0.5,
+    "top_p": 0.95,
+    "max_new_tokens": 640,
+    "prompt_system_sha256": "5f05ea8958abf4867897054ac31afce0befd44b2a7493890db575ae4033427d3",
+    "prompt_user_sha256": "5105d9fde0c8711bef9dfa011cea077ea6d3bd3e9bd0d5ee0cd778d5dd76ac8d"
+  },
+  "embedder": {
+    "id": "sentence-transformers/all-MiniLM-L6-v2"
+  },
+  "gate": {
+    "theta_cosine": 0.8,
+    "delta_jaccard": 0.3,
+    "min_valid_operative": 3,
+    "set_level_pass_fraction_INFORMATIONAL": 0.884,
+    "n_texts_included": 1785,
+    "n_texts_excluded_substrate_attrition": 215,
+    "substrate_attrition_fraction": 0.1075
+  },
+  "spread": {
+    "statistic": "std",
+    "ddof": 1
+  },
+  "judge": {
+    "master_seed": "0x5b5ead",
+    "foil_seed_xor": "0xf011",
+    "eps_confound": 0.005,
+    "R": 200,
+    "cut_points_provenance": "detector-ovp-calib-result",
+    "tau_lo": 0.02458901317356486,
+    "tau_hi": 0.06829080323934116
+  }
+}
