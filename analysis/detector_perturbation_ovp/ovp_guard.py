@@ -32,13 +32,16 @@ def assert_locked_or_refuse(lock_tag, sealed_sources, self_path):
     """H1 self-guard. Returns the judge's verified OID, or raises GuardRefusal.
 
     lock_tag       : constant PINNED in the locked judge bytes (never derived from __file__).
-    sealed_sources : dict {repo_relative_path: absolute_file_to_hash} covering EVERY source file
-                     on the sealed compute path - the judge, the shared compute-core, the guard,
-                     and any other locked module imported before/at sealed compute. Pin this
-                     explicitly in the judge (a lint can assert it covers all sealed-path imports).
-                     The repo-relative path selects the expected blob + filter; the absolute path
-                     (e.g. module.__file__) is the actually-loaded bytes hashed - so a modified
-                     copy refuses while a byte-identical relocation passes.
+    sealed_sources : dict {label: absolute_file_to_hash} covering EVERY source file on the sealed
+                     compute path - the judge, the shared compute-core, the guard, and any other
+                     locked module imported before/at sealed compute. Pin this explicitly in the
+                     judge (a lint can assert it covers all sealed-path imports). The KEY is only a
+                     label; the repo-relative path used to select the expected blob + filter is
+                     DERIVED from the absolute file via os.path.relpath(abs_file, repo_root). The
+                     absolute path (e.g. module.__file__) is the actually-loaded bytes hashed, and
+                     the expected blob is read from the SAME derived path - so a modified copy
+                     refuses while a byte-identical relocation passes, and a bare-filename key can no
+                     longer make TAG:name resolve a different repo-ROOT file (the prior wrong-file hole).
     self_path      : the running judge's path (used to discover the repo root).
 
     FAIL-CLOSED on every git-error path. Refuses unless ALL sealed sources match.
@@ -57,11 +60,18 @@ def assert_locked_or_refuse(lock_tag, sealed_sources, self_path):
         raise GuardRefusal("REFUSE: not in a git work tree (%s)" % (err or "no .git/git",))
 
     judge_oid = None
-    for rel_path, abs_file in sorted(sealed_sources.items()):
+    repo_root_abs = os.path.abspath(repo_root)
+    for key, abs_file in sorted(sealed_sources.items()):
+        abs_file = os.path.abspath(abs_file)
+        # Derive the TRUE repo-relative path from the file actually being hashed, NOT from the dict
+        # key. A bare-filename key (e.g. ".gitattributes") makes `git rev-parse TAG:.gitattributes`
+        # resolve from the repo ROOT, which can silently verify a DIFFERENT repo-level file (a real
+        # fail-open / wrong-file hole). The expected blob and the hashed bytes must come from one path.
+        rel_path = os.path.relpath(abs_file, repo_root_abs).replace(os.sep, "/")
         rc, expected_oid, err = _git(["rev-parse", "--verify", "%s:%s" % (lock_tag, rel_path)], repo_root)
         if rc != 0 or not expected_oid:
             raise GuardRefusal("REFUSE: cannot resolve %s:%s (%s)" % (lock_tag, rel_path, err or "tag/path missing"))
-        rc, working_oid, err = _git(["hash-object", "--path", rel_path, "--", os.path.abspath(abs_file)], repo_root)
+        rc, working_oid, err = _git(["hash-object", "--path", rel_path, "--", abs_file], repo_root)
         if rc != 0 or not working_oid:
             raise GuardRefusal("REFUSE: cannot hash %s (%s)" % (rel_path, err or "hash-object failed",))
         if working_oid != expected_oid:
