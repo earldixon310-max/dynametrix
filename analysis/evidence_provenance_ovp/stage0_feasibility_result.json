@@ -1,0 +1,42 @@
+{
+  "study": "EVIDENCE_PROVENANCE_STAGE0",
+  "verdict": "CLOSE-degenerate",
+  "decision_rule": {
+    "rho": 0.98,
+    "eps_sd_nats": 0.1,
+    "multiple_R": 0.34916887216719833,
+    "R_squared": 0.1219189012905133,
+    "sd_entropy_nats": 0.0026909439214936014,
+    "close_redundant": false,
+    "close_degenerate": true
+  },
+  "entropy_spread": {
+    "mean": 2.3007631561725144,
+    "sd": 0.0026909439214936014,
+    "min": 2.2605483383349756,
+    "max": 2.3025794645539177,
+    "frac_top_decile_bin": 0.913573407202216
+  },
+  "corr_entropy_confidence_pearson": -0.08941639443322771,
+  "corr_entropy_maxscore_pearson": -0.3480413217457625,
+  "n": 3610,
+  "pins": {
+    "DATASET": "google-research-datasets/nq_open",
+    "DATASET_REVISION": "5dd9790a83002ad084ddeb7c420dc716852c6f28",
+    "SPLIT": "validation",
+    "PYSERINI_VERSION": "2.3.0",
+    "JDK": "Temurin-21.0.11.10",
+    "INDEX": "wikipedia-dpr-100w",
+    "INDEX_ARTIFACT": "lucene-inverted.wikipedia-dpr-100w.20260508.deb4c7b",
+    "BM25_K1": 0.9,
+    "BM25_B": 0.4,
+    "TOP_K": 10,
+    "GENERATOR": "Qwen/Qwen2.5-7B-Instruct",
+    "GENERATOR_REVISION": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "QUANTIZATION": "bitsandbytes-4bit-nf4",
+    "DECODING": "greedy",
+    "MAX_NEW_TOKENS": 64,
+    "RHO": 0.98,
+    "EPS_SD": 0.1
+  }
+}
